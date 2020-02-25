@@ -1,2 +1,2 @@
-# Calendarinho
-Calendar to manage large teams.
+# Caledarinho
+Open Source Team Managment Application.
