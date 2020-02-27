@@ -26,7 +26,8 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ongoing engagements</div>
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ongoing engagements
+                            </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{statistics.ongoingEngagements}}</div>
                         </div>
                         <div class="col-auto">
@@ -43,7 +44,8 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Upcoming engagements</div>
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Upcoming engagements
+                            </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{statistics.upcomingEngagements}}</div>
                         </div>
                         <div class="col-auto">
@@ -60,14 +62,18 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Employees Utilization</div>
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Employees Utilization
+                            </div>
                             <div class="row no-gutters align-items-center">
                                 <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">{{statistics.availabilityPercentage}}</div>
+                                    <div class="h5 mb-0 mr-3 font-weight-bold text-gray-800">
+                                        {{statistics.availabilityPercentage}}</div>
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{statistics.availabilityPercentage}}" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar"
+                                            style="width: {{statistics.availabilityPercentage}}" aria-valuenow="50"
+                                            aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -86,7 +92,8 @@
                 <div class="card-body">
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Number of Employees</div>
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Number of Employees
+                            </div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">{{statistics.numberOfEmployees}}</div>
                         </div>
                         <div class="col-auto">
@@ -130,38 +137,52 @@
         </div>
             </div>-->
         <!-- Project Card Example -->
-        <div class="card shadow mb-4 col-xl-8 col-lg-7">
-            <div class="card-header py-3">
-                <h6 class="m-0 font-weight-bold text-primary">Ongoing Engagements</h6>
-            </div>
-            <div class="card-body">
-                {% for eng in statistics.engagementsBars%}
-                {% if eng.precent < 25 %}
-                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Ongoing Engagements</h6>
                 </div>
-                {% endif %}
-                {% if eng.precent < 50 and eng.precent >= 25 %}
-                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
-                {% if eng.precent < 75 and eng.precent >= 50 %}
-                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-info" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
-                {% if eng.precent < 100 and eng.precent >= 75 %}
-                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-success" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
-                {% endfor %}
+                <div class="card-body">
+                    {% for eng in statistics.engagementsBars%}
+                    {% if eng.precent < 25 %}
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
+                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
+                            class="float-right">{{eng.precent}}%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{eng.precent}}%"
+                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% endif %}
+                    {% if eng.precent < 50 and eng.precent >= 25 %}
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
+                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
+                            class="float-right">{{eng.precent}}%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20"
+                            aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% endif %}
+                    {% if eng.precent < 75 and eng.precent >= 50 %}
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
+                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
+                            class="float-right">{{eng.precent}}%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{eng.precent}}%"
+                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% endif %}
+                    {% if eng.precent < 100 and eng.precent >= 75 %}
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
+                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
+                            class="float-right">{{eng.precent}}%</span></h4>
+                    <div class="progress mb-4">
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{eng.precent}}%"
+                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    {% endif %}
+                    {% endfor %}
 
+                </div>
             </div>
         </div>
 
@@ -200,48 +221,52 @@
         </div>
     </div>
 
-<div class="row">
-    <div class="card shadow mb-4 col-xl-8 col-lg-7">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Avalibality Calculator</h6>
-        </div>
-        <div class="card-body container" >
-            <div class="row">
-                <div class="col">
-                    {{ form|crispy }} {% csrf_token %}
-                    <p id="errorMSG" style="color:red;"></p>
-                    <input id="checkAPI" type="submit" value="Submit">
+
+    <!-- Avaliblity Calculator-->
+    <div class="row">
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Avalibality Calculator</h6>
                 </div>
-                <div class="col">
-                    <b>Available Employees:</b>
-                    <ul id="listOfAvalibleEmps"></ul>
+                <div class="card-body container">
+                    <div class="row">
+                        <div class="col">
+                            {{ form|crispy }} {% csrf_token %}
+                            <p id="errorMSG" style="color:red;"></p>
+                            <input id="checkAPI" type="submit" value="Submit">
+                        </div>
+                        <div class="col">
+                            <b>Available Employees:</b>
+                            <ul id="listOfAvalibleEmps"></ul>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
-</div>
-    <!-- End of Main Content -->
+<!-- End of Main Content -->
 
 <!-- Page level plugins -->
 <script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
 
 <!-- Page level custom scripts -->
 <script>
-    var avalible = {{statistics.pieChartStatus.avalible}};
-    var engaged = {{statistics.pieChartStatus.engaged}};
-    var training = {{statistics.pieChartStatus.training}};
-    var vacation = {{statistics.pieChartStatus.vacation}};
+    var avalible = {{ statistics.pieChartStatus.avalible }};
+    var engaged = {{ statistics.pieChartStatus.engaged }};
+    var training = {{ statistics.pieChartStatus.training }};
+    var vacation = {{ statistics.pieChartStatus.vacation }};
 </script>
 <script src="{% static 'js/demo/chart-area-demo.js' %}"></script>
 <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
 <!--The following script is to make AJAX request to check the overlap-->
 <script>
-        $(document).ready(function() {
-        $("#checkAPI").click(function(event) {
+    $(document).ready(function () {
+        $("#checkAPI").click(function (event) {
             var date1 = new Date(document.getElementById("id_Start_Date").value);
             var date2 = new Date(document.getElementById("id_End_Date").value);
-            if (date1 <= date2){
+            if (date1 <= date2) {
                 $("#errorMSG").html("")
                 var token = '{{csrf_token}}';
                 $.ajax({
@@ -254,28 +279,27 @@
                         'Start_Date': $('#id_Start_Date').val(),
                         'End_Date': $('#id_End_Date').val()
                     },
-                    success: function(response) {
+                    success: function (response) {
                         $('#listOfAvalibleEmps').html("")
-                        if(response["emp"].length == 0){
+                        if (response["emp"].length == 0) {
                             $('#listOfAvalibleEmps').html("No employees are available at this period.")
                         }
-                        else{
-                        for (var i = 0; i < response["emp"].length; i++) {
-                            $('#listOfAvalibleEmps').append("<li> <a href='/profile/" + response["id"][i] + "'>" + response["emp"][i] + "</a></li>");
-                        }
+                        else {
+                            for (var i = 0; i < response["emp"].length; i++) {
+                                $('#listOfAvalibleEmps').append("<li> <a href='/profile/" + response["id"][i] + "'>" + response["emp"][i] + "</a></li>");
+                            }
                         }
 
                     }
                 });
                 return false; //<---- move it here
-                }else{
-                    $('#listOfAvalibleEmps').html("")
-                    $("#errorMSG").html("End date is before start date")
-                }
-            });
+            } else {
+                $('#listOfAvalibleEmps').html("")
+                $("#errorMSG").html("End date is before start date")
+            }
+        });
 
     });
 </script>
 </div>
 {% endblock %}
-
