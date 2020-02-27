@@ -153,8 +153,12 @@ class Engagement(models.Model):
         if (todayDate >= self.StartDate and todayDate <= self.EndDate):
             daysLeft = todayDate - self.EndDate
             totalDays = self.EndDate - self.StartDate
-            precent = (daysLeft / totalDays) * 100
-            return int("{:2.0f}".format(precent+100))
+            try:
+                precent = (daysLeft / totalDays) * 100
+                return int("{:2.0f}".format(precent+100))
+            except ZeroDivisionError:
+                return 99 #If the engagement is only 1 day, this will be triggered.
+            
         
         return "Nope" #Return False if the engagement didn't start or has finished.
 

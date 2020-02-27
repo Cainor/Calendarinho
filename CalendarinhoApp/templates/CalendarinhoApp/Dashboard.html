@@ -218,25 +218,20 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-
-    <!-- Avaliblity Calculator-->
-    <div class="row">
-        <div class="col-xl-8 col-lg-7">
+            <!-- Avaliblity Calculator-->
             <div class="card shadow mb-4">
                 <div class="card-header py-3">
                     <h6 class="m-0 font-weight-bold text-primary">Avalibality Calculator</h6>
                 </div>
                 <div class="card-body container">
                     <div class="row">
-                        <div class="col">
+                        <div class="col-5">
                             {{ form|crispy }} {% csrf_token %}
                             <p id="errorMSG" style="color:red;"></p>
                             <input id="checkAPI" type="submit" value="Submit">
                         </div>
-                        <div class="col">
+                        <div class="col-7">
                             <b>Available Employees:</b>
                             <ul id="listOfAvalibleEmps"></ul>
                         </div>
@@ -245,6 +240,7 @@
             </div>
         </div>
     </div>
+
 </div>
 <!-- End of Main Content -->
 
