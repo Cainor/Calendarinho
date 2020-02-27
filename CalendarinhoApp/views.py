@@ -6,8 +6,14 @@ from .forms import EmployeeOverlapForm
 from django.views.decorators.csrf import csrf_exempt #To Disable CSRF
 from django.http import JsonResponse
 import datetime
+import csv
 
-def Dashboard(request): #NEW STYLE
+def not_found(request, exception=None):
+    response = render(request, 'CalendarinhoApp/404.html', {})
+    response.status_code = 404
+    return response
+
+def Dashboard(request):
     emps = Employee.objects.all()
     
     #calculation for pie chart
@@ -56,7 +62,7 @@ def Dashboard(request): #NEW STYLE
     context.update({"form":form})
     return render(request, "CalendarinhoApp/Dashboard.html", context)
 
-def EmployeesTable(request): #NEW STYLE
+def EmployeesTable(request):
     emps = Employee.objects.all()
     table = []
     row = {}
@@ -79,8 +85,7 @@ def EmployeesTable(request): #NEW STYLE
         }
     return render(request, "CalendarinhoApp/EmployeesTable.html", context)
 
-
-def EngagementsTable(request): #NEW STYLE
+def EngagementsTable(request):
     engs = Engagement.objects.all()
     table = []
     row = {}
@@ -97,8 +102,6 @@ def EngagementsTable(request): #NEW STYLE
         'table': table
         }
     return render(request, "CalendarinhoApp/EngagementsTable.html", context)
-
-
 
 def profile(request, emp_id):
     try:
@@ -118,7 +121,7 @@ def profile(request, emp_id):
                    "upcoming":upcoming}
 
     except Employee.DoesNotExist:
-        raise Http404("Employee does not exist")
+        return not_found(request)
     return render(request,"CalendarinhoApp/profile.html",context)
 
 def engagement(request, eng_id):
@@ -126,9 +129,8 @@ def engagement(request, eng_id):
         eng = Engagement.objects.get(id=eng_id)
         context = { 'eng':eng }
     except Engagement.DoesNotExist:
-        raise Http404("Engagement does not exist")
+        return not_found(request)
     return render(request,"CalendarinhoApp/engagement.html", context)
-
 
 def EngagementsCal(request):
     event_arr = Engagement.getAllEngs()
@@ -136,32 +138,6 @@ def EngagementsCal(request):
     "events":event_arr,
     }
     return render(request,'CalendarinhoApp/EngagementsCalendar.html',context)
-
-def EmployeesCal(request):
-    if request.method == 'POST':
-        emp_ids = request.POST.getlist("myCheckboxes[]")
-
-        engagements = []
-        for i in emp_ids:
-            emp = Employee.objects.get(id=i)
-            engagements += emp.getAllEngagements()
-        
-        engagements = [i for n, i in enumerate(engagements) if i not in engagements[n + 1:]] #Remove duplicate engagements.
-        leaves = {}
-        for i in emp_ids:
-            emp = Employee.objects.get(id=i)
-            leaves.update({emp.EmpName:emp.getAllLeaves()})
-        result = {"engagements":engagements,"leaves":leaves}
-        print(result)
-        return JsonResponse(result)
-    try:
-        emp = Employee.objects.all()
-        context = {"employees":emp}
-        form = EmployeeOverlapForm()
-        context.update({"form":form})
-    except Employee.DoesNotExist:
-        raise Http404("Employee does not exist")
-    return render(request,"CalendarinhoApp/EmployeesCalendar.html",context)
 
 def overlap(request):
     emps = Employee.objects.all()
@@ -197,3 +173,35 @@ def overlapPrecentage():
         return "{:2.0f}%".format(100-(100*(count/emps.count())))
     except ZeroDivisionError:
         return "100%"
+
+def exportCSV(request, empID=None):
+    output = []
+    response = HttpResponse (content_type='text/csv')
+    writer = csv.writer(response)
+
+    if (empID != None): #Return all engagements for a single employee
+        try:
+            query_set = Engagement.objects.filter(Employees = empID)
+            empName = Employee.objects.filter(id = empID).first().EmpName
+            response['Content-Disposition'] = u'attachment; filename="{0}"'.format(empName.replace(" ","-")+".csv") #Name of the file
+            #Header
+            writer.writerow(['Name', 'Client', 'Service Type', 'Start Date','End Date'])
+            for eng in query_set:
+                output.append([eng.EngName, eng.CliName, eng.ServiceType, eng.StartDate, eng.EndDate])
+            #CSV Data
+            writer.writerows(output)
+            return response
+        except:
+            return not_found(request)
+        
+
+    else: #Return all engagements
+        query_set = Engagement.objects.all()
+        response['Content-Disposition'] = u'attachment; filename="{0}"'.format("All-Engagements.csv") #Name of the file
+        #Header
+        writer.writerow(['Name', 'Client', 'Service Type', 'Start Date','End Date'])
+        for eng in query_set:
+            output.append([eng.EngName, eng.CliName, eng.ServiceType, eng.StartDate, eng.EndDate])
+        #CSV Data
+        writer.writerows(output)
+        return response
