@@ -111,7 +111,6 @@ def profile(request, emp_id):
         upcoming["engagement"] = Engagement.objects.filter(Employees = emp_id).filter(StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("StartDate").first()
         upcoming["vacation"] = Leave.objects.filter(emp_id = emp_id).filter(StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).filter(LeaveType = "Vacation").order_by("StartDate").first()
         upcoming["training"] = Leave.objects.filter(emp_id = emp_id).filter(StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).filter(LeaveType = "Training").order_by("StartDate").first()
-        print(upcoming)
         leaves = emp.getAllLeaves()
         engagements = emp.getAllEngagements()
 

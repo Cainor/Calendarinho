@@ -2,7 +2,7 @@ from django.urls import path
 
 from . import views
 
-handler404 = 'CalendarinhoApp.views.not_found'
+
 
 urlpatterns = [
     path('', views.Dashboard, name='Dashboard'),
