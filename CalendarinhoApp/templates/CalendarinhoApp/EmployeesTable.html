@@ -33,9 +33,9 @@
                         <tr>
                             <th>Name</th>
                             <th>Status</th>
-                            <th>End Date</th>
+                            <th>End Date (y-m-d)</th>
                             <th>Next Event</th>
-                            <th>Start date</th>
+                            <th>Start Date  (y-m-d)</th>
                             
                         </tr>
                     </thead>
@@ -43,9 +43,9 @@
                         <tr>
                             <th>Name</th>
                             <th>Status</th>
-                            <th>End Date</th>
+                            <th>End Date (y-m-d)</th>
                             <th>Next Event</th>
-                            <th>Start date</th>
+                            <th>Start Date  (y-m-d)</th>
                             
                         </tr>
                     </tfoot>
@@ -54,9 +54,9 @@
                         <tr>
                             <td><a href="/profile/{{row.empID}}">{{row.name}}</a></td>
                             <td>{{row.status}}</td>
-                            <td>{{row.endDate}}</td>
+                            <td>{{row.endDate | date:"Y-m-d"}}</td>
                             <td>{{row.nextev}}</td>
-                            <td>{{row.startDate}}</td>
+                            <td>{{row.startDate | date:"Y-m-d"}}</td>
 
                         </tr>
                         {% endfor %}

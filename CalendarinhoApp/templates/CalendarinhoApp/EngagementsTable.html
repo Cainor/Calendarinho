@@ -37,8 +37,8 @@
                             <th>Name</th>
                             <th>Client</th>
                             <th>Service Type</th>
-                            <th>Start date</th>
-                            <th>End Date</th>
+                            <th>Start Date (y-m-d)</th>
+                            <th>End Date (y-m-d)</th>
                             
                         </tr>
                     </thead>
@@ -47,8 +47,8 @@
                             <th>Name</th>
                             <th>Client</th>
                             <th>Service Type</th>
-                            <th>Start date</th>
-                            <th>End Date</th>
+                            <th>Start Date (y-m-d)</th>
+                            <th>End Date (y-m-d)</th>
                             
                         </tr>
                     </tfoot>
@@ -58,8 +58,8 @@
                             <td><a href="/engagement/{{row.engID}}">{{row.name}}</a></td>
                             <td>{{row.clientName}}</td>
                             <td>{{row.serviceType}}</td>
-                            <td>{{row.startDate}}</td>
-                            <td>{{row.endDate}}</td>
+                            <td>{{row.startDate | date:"Y-m-d"}}</td>
+                            <td>{{row.endDate | date:"Y-m-d"}}</td>
 
                         </tr>
                         {% endfor %}
@@ -74,6 +74,5 @@
 <!-- /.container-fluid -->
         </div>
 <!-- End of Main Content -->
-
 
 {% endblock %}

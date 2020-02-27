@@ -107,8 +107,8 @@
                 }, {% endfor %} {% for i in engs %} {
 
                     title: "{{ i.name}} -- {{i.serviceType}}",
-                    start: '{{ i.startDate}}',
-                    end: '{{ i.endDate}}',
+                    start: '{{ i.startDate | date:"Y-m-d"}}',
+                    end: '{{ i.endDate | date:"Y-m-d"}}',
                     backgroundColor: '{{i.color}}',
                     url: '/engagement/{{ i.id }}',
                     borderColor: 'white'
