@@ -37,9 +37,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
     'crispy_forms',
+    'users.apps.UsersConfig',
 ]
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Middleware framework
 # https://docs.djangoproject.com/en/2.1/topics/http/middleware/
