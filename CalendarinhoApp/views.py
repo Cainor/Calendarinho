@@ -16,7 +16,7 @@ def not_found(request, exception=None):
 
 
 def Dashboard(request):
-    emps = Employee.objects.all()
+    emps = Employee.objects.exclude(user_type='M')
 
     # calculation for pie chart
     state = {}
@@ -70,13 +70,13 @@ def Dashboard(request):
 
 
 def EmployeesTable(request):
-    emps = Employee.objects.all()
+    emps = Employee.objects.exclude(user_type='M')
     table = []
     row = {}
     for emp in emps:
         empstat = emp.currentStatus()
         row["empID"] = emp.id
-        row["name"] = emp.EmpName
+        row["name"] = emp.first_name + " " +  emp.last_name
         if (empstat[0] == "Available"):
             row["status"] = empstat[0]
         else:
@@ -115,7 +115,9 @@ def EngagementsTable(request):
 def profile(request, emp_id):
     try:
         emp = Employee.objects.get(id=emp_id)
-
+        # check if the user type "Manager"
+        if emp.user_type == 'M':
+            raise Employee.DoesNotExist
         upcoming = {}
         upcoming["engagement"] = Engagement.objects.filter(Employees=emp_id).filter(
             StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("StartDate").first()
@@ -154,7 +156,7 @@ def EngagementsCal(request):
 
 
 def overlap(request):
-    emps = Employee.objects.all()
+    emps = Employee.objects.exclude(user_type='M')
     avalibleEmps = {"emp": [],
                     "id": []}
     sdate = request.POST.get("Start_Date")
@@ -165,7 +167,7 @@ def overlap(request):
     if (cedate >= csdate):
         for emp in emps:
             if (not emp.overlapCheck(sdate, edate)):
-                avalibleEmps["emp"].append(emp.EmpName)
+                avalibleEmps["emp"].append(emp.first_name + " " + emp.last_name)
                 avalibleEmps["id"].append(emp.id)
             else:
                 pass
@@ -175,7 +177,7 @@ def overlap(request):
 
 
 def overlapPrecentage():
-    emps = Employee.objects.all()
+    emps = Employee.objects.exclude(user_type='M')
     count = 0
     todayDate = datetime.date.today()
 
@@ -197,8 +199,12 @@ def exportCSV(request, empID=None):
 
     if (empID != None):  # Return all engagements for a single employee
         try:
+            emp =  Employee.objects.filter(id=empID).first()
+            # check if the user type "Manager"
+            if emp.user_type == 'M':
+                return not_found(request)
             query_set = Engagement.objects.filter(Employees=empID)
-            empName = Employee.objects.filter(id=empID).first().EmpName
+            empName = emp.username
             response['Content-Disposition'] = u'attachment; filename="{0}"'.format(
                 empName.replace(" ", "-")+".csv")  # Name of the file
             # Header
