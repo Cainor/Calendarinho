@@ -5,25 +5,8 @@ from collections import namedtuple
 
 
 class CustomUser(AbstractUser):
+    pass
     # add additional fields in here
-    Manager = 'M'
-    Team_Lead = 'L'
-    Senior = 'S'
-    Associate = 'A'
-    Consultant = 'C' 
-    
-    USER_TYPE_CHOICES = [
-        (Manager, 'Manager'),
-        (Team_Lead, 'Team Lead'),
-        (Senior, 'Senior'),
-        (Associate, 'Associate'),
-        (Consultant, 'Consultant'),
-    ]
-    user_type =  models.CharField(
-        max_length = 1 ,
-        choices=USER_TYPE_CHOICES,
-        null=True,
-    )
 
     def __str__(self):
         return self.username
