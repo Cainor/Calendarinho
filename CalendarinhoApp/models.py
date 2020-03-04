@@ -126,21 +126,26 @@ class Client(models.Model):
 
     
 
-class Services(models.Model):
+class Service(models.Model):
     serviceName = models.CharField(max_length=200)
     serviceShort = models.CharField(max_length=10)
 
     def __str__(self):
         return str(self.serviceName)
 
+class www(models.Model):
+    serviceName = models.CharField(max_length=200)
+    serviceShort = models.CharField(max_length=10)
 
+    def __str__(self):
+        return str(self.serviceName)
 
 class Engagement(models.Model):
     EngName = models.CharField(max_length=200)
     CliName = models.ForeignKey(Client, on_delete=models.PROTECT)
     Employees = models.ManyToManyField(
         "Employee", blank=True, related_name="Engagements")
-    ServiceType = models.ForeignKey(Services, on_delete=models.PROTECT)
+    ServiceType = models.ForeignKey(Service, on_delete=models.PROTECT)
     StartDate = models.DateField('Start Date')
     EndDate = models.DateField('End Date')
 
