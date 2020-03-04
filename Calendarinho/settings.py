@@ -42,6 +42,7 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'users.CustomUser'
+LOGIN_URL = '/login/'
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Middleware framework

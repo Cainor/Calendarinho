@@ -1,4 +1,5 @@
 from django import forms
+from crispy_forms.helper import FormHelper
 import datetime
 
 class EmployeeOverlapForm(forms.Form):
@@ -10,3 +11,7 @@ class EmployeeOverlapForm(forms.Form):
                                 {
                                     'type':'date'
                                 }))
+
+class Login_Form(forms.Form):
+    username = forms.CharField(label='Username', max_length=100)
+    password = forms.CharField(widget=forms.PasswordInput())
