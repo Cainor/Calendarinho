@@ -601,3 +601,5 @@ MigrationBackup/
 # End of https://www.gitignore.io/api/django,visualstudio
 
 *.pyproj*
+
+.vscode
