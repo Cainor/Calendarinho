@@ -8,8 +8,22 @@ class CustomUser(AbstractUser):
     pass
     # add additional fields in here
 
+    Manager = 'M'
+    Employee = 'E'    
+    USER_TYPE_CHOICES = [
+        (Manager, 'Manager'),
+        (Employee, 'Employee'),
+    ]
+    user_type =  models.CharField(
+        max_length = 1 ,
+        choices=USER_TYPE_CHOICES,
+        null=True,
+    )
+
     def __str__(self):
-        return self.username
+        return self.first_name + " " + self.last_name
+
+    
 
     def getAllLeaves(self):
         from CalendarinhoApp.models import Leave

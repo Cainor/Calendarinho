@@ -70,7 +70,7 @@
                     <tbody>
                         {% for emp in eng.Employees.all %}
                         <tr>
-                            <td><a href="/profile/{{emp.id}}">{{emp.EmpName}}</a></td>
+                            <td><a href="/profile/{{emp.id}}">{{emp.first_name}} {{emp.last_name}}</a></td>
 
 
                         </tr>
