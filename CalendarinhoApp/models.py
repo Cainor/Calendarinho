@@ -133,12 +133,6 @@ class Service(models.Model):
     def __str__(self):
         return str(self.serviceName)
 
-class www(models.Model):
-    serviceName = models.CharField(max_length=200)
-    serviceShort = models.CharField(max_length=10)
-
-    def __str__(self):
-        return str(self.serviceName)
 
 class Engagement(models.Model):
     EngName = models.CharField(max_length=200)
