@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.template import loader
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from .models import Employee, Engagement, Leave
+from .models import Employee, Engagement, Leave, Client
 from .forms import EmployeeOverlapForm, Login_Form
 from django.views.decorators.csrf import csrf_exempt  # To Disable CSRF
 from django.http import JsonResponse
@@ -141,6 +141,38 @@ def profile(request, emp_id):
     except Employee.DoesNotExist:
         return not_found(request)
     return render(request, "CalendarinhoApp/profile.html", context)
+
+@login_required
+def client(request, cli_id):
+    try:
+        cli = Client.objects.get(id=cli_id)
+
+        engs = Engagement.objects.filter(CliName_id=cli_id)
+
+        context = {'cli': cli,
+                'engs': engs}
+    except Client.DoesNotExist:
+        return not_found(request)
+
+    return render(request, "CalendarinhoApp/client.html", context)
+
+@login_required
+def ClientsTable(request):
+    clients = Client.objects.all()
+    table = []
+    row = {}
+    for cli in clients:
+        row["cliID"] = cli.id
+        row["name"] = cli.CliName
+        row["acronym"] = cli.CliShort
+        row["code"] = cli.CliCode
+        table.append(row.copy())
+
+    context = {
+        'table': table
+    }
+    return render(request, "CalendarinhoApp/ClientsTable.html", context)
+
 
 @login_required
 def engagement(request, eng_id):

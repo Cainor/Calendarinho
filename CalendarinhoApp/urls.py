@@ -21,4 +21,6 @@ urlpatterns = [
     # path(regex=r'^login\/(?P<next>.*)$', views.loginForm, name='login_next'),
     url(regex=r'^login\/(?P<next>.*)$', view=views.loginForm),
     path('logout', views.logout_view, name='logout'),
+    path('client/<int:cli_id>/', views.client, name='client'),
+    path('ClientsTable', views.ClientsTable, name='ClientsTable'),
 ]

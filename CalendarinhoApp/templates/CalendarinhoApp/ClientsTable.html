@@ -1,4 +1,4 @@
-﻿{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% extends 'CalendarinhoApp/BaseNew.html' %}
 {% load static %}
 
 
@@ -19,15 +19,15 @@
 
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Engagements Table</h1>
+            <h1 class="h3 mb-0 text-gray-800">Clients Table</h1>
             <a href="/exportcsv/" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Export CSV</a>
           </div>
-    <p class="mb-4">List of all engagements with all details.</p>
+    <p class="mb-4">List of all clients with their details.</p>
 
     <!-- DataTales Example -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Engagements Table</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Clients Table</h6>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -35,32 +35,17 @@
                     <thead>
                         <tr>
                             <th>Name</th>
-                            <th>Client</th>
-                            <th>Service Type</th>
-                            <th>Start Date (y-m-d)</th>
-                            <th>End Date (y-m-d)</th>
-                            
+                            <th>Acronym</th>
+                            <th>Code</th>    
                         </tr>
                     </thead>
-                    <tfoot>
-                        <tr>
-                            <th>Name</th>
-                            <th>Client</th>
-                            <th>Service Type</th>
-                            <th>Start Date (y-m-d)</th>
-                            <th>End Date (y-m-d)</th>
-                            
-                        </tr>
-                    </tfoot>
                     <tbody>
                         {% for row in table %}
                         <tr>
-                            <td><a href="/engagement/{{row.engID}}">{{row.name}}</a></td>
-                            <td><a href="/client/{{row.clientName.id}}">{{row.clientName}}</a></td>
-                            <td>{{row.serviceType}}</td>
-                            <td>{{row.startDate | date:"Y-m-d"}}</td>
-                            <td>{{row.endDate | date:"Y-m-d"}}</td>
-
+                            <td><a href="/client/{{row.cliID}}">{{row.name}}</a></td>
+                            <td>{{row.acronym}}</td>
+                            <td>{{row.code}}</td>
+                            
                         </tr>
                         {% endfor %}
                         

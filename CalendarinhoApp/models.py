@@ -119,6 +119,7 @@ class Employee(models.Model):
 class Client(models.Model):
     CliName = models.CharField(max_length=200)
     CliShort = models.CharField(max_length=10)
+    CliCode = models.CharField(max_length=4, default='9999')
 
     def __str__(self):
         return str(self.CliName)
