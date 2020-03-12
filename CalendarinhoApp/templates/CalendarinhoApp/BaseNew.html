@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 {% load static %}
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
@@ -344,6 +344,10 @@
                                 <a class="dropdown-item" href="{% url 'CalendarinhoApp:profile' user.id %}">
                                     <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
                                     Profile
+                                </a>
+                                <a class="dropdown-item" href="/admin/password_change/">
+                                    <i class="fas fa-star-of-life fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Change Password
                                 </a>
                                 <!-- <a class="dropdown-item" href="#">
                                     <i class="fas fa-cogs fa-sm fa-fw mr-2 text-gray-400"></i>
