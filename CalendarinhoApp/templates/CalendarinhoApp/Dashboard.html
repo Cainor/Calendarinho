@@ -172,7 +172,7 @@
                             aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     {% endif %}
-                    {% if eng.precent < 100 and eng.precent >= 75 %}
+                    {% if eng.precent <= 100 and eng.precent >= 75 %}
                     <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
                             style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
                             class="float-right">{{eng.precent}}%</span></h4>
