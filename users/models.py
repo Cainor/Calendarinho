@@ -37,7 +37,7 @@ class CustomUser(AbstractUser):
             start_date = datetime.datetime.strptime(
                 str(i.StartDate), "%Y-%m-%d").strftime("%Y-%m-%d")
             end_date = datetime.datetime.strptime(
-                str(i.EndDate), "%Y-%m-%d").strftime("%Y-%m-%d")
+                str(i.EndDate + datetime.timedelta(days=1)), "%Y-%m-%d").strftime("%Y-%m-%d")
             event_sub_arr['start'] = start_date
             event_sub_arr['end'] = end_date
             event_sub_arr['id'] = i.id
@@ -55,7 +55,7 @@ class CustomUser(AbstractUser):
             start_date = datetime.datetime.strptime(
                 str(i.StartDate), "%Y-%m-%d").strftime("%Y-%m-%d")
             end_date = datetime.datetime.strptime(
-                str(i.EndDate), "%Y-%m-%d").strftime("%Y-%m-%d")
+                str(i.EndDate  + datetime.timedelta(days=1)), "%Y-%m-%d").strftime("%Y-%m-%d")
             event_sub_arr['startDate'] = start_date
             event_sub_arr['endDate'] = end_date
             event_sub_arr['engID'] = i.id
