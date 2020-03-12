@@ -75,7 +75,7 @@ def Dashboard(request):
 
 @login_required
 def EmployeesTable(request):
-    emps = Employee.objects.exclude(user_type='M')
+    emps = Employee.objects.all()
     table = []
     row = {}
     for emp in emps:
@@ -120,9 +120,6 @@ def EngagementsTable(request):
 def profile(request, emp_id):
     try:
         emp = Employee.objects.get(id=emp_id)
-        # check if the user type "Manager"
-        if emp.user_type == 'M':
-            raise Employee.DoesNotExist
         upcoming = {}
         upcoming["engagement"] = Engagement.objects.filter(Employees=emp_id).filter(
             StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("StartDate").first()
@@ -193,7 +190,7 @@ def EngagementsCal(request):
 
 @login_required
 def overlap(request):
-    emps = Employee.objects.exclude(user_type='M')
+    emps = Employee.objects.exclude(user_type='M').order_by('first_name')
     avalibleEmps = {"emp": [],
                     "id": []}
     sdate = request.POST.get("Start_Date")
@@ -228,19 +225,39 @@ def overlapPrecentage():
         return "100%"
 
 @login_required
-def exportCSV(request, empID=None):
+def exportCSV(request, empID=None, slug=None):
     output = []
     response = HttpResponse(content_type='text/csv')
     writer = csv.writer(response)
-
-    if (empID != None):  # Return all engagements for a single employee
+    if(slug == "Clients"):
+        query_set = Client.objects.all()
+        response['Content-Disposition'] = u'attachment; filename="{0}"'.format(
+            "All-Clients.csv")  # Name of the file
+        # Header
+        writer.writerow(['Client Name', 'Acronym', 'Client Code'])
+        for cli in query_set:
+            output.append([cli.CliName, cli.CliShort, cli.CliCode])
+        # CSV Data
+        writer.writerows(output)
+        return response
+    elif (slug == "Enagemgents"):  # Return all engagements
+        query_set = Engagement.objects.all()
+        response['Content-Disposition'] = u'attachment; filename="{0}"'.format(
+            "All-Engagements.csv")  # Name of the file
+        # Header
+        writer.writerow(['Name', 'Client', 'Service Type',
+                         'Start Date', 'End Date'])
+        for eng in query_set:
+            output.append([eng.EngName, eng.CliName,
+                           eng.ServiceType, eng.StartDate, eng.EndDate])
+        # CSV Data
+        writer.writerows(output)
+        return response
+    elif (empID != None):  # Return all engagements for a single employee
         try:
             emp =  Employee.objects.filter(id=empID).first()
-            # check if the user type "Manager"
-            if emp.user_type == 'M':
-                return not_found(request)
             query_set = Engagement.objects.filter(Employees=empID)
-            empName = emp.username
+            empName = emp.first_name + '-' + emp.last_name
             response['Content-Disposition'] = u'attachment; filename="{0}"'.format(
                 empName.replace(" ", "-")+".csv")  # Name of the file
             # Header
@@ -254,20 +271,10 @@ def exportCSV(request, empID=None):
             return response
         except:
             return not_found(request)
+    else:
+        return not_found(request)
 
-    else:  # Return all engagements
-        query_set = Engagement.objects.all()
-        response['Content-Disposition'] = u'attachment; filename="{0}"'.format(
-            "All-Engagements.csv")  # Name of the file
-        # Header
-        writer.writerow(['Name', 'Client', 'Service Type',
-                         'Start Date', 'End Date'])
-        for eng in query_set:
-            output.append([eng.EngName, eng.CliName,
-                           eng.ServiceType, eng.StartDate, eng.EndDate])
-        # CSV Data
-        writer.writerows(output)
-        return response
+    
 
 def loginForm(request, next=''):
     # if this is a POST request we need to process the form data

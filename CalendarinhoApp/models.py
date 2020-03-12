@@ -117,8 +117,8 @@ class Employee(models.Model):
 
 
 class Client(models.Model):
-    CliName = models.CharField(max_length=200)
-    CliShort = models.CharField(max_length=10)
+    CliName = models.CharField(max_length=200, verbose_name = "Client Name")
+    CliShort = models.CharField(max_length=10, verbose_name = "Acronym")
     CliCode = models.CharField(max_length=4, default='9999')
 
     def __str__(self):
@@ -128,19 +128,19 @@ class Client(models.Model):
     
 
 class Service(models.Model):
-    serviceName = models.CharField(max_length=200)
-    serviceShort = models.CharField(max_length=10)
+    serviceName = models.CharField(max_length=200, verbose_name = "Service Name")
+    serviceShort = models.CharField(max_length=10, verbose_name = "Service Shortname")
 
     def __str__(self):
         return str(self.serviceName)
 
 
 class Engagement(models.Model):
-    EngName = models.CharField(max_length=200)
-    CliName = models.ForeignKey(Client, on_delete=models.PROTECT)
+    EngName = models.CharField(max_length=200, verbose_name = "Engagement Name", help_text="Don't forget to use the naming convention we have in this URL <a href='#'>HERE</a>")
+    CliName = models.ForeignKey(Client, on_delete=models.PROTECT, verbose_name = "Client Name")
     Employees = models.ManyToManyField(
         Employee, blank=True, related_name="Engagements")
-    ServiceType = models.ForeignKey(Service, on_delete=models.PROTECT)
+    ServiceType = models.ForeignKey(Service, on_delete=models.PROTECT, verbose_name = "Service Type")
     StartDate = models.DateField('Start Date')
     EndDate = models.DateField('End Date')
 

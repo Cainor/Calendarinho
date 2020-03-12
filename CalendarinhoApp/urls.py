@@ -16,6 +16,7 @@ urlpatterns = [
     path('EngagementsCalendar/', views.EngagementsCal, name='EngagementsCal'),
     path('EmployeesCalendar/overlap/', views.overlap, name='Overlap'),
     path('exportcsv/<int:empID>', views.exportCSV, name='exportCSV'),
+    path('exportcsv/<slug:slug>', views.exportCSV, name='exportCSV'),
     path('exportcsv/', views.exportCSV, name='exportCSV'),
     path('login', views.loginForm, name='login'),
     # path(regex=r'^login\/(?P<next>.*)$', views.loginForm, name='login_next'),
