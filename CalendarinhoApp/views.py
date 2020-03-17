@@ -206,7 +206,7 @@ def deleteMyComment(request, commentID):
         comment = Comment.objects.get(id=commentID)
     except Comment.DoesNotExist:
         return not_found(request)
-    if(comment.user == request.user):
+    if(comment.user == request.user or request.user.user_type == "M"):
         comment.delete()
         return HttpResponseRedirect("/engagement/"+str(comment.eng.id))
     else:
