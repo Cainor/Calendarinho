@@ -1,87 +1,122 @@
 ﻿{% extends 'CalendarinhoApp/BaseNew.html' %}
 {% load static %}
-
+{% load crispy_forms_tags %}
 
 
 {% block head_block %}
+<link href="{% static 'css/comments.css' %}" rel="stylesheet" type="text/css">
 {% endblock %}
 
 
 {% block body_block %}
 <div class="container-fluid">
-<h1 class="h3 mb-2 text-gray-800">{{eng.EngName}}</h1>
-<div class="row">
-            <!-- Upcoming Engagement Card-->
-            <div class="col-xl-4 col-lg-7">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Client</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <h4 align="center"><a href="/client/{{eng.CliName.id}}">{{eng.CliName}}</a></h4>
-                    </div>
+    <h1 class="h3 mb-2 text-gray-800">{{eng.EngName}}</h1>
+    <div class="row">
+        <!-- Upcoming Engagement Card-->
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Client</h6>
                 </div>
-            </div>    
-
-            <!-- Upcoming Engagement Card-->
-            <div class="col-xl-4 col-lg-7">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Engagement period</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <h4 align="center">{{eng.StartDate}}  -  {{eng.EndDate}}</h4>
-                    </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h4 align="center"><a href="/client/{{eng.CliName.id}}">{{eng.CliName}}</a></h4>
                 </div>
-            </div>   
-
-
-            <!-- Upcoming Engagement Card-->
-            <div class="col-xl-4 col-lg-7">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Service Type</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        <h4 align="center">{{eng.ServiceType}}</h4>
-                    </div>
-                </div>
-            </div>   
-    </div>
-    <div class="card shadow mb-4 col-xl-4 col-lg-7">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Employees Involvment</h6>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                            
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for emp in eng.Employees.all %}
-                        <tr>
-                            <td><a href="/profile/{{emp.id}}">{{emp.first_name}} {{emp.last_name}}</a></td>
+
+        <!-- Upcoming Engagement Card-->
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Engagement period</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h4 align="center">{{eng.StartDate}} - {{eng.EndDate}}</h4>
+                </div>
+            </div>
+        </div>
 
 
-                        </tr>
-                        {% endfor %}
-                        
-                    </tbody>
-                </table>
+        <!-- Upcoming Engagement Card-->
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Service Type</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h4 align="center">{{eng.ServiceType}}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Employees Involvment</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for emp in eng.Employees.all %}
+                                <tr>
+                                    <td><a href="/profile/{{emp.id}}">{{emp.first_name}} {{emp.last_name}}</a></td>
+
+
+                                </tr>
+                                {% endfor %}
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-8 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Comments Section</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h5>Leave a comment</h5>
+                    <form method="post" style="margin-top: 1.3em;">
+                        {{ comment_form | crispy }}
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-primary  btn-md">Submit</button>
+                    </form>
+                    {% for comment in comments %}
+                    <div class="comment_body mt-2 bg-light text-dark border border-primary ">
+                        <pre class="comment_font">{{comment.body}}</pre>
+                        <div class="row comment_icons bg-primary">
+                            <i class="fa fa-calendar-alt mr-1"></i><span class="mr-3">{{comment.created_on | date}}</span>
+                            <i class="fa fa-pencil-alt mr-1"></i><a href="/profile/{{comment.user.id}}" style="color: inherit;" class="mr-3">{{comment.user.first_name}} {{comment.user.last_name}}</a>
+                            {%if comment.user == request.user or user.user_type == "M"%}
+                            <i class="fa fa-trash-alt mr-1"></i><a href="/DeleteComment/{{comment.id}}" style="color: inherit;" class="mr-3">Delete</a>
+                            {%endif%}
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
 </div>
-
 {% endblock %}

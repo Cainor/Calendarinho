@@ -117,30 +117,32 @@ class Employee(models.Model):
 
 
 class Client(models.Model):
-    CliName = models.CharField(max_length=200, verbose_name = "Client Name")
-    CliShort = models.CharField(max_length=10, verbose_name = "Acronym")
+    CliName = models.CharField(max_length=200, verbose_name="Client Name")
+    CliShort = models.CharField(max_length=10, verbose_name="Acronym")
     CliCode = models.CharField(max_length=4, default='9999')
 
     def __str__(self):
         return str(self.CliName)
 
 
-    
-
 class Service(models.Model):
-    serviceName = models.CharField(max_length=200, verbose_name = "Service Name")
-    serviceShort = models.CharField(max_length=10, verbose_name = "Service Shortname")
+    serviceName = models.CharField(max_length=200, verbose_name="Service Name")
+    serviceShort = models.CharField(
+        max_length=10, verbose_name="Service Shortname")
 
     def __str__(self):
         return str(self.serviceName)
 
 
 class Engagement(models.Model):
-    EngName = models.CharField(max_length=200, verbose_name = "Engagement Name", help_text="Don't forget to use the naming convention we have in this URL <a href='#'>HERE</a>")
-    CliName = models.ForeignKey(Client, on_delete=models.PROTECT, verbose_name = "Client Name")
+    EngName = models.CharField(max_length=200, verbose_name="Engagement Name",
+                               help_text="Don't forget to use the naming convention we have in this URL <a href='#'>HERE</a>")
+    CliName = models.ForeignKey(
+        Client, on_delete=models.PROTECT, verbose_name="Client Name")
     Employees = models.ManyToManyField(
         Employee, blank=True, related_name="Engagements")
-    ServiceType = models.ForeignKey(Service, on_delete=models.PROTECT, verbose_name = "Service Type")
+    ServiceType = models.ForeignKey(
+        Service, on_delete=models.PROTECT, verbose_name="Service Type")
     StartDate = models.DateField('Start Date')
     EndDate = models.DateField('End Date')
 
@@ -194,7 +196,6 @@ class Engagement(models.Model):
         return"Nope"
 
 
-
 class Leave(models.Model):
     emp = models.ForeignKey(Employee, on_delete=models.CASCADE)
     Note = models.CharField(max_length=200)
@@ -206,3 +207,19 @@ class Leave(models.Model):
 
     def __str__(self):
         return str(self.LeaveType) + " -- " + str(self.Note)
+
+
+class Comment(models.Model):
+    eng = models.ForeignKey(
+        Engagement, on_delete=models.CASCADE, related_name='comments')
+    # Can't delete user that has comment
+    user = models.ForeignKey(
+        Employee, to_field="username", on_delete=models.PROTECT)
+    body = models.TextField()
+    created_on = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_on']
+
+    def __str__(self):
+        return 'Comment {} by {}'.format(self.body, self.user)

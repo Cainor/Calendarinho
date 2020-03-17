@@ -24,4 +24,6 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout'),
     path('client/<int:cli_id>/', views.client, name='client'),
     path('ClientsTable', views.ClientsTable, name='ClientsTable'),
+    path('DeleteComment/<int:commentID>',
+         views.deleteMyComment, name='deleteMyComment')
 ]

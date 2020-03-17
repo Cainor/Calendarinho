@@ -1,8 +1,8 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from .models import Employee, Engagement, Leave, Client
-from .forms import EmployeeOverlapForm, Login_Form
+from .models import Employee, Engagement, Leave, Client, Comment
+from .forms import EmployeeOverlapForm, Login_Form, CommentForm
 from django.views.decorators.csrf import csrf_exempt  # To Disable CSRF
 from django.http import JsonResponse
 import datetime
@@ -13,11 +13,11 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 
 
-
 def not_found(request, exception=None):
     response = render(request, 'CalendarinhoApp/404.html', {})
     response.status_code = 404
     return response
+
 
 @login_required
 def Dashboard(request):
@@ -73,6 +73,7 @@ def Dashboard(request):
     context.update({"form": form})
     return render(request, "CalendarinhoApp/Dashboard.html", context)
 
+
 @login_required
 def EmployeesTable(request):
     emps = Employee.objects.all()
@@ -81,7 +82,7 @@ def EmployeesTable(request):
     for emp in emps:
         empstat = emp.currentStatus()
         row["empID"] = emp.id
-        row["name"] = emp.first_name + " " +  emp.last_name
+        row["name"] = emp.first_name + " " + emp.last_name
         if (empstat[0] == "Available"):
             row["status"] = empstat[0]
         else:
@@ -96,6 +97,7 @@ def EmployeesTable(request):
         'table': table
     }
     return render(request, "CalendarinhoApp/EmployeesTable.html", context)
+
 
 @login_required
 def EngagementsTable(request):
@@ -115,6 +117,7 @@ def EngagementsTable(request):
         'table': table
     }
     return render(request, "CalendarinhoApp/EngagementsTable.html", context)
+
 
 @login_required
 def profile(request, emp_id):
@@ -139,6 +142,7 @@ def profile(request, emp_id):
         return not_found(request)
     return render(request, "CalendarinhoApp/profile.html", context)
 
+
 @login_required
 def client(request, cli_id):
     try:
@@ -147,11 +151,12 @@ def client(request, cli_id):
         engs = Engagement.objects.filter(CliName_id=cli_id)
 
         context = {'cli': cli,
-                'engs': engs}
+                   'engs': engs}
     except Client.DoesNotExist:
         return not_found(request)
 
     return render(request, "CalendarinhoApp/client.html", context)
+
 
 @login_required
 def ClientsTable(request):
@@ -173,12 +178,40 @@ def ClientsTable(request):
 
 @login_required
 def engagement(request, eng_id):
+    engagement = Engagement.objects.get(id=eng_id)
+    if request.method == 'POST':
+        comment_form = CommentForm(data=request.POST)
+        if comment_form.is_valid():
+            # Create Comment object but don't save to database yet
+            new_comment = comment_form.save(commit=False)
+            # Assign the current engagement to the comment
+            new_comment.eng = engagement
+            # Assign the current user to the comment
+            new_comment.user = request.user
+            # Save the comment to the database
+            new_comment.save()
     try:
-        eng = Engagement.objects.get(id=eng_id)
-        context = {'eng': eng}
+        comment_form = CommentForm()
+        comments = Comment.objects.filter(eng_id=engagement.id)
+        context = {'eng': engagement, 'comment_form': comment_form,
+                   'comments': comments}
     except Engagement.DoesNotExist:
         return not_found(request)
     return render(request, "CalendarinhoApp/engagement.html", context)
+
+
+@login_required
+def deleteMyComment(request, commentID):
+    try:
+        comment = Comment.objects.get(id=commentID)
+    except Comment.DoesNotExist:
+        return not_found(request)
+    if(comment.user == request.user):
+        comment.delete()
+        return HttpResponseRedirect("/engagement/"+str(comment.eng.id))
+    else:
+        return not_found(request)
+
 
 @login_required
 def EngagementsCal(request):
@@ -187,6 +220,7 @@ def EngagementsCal(request):
         "events": event_arr,
     }
     return render(request, 'CalendarinhoApp/EngagementsCalendar.html', context)
+
 
 @login_required
 def overlap(request):
@@ -201,13 +235,15 @@ def overlap(request):
     if (cedate >= csdate):
         for emp in emps:
             if (not emp.overlapCheck(sdate, edate)):
-                avalibleEmps["emp"].append(emp.first_name + " " + emp.last_name)
+                avalibleEmps["emp"].append(
+                    emp.first_name + " " + emp.last_name)
                 avalibleEmps["id"].append(emp.id)
             else:
                 pass
         return JsonResponse(avalibleEmps)
     else:
         return render(request, "CalendarinhoApp/EasterEgg.html", {})
+
 
 def overlapPrecentage():
     emps = Employee.objects.exclude(user_type='M')
@@ -223,6 +259,7 @@ def overlapPrecentage():
         return "{:2.0f}%".format(100-(100*(count/emps.count())))
     except ZeroDivisionError:
         return "100%"
+
 
 @login_required
 def exportCSV(request, empID=None, slug=None):
@@ -255,7 +292,7 @@ def exportCSV(request, empID=None, slug=None):
         return response
     elif (empID != None):  # Return all engagements for a single employee
         try:
-            emp =  Employee.objects.filter(id=empID).first()
+            emp = Employee.objects.filter(id=empID).first()
             query_set = Engagement.objects.filter(Employees=empID)
             empName = emp.first_name + '-' + emp.last_name
             response['Content-Disposition'] = u'attachment; filename="{0}"'.format(
@@ -274,7 +311,6 @@ def exportCSV(request, empID=None, slug=None):
     else:
         return not_found(request)
 
-    
 
 def loginForm(request, next=''):
     # if this is a POST request we need to process the form data
@@ -288,7 +324,7 @@ def loginForm(request, next=''):
             user = user = authenticate(username=username, password=password)
             if user:
                 if user.is_active:
-                    login(request,user)                
+                    login(request, user)
                     if 'next' in request.POST:
                         return HttpResponseRedirect(request.POST.get('next'))
                     else:
@@ -297,11 +333,11 @@ def loginForm(request, next=''):
                     return HttpResponse("Your account was inactive.")
             else:
                 print("Someone tried to login and failed.")
-                print("They used username: {} and password: {}".format(username,password))
+                print("They used username: {} and password: {}".format(
+                    username, password))
                 messages.error(request, "Invalid login details given")
                 form = Login_Form()
                 return render(request, 'CalendarinhoApp/login.html', {'form': form})
- 
 
     # if a GET (or any other method) we'll create a blank form
     else:
