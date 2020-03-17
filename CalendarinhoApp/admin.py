@@ -12,7 +12,7 @@ admin.site.register(Service)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('user', 'body', 'eng', 'created_on')
     list_filter = ['created_on']
-    #readonly_fields = ('user',)
+    readonly_fields = ('user',)
     search_fields = ('user__username', 'body')
 
 
