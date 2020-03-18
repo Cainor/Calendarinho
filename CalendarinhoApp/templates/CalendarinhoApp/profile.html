@@ -9,181 +9,183 @@
 
 {% block body_block %}
 <div class="container-fluid">
-<h1 class="h3 mb-2 text-gray-800">{{emp.first_name}} {{emp.last_name}}</h1>
+    <h1 class="h3 mb-2 text-gray-800">{{emp.first_name}} {{emp.last_name}}</h1>
     <div class="row">
-            <!-- Upcoming Engagement Card-->
-            <div class="col-xl-4 col-lg-7">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Upcoming Engagement</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        {% if upcoming.engagement == None  %}
-                        <h4 align="center">None</h4>
-                        <h6 align="center">-</h6>
-                        {% else %}
-                        <h4 align="center"><a href="/engagement/{{upcoming.engagement.id}}" style="text-decoration: none">{{upcoming.engagement.EngName}}</a></h4>
-                        <h6 align="center">{{upcoming.engagement.StartDate}}  -  {{upcoming.engagement.EndDate}}</h6>
-                        {%endif%}
-                    </div>
+        <!-- Upcoming Engagement Card-->
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Engagement</h6>
                 </div>
-            </div>    
-
-            <!-- Upcoming Vacation Card -->
-            <div class="col-xl-4 col-lg-7">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Upcoming Vacation</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        {% if upcoming.vacation == None  %}
-                        <h4 align="center">None</h4>
-                        <h6 align="center">-</h6>
-                        {% else %}
-                        <h4 align="center">{{upcoming.vacation.Note}}</h4>
-                        <h6 align="center">{{upcoming.vacation.StartDate}}  -  {{upcoming.vacation.EndDate}}</h6>
-                        {%endif%}
-                    </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    {% if upcoming.engagement == None  %}
+                    <h4 align="center">None</h4>
+                    <h6 align="center">-</h6>
+                    {% else %}
+                    <h4 align="center"><a href="/engagement/{{upcoming.engagement.id}}" style="text-decoration: none">{{upcoming.engagement.EngName}}</a></h4>
+                    <h6 align="center">{{upcoming.engagement.StartDate}} - {{upcoming.engagement.EndDate}}</h6>
+                    {%endif%}
                 </div>
             </div>
+        </div>
 
-
-             <!-- Upcoming Training Card -->
-            <div class="col-xl-4 col-lg-7">
-                <div class="card shadow mb-4">
-                    <!-- Card Header - Dropdown -->
-                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                        <h6 class="m-0 font-weight-bold text-primary">Upcoming Training</h6>
-                    </div>
-                    <!-- Card Body -->
-                    <div class="card-body">
-                        {% if upcoming.training == None  %}
-                        <h4 align="center">None</h4>
-                        <h6 align="center">-</h6>
-                        {% else %}
-                        <h4 align="center">{{upcoming.training.Note}}</h4>
-                        <h6 align="center">{{upcoming.training.StartDate}}  -  {{upcoming.training.EndDate}}</h6>
-                        {%endif%}
-                    </div>
+        <!-- Upcoming Vacation Card -->
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Vacation</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    {% if upcoming.vacation == None  %}
+                    <h4 align="center">None</h4>
+                    <h6 align="center">-</h6>
+                    {% else %}
+                    <h4 align="center">{{upcoming.vacation.Note}}</h4>
+                    <h6 align="center">{{upcoming.vacation.StartDate}} - {{upcoming.vacation.EndDate}}</h6>
+                    {%endif%}
                 </div>
             </div>
+        </div>
+
+
+        <!-- Upcoming Training Card -->
+        <div class="col-xl-4 col-lg-7">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Training</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    {% if upcoming.training == None  %}
+                    <h4 align="center">None</h4>
+                    <h6 align="center">-</h6>
+                    {% else %}
+                    <h4 align="center">{{upcoming.training.Note}}</h4>
+                    <h6 align="center">{{upcoming.training.StartDate}} - {{upcoming.training.EndDate}}</h6>
+                    {%endif%}
+                </div>
+            </div>
+        </div>
     </div>
- {% load static %}
-<link href='{% static "fullcalendar/packages/core/main.css"%}' rel='stylesheet' />
-<link href='{% static "fullcalendar/packages/daygrid/main.css"%}' rel='stylesheet' />
-<script src='{% static "fullcalendar/packages/core/main.js" %}'></script>
-<script src='{% static "fullcalendar/packages/interaction/main.js" %}'></script>
-<script src='{% static "fullcalendar/packages/daygrid/main.js" %}'></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
+    {% load static %}
+    <link href='{% static "fullcalendar/packages/core/main.css"%}' rel='stylesheet' />
+    <link href='{% static "fullcalendar/packages/daygrid/main.css"%}' rel='stylesheet' />
+    <script src='{% static "fullcalendar/packages/core/main.js" %}'></script>
+    <script src='{% static "fullcalendar/packages/interaction/main.js" %}'></script>
+    <script src='{% static "fullcalendar/packages/daygrid/main.js" %}'></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
 
-        var calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['interaction', 'dayGrid'],
-            header: {
-                left: 'prevYear,prev,next,nextYear today',
-                center: 'title',
-                right: 'dayGridMonth,dayGridWeek,dayGridDay'
-            },
-            height: 850,
-            navLinks: true, // can click day/week names to navigate views
-            editable: false,
-            hiddenDays: [ 6, 5 ],
-            eventLimit: true, // allow "more" link when too many events
-            events: [{% for i in lev %} {
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                plugins: ['interaction', 'dayGrid'],
+                header: {
+                    left: 'prevYear,prev,next,nextYear today',
+                    center: 'title',
+                    right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                },
+                height: 850,
+                navLinks: true, // can click day/week names to navigate views
+                editable: false,
+                hiddenDays: [6, 5],
+                eventLimit: true, // allow "more" link when too many events
+                events: [
+                    {%for i in lev %} {
 
-                    title: "{{ i.title}}",
-                    start: '{{ i.start}}',
-                    end: '{{ i.end}}',
-                    backgroundColor: '{{i.color}}',
-                    textColor: 'white',
-                    borderColor: 'white'
-
-
-                }, {% endfor %} {% for i in engs %} {
-
-                    title: "{{ i.name}} -- {{i.serviceType}}",
-                    start: '{{ i.startDate}}',
-                    end: '{{ i.endDate}}',
-                    backgroundColor: '{{i.color}}',
-                    url: '/engagement/{{ i.engID }}',
-                    borderColor: 'white'
+                        title: "{{ i.title}}",
+                        start: '{{ i.start}}',
+                        end: '{{ i.end}}',
+                        backgroundColor: '{{i.color}}',
+                        textColor: 'white',
+                        borderColor: 'white'
 
 
-                }, {% endfor %}
+                    }, {% endfor %} 
+                    {%for i in engs %} {
+
+                        title: "{{ i.name}} -- {{i.serviceType}}",
+                        start: '{{ i.startDate}}',
+                        end: '{{ i.endDate}}',
+                        backgroundColor: '{{i.color}}',
+                        url: '/engagement/{{ i.engID }}',
+                        borderColor: 'white'
 
 
-            ]
+                    }, {% endfor %}
 
+
+                ]
+
+            });
+
+            calendar.render();
         });
+    </script>
+    <style>
+        dl {
+            width: 500px;
+            background: #fff;
+            border: 1px solid #000;
+            padding: 5px 15px;
+        }
 
-        calendar.render();
-    });
-</script>
-</style>
-<style>
-    dl {
-        width: 500px;
-        background: #fff;
-        border: 1px solid #000;
-        padding: 5px 15px;
-    }
-    
-    dt,
-    dd {
-        display: inline;
-    }
-</style>
-<style>
-    /* basic positioning */
-    
-    .legend {
-        list-style: none;
-    }
-    
-    .legend li {
-        float: left;
-        margin-right: 10px;
-    }
-    
-    .legend span {
-        border: 1px solid #ccc;
-        float: left;
-        width: 12px;
-        height: 12px;
-        margin: 2px;
-    }
-    /* your colors */
-    
-    .legend .Vacation {
-        background-color: #2C3E50;
-    }
-    
-    .legend .Training {
-        background-color: #2980B9;
-    }
-    
-    .legend .Engagement {
-        background-color: #BD4932;
-    }
-</style>
+        dt,
+        dd {
+            display: inline;
+        }
+    </style>
+    <style>
+        /* basic positioning */
+
+        .legend {
+            list-style: none;
+        }
+
+        .legend li {
+            float: left;
+            margin-right: 10px;
+        }
+
+        .legend span {
+            border: 1px solid #ccc;
+            float: left;
+            width: 12px;
+            height: 12px;
+            margin: 2px;
+        }
+
+        /* your colors */
+
+        .legend .Vacation {
+            background-color: #2C3E50;
+        }
+
+        .legend .Training {
+            background-color: #2980B9;
+        }
+
+        .legend .Engagement {
+            background-color: #BD4932;
+        }
+    </style>
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-<div id='calendar'></div>
+            <div id='calendar'></div>
 
-<ul class="legend" style="padding-top:10px">
-    <li><span class="Vacation"></span>Vacation</li>
-    <li><span class="Training"></span>Training</li>
-    <li><span class="Engagement"></span>Engagement</li>
+            <ul class="legend" style="padding-top:10px">
+                <li><span class="Vacation"></span>Vacation</li>
+                <li><span class="Training"></span>Training</li>
+                <li><span class="Engagement"></span>Engagement</li>
 
-</ul>
-                        </div>
+            </ul>
         </div>
-        <div class="card shadow mb-4">
+    </div>
+    <div class="card shadow mb-4">
         <div class="card-header py-3">
             <div class="row">
                 <h6 class="m-0 font-weight-bold text-primary col">Engagements Involvement</h6>
@@ -191,7 +193,7 @@
                 <a href="/exportcsv/{{emp.id}}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm col"><i class="fas fa-download fa-sm text-white-50"></i> Export CSV</a>
 
             </div>
-            
+
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -203,7 +205,7 @@
                             <th>Service Type</th>
                             <th>Start date</th>
                             <th>End Date</th>
-                            
+
                         </tr>
                     </thead>
                     <tfoot>
@@ -213,7 +215,7 @@
                             <th>Service Type</th>
                             <th>Start date</th>
                             <th>End Date</th>
-                            
+
                         </tr>
                     </tfoot>
                     <tbody>
@@ -227,7 +229,7 @@
 
                         </tr>
                         {% endfor %}
-                        
+
                     </tbody>
                 </table>
             </div>
@@ -235,5 +237,5 @@
     </div>
 
 </div>
-    </div>
+</div>
 {% endblock %}

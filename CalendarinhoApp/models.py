@@ -149,8 +149,11 @@ class Engagement(models.Model):
     def getAllEngs():
         event_arr = []
         all_events = Engagement.objects.all()
-        colors = ["#277D9C", "#09ADA9", "#461AAD",
-                  "#9E0034", "#B7410E", "#446600"]
+        colors = ["#990000", "#994C00", "#666600",
+                  "#336600", "#006600", "#006633",
+                  "#006666", "#003366", "#000066",
+                  "#330066", "#660066", "#660033",
+                  "#202020"]
         for i in all_events:
             event_sub_arr = {}
             event_sub_arr['title'] = i.EngName + " -- " + str(i.ServiceType)

@@ -19,9 +19,9 @@
 
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-            <h1 class="h3 mb-0 text-gray-800">Clients Table</h1>
-            <a href="/exportcsv/Clients" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Export CSV</a>
-          </div>
+        <h1 class="h3 mb-0 text-gray-800">Clients Table</h1>
+        <a href="/exportcsv/Clients" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Export CSV</a>
+    </div>
     <p class="mb-4">List of all clients with their details.</p>
 
     <!-- DataTales Example -->
@@ -36,7 +36,7 @@
                         <tr>
                             <th>Name</th>
                             <th>Acronym</th>
-                            <th>Code</th>    
+                            <th>Code</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -45,10 +45,10 @@
                             <td><a href="/client/{{row.cliID}}">{{row.name}}</a></td>
                             <td>{{row.acronym}}</td>
                             <td>{{row.code}}</td>
-                            
+
                         </tr>
                         {% endfor %}
-                        
+
                     </tbody>
                 </table>
             </div>
@@ -57,7 +57,7 @@
 
 </div>
 <!-- /.container-fluid -->
-        </div>
+</div>
 <!-- End of Main Content -->
 
 {% endblock %}

@@ -1,25 +1,29 @@
-﻿<!DOCTYPE html> {% extends 'CalendarinhoApp/base.html' %} {% load crispy_forms_tags %}
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+﻿{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% load static %}
+
+
+
 {% block head_block %}
-<meta charset="utf-8" />
-<title></title>
-{% endblock %} {% block body_block %}
-<b>Search: </b><input type="text" id="searchInput" onkeyup="searchFun()" placeholder="Searching for names.." /><br /> 
+{% endblock %}
+{% block body_block %}
+<b>Search: </b><input type="text" id="searchInput" onkeyup="searchFun()" placeholder="Searching for names.." /><br />
 <div class="row">
-{% for emp in employees%}
-<div class="col-md-4"> <input class="empCheckBox" type="checkbox" name="{{emp.EmpName}}" value="{{emp.id}}" /> {{emp.EmpName}} <br /></div> <br />
-{% endfor%}
-    </div>
-    <br />
-<div class="row">
-  <div class="col-md-3">{{ form|crispy }} {% csrf_token %}
-<p id="errorMSG" style="color:red;"></p>
-<input id="checkAPI" type="submit" value="Submit">
-    <br />
-<b>Available Employees:</b>
-<ul id="listOfAvalibleEmps"></ul>
+    {% for emp in employees%}
+    <div class="col-md-4"> <input class="empCheckBox" type="checkbox" name="{{emp.EmpName}}" value="{{emp.id}}" /> {{emp.EmpName}} <br /></div> <br />
+    {% endfor%}
 </div>
-  <div class="col-md-8"><div id='calendar'></div></div>
+<br />
+<div class="row">
+    <div class="col-md-3">{{ form|crispy }} {% csrf_token %}
+        <p id="errorMSG" style="color:red;"></p>
+        <input id="checkAPI" type="submit" value="Submit">
+        <br />
+        <b>Available Employees:</b>
+        <ul id="listOfAvalibleEmps"></ul>
+    </div>
+    <div class="col-md-8">
+        <div id='calendar'></div>
+    </div>
 </div>
 {% load static %}
 <link href='{% static "fullcalendar/packages/core/main.css"%}' rel='stylesheet' />
@@ -28,64 +32,63 @@
 <script src='{% static "fullcalendar/packages/interaction/main.js" %}'></script>
 <script src='{% static "fullcalendar/packages/daygrid/main.js" %}'></script>
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
         $(".empCheckBox").change(function(event) {
-                var myCheckboxes = new Array();
-                $(".empCheckBox:checked").each(function() {
-                   myCheckboxes.push($(this).val());
-                });
-                var token = '{{csrf_token}}';
-                $.ajax({
-                    headers: {
-                        "X-CSRFToken": token
-                    },
-                    type: "POST",
-                    url: ".",
-                    data: {
-                        myCheckboxes:myCheckboxes 
-                    },
-                    success: function(response) {
-                                var calendarEl = document.getElementById('calendar');
-                                var calendar = new FullCalendar.Calendar(calendarEl, {
-                                    plugins: ['interaction', 'dayGrid'],
-                                    header: {
-                                        left: 'prevYear,prev,next,nextYear today',
-                                        center: 'title',
-                                        right: 'dayGridMonth,dayGridWeek,dayGridDay'
-                                    },
-                                    navLinks: true, // can click day/week names to navigate views
-                                    editable: false,
-                                    eventLimit: true, // allow "more" link when too many events
-                                    events: [{
-                                            
-
-                                            title: "dsasda",
-                                            start: '2020-2-2',
-                                            end: '2020-2-20',
-                                            backgroundColor: 'blue',
-                                            textColor: 'white',
-                                            borderColor: 'white'
-
-
-                                        },
-                                    ]
-
-                                });
-                                calendar.render();
-
-                    }
-                });
-                return false; //<---- move it here 
+            var myCheckboxes = new Array();
+            $(".empCheckBox:checked").each(function() {
+                myCheckboxes.push($(this).val());
             });
+            var token = '{{csrf_token}}';
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": token
+                },
+                type: "POST",
+                url: ".",
+                data: {
+                    myCheckboxes: myCheckboxes
+                },
+                success: function(response) {
+                    var calendarEl = document.getElementById('calendar');
+                    var calendar = new FullCalendar.Calendar(calendarEl, {
+                        plugins: ['interaction', 'dayGrid'],
+                        header: {
+                            left: 'prevYear,prev,next,nextYear today',
+                            center: 'title',
+                            right: 'dayGridMonth,dayGridWeek,dayGridDay'
+                        },
+                        navLinks: true, // can click day/week names to navigate views
+                        editable: false,
+                        eventLimit: true, // allow "more" link when too many events
+                        events: [{
+
+
+                            title: "dsasda",
+                            start: '2020-2-2',
+                            end: '2020-2-20',
+                            backgroundColor: 'blue',
+                            textColor: 'white',
+                            borderColor: 'white'
+
+
+                        }, ]
+
+                    });
+                    calendar.render();
+
+                }
+            });
+            return false; //<---- move it here 
+        });
 
     });
 </script>
 <script>
-        $(document).ready(function() {
+    $(document).ready(function() {
         $("#checkAPI").click(function(event) {
             var date1 = new Date(document.getElementById("id_Start_Date").value);
             var date2 = new Date(document.getElementById("id_End_Date").value);
-            if (date1 <= date2){
+            if (date1 <= date2) {
                 $("#errorMSG").html("")
                 var token = '{{csrf_token}}';
                 $.ajax({
@@ -100,23 +103,22 @@ $(document).ready(function() {
                     },
                     success: function(response) {
                         $('#listOfAvalibleEmps').html("")
-                        if(response["emp"].length == 0){
+                        if (response["emp"].length == 0) {
                             $('#listOfAvalibleEmps').html("No employees are available at this period.")
-                        }
-                        else{
-                        for (var i = 0; i < response["emp"].length; i++) {
-                            $('#listOfAvalibleEmps').append("<li> <a href='/profile/" + response["id"][i] + "'>" + response["emp"][i] + "</a></li>");
-                        }
+                        } else {
+                            for (var i = 0; i < response["emp"].length; i++) {
+                                $('#listOfAvalibleEmps').append("<li> <a href='/profile/" + response["id"][i] + "'>" + response["emp"][i] + "</a></li>");
+                            }
                         }
 
                     }
                 });
                 return false; //<---- move it here
-                }else{
-                    $('#listOfAvalibleEmps').html("")
-                    $("#errorMSG").html("End date is before start date")
-                }
-            });
+            } else {
+                $('#listOfAvalibleEmps').html("")
+                $("#errorMSG").html("End date is before start date")
+            }
+        });
 
     });
 </script>
@@ -140,40 +142,40 @@ $(document).ready(function() {
 
         calendar.render();
     });
-    <style>
+</script>
+<style>
     /* basic positioning */
-    
+
     .legend {
-        list-style: none;
+        list - style: none;
     }
-    
+
     .legend li {
         float: left;
-        margin-right: 10px;
+        margin - right: 10 px;
     }
-    
+
     .legend span {
-        border: 1px solid #ccc;
+        border: 1 px solid #ccc;
         float: left;
-        width: 12px;
-        height: 12px;
-        margin: 2px;
+        width: 12 px;
+        height: 12 px;
+        margin: 2 px;
     }
+
     /* your colors */
-    
-    .legend .Vacation {
-        background-color: #2C3E50;
+
+    .legend.Vacation {
+        background - color: #2C3E50;
     }
-    
+
     .legend .Training {
-        background-color: #2980B9;
+        background-color: # 2980 B9;
     }
-    
-    .legend .Engagement {
-        background-color: #BD4932;
+
+    .legend.Engagement {
+        background - color: #BD4932;
     }
 </style>
 
-{% endblock %}
-
-</html>
+{%endblock %}

@@ -72,9 +72,7 @@
                                 </div>
                                 <div class="col">
                                     <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar"
-                                            style="width: {{statistics.availabilityPercentage}}" aria-valuenow="50"
-                                            aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{statistics.availabilityPercentage}}" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
                                 </div>
                             </div>
@@ -146,39 +144,27 @@
                 <div class="card-body">
                     {% for eng in statistics.engagementsBars%}
                     {% if eng.precent < 25 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
-                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
-                            class="float-right">{{eng.precent}}%</span></h4>
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
                     <div class="progress mb-4">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{eng.precent}}%"
-                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     {% endif %}
                     {% if eng.precent < 50 and eng.precent >= 25 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
-                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
-                            class="float-right">{{eng.precent}}%</span></h4>
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
                     <div class="progress mb-4">
-                        <div class="progress-bar" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20"
-                            aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     {% endif %}
                     {% if eng.precent < 75 and eng.precent >= 50 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
-                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
-                            class="float-right">{{eng.precent}}%</span></h4>
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
                     <div class="progress mb-4">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: {{eng.precent}}%"
-                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-info" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     {% endif %}
                     {% if eng.precent <= 100 and eng.precent >= 75 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}"
-                            style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span
-                            class="float-right">{{eng.precent}}%</span></h4>
+                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
                     <div class="progress mb-4">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{eng.precent}}%"
-                            aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                        <div class="progress-bar bg-success" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                     </div>
                     {% endif %}
                     {% endfor %}
@@ -250,17 +236,17 @@
 
 <!-- Page level custom scripts -->
 <script>
-    var avalible = {{ statistics.pieChartStatus.avalible }};
-    var engaged = {{ statistics.pieChartStatus.engaged }};
-    var training = {{ statistics.pieChartStatus.training }};
-    var vacation = {{ statistics.pieChartStatus.vacation }};
+    var avalible = {{statistics.pieChartStatus.avalible}};
+    var engaged = {{statistics.pieChartStatus.engaged}};
+    var training = {{statistics.pieChartStatus.training}};
+    var vacation = {{statistics.pieChartStatus.vacation}};
 </script>
 <script src="{% static 'js/demo/chart-area-demo.js' %}"></script>
 <script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
 <!--The following script is to make AJAX request to check the overlap-->
 <script>
-    $(document).ready(function () {
-        $("#checkAPI").click(function (event) {
+    $(document).ready(function() {
+        $("#checkAPI").click(function(event) {
             var date1 = new Date(document.getElementById("id_Start_Date").value);
             var date2 = new Date(document.getElementById("id_End_Date").value);
             if (date1 <= date2) {
@@ -276,12 +262,11 @@
                         'Start_Date': $('#id_Start_Date').val(),
                         'End_Date': $('#id_End_Date').val()
                     },
-                    success: function (response) {
+                    success: function(response) {
                         $('#listOfAvalibleEmps').html("")
                         if (response["emp"].length == 0) {
                             $('#listOfAvalibleEmps').html("No employees are available at this period.")
-                        }
-                        else {
+                        } else {
                             for (var i = 0; i < response["emp"].length; i++) {
                                 $('#listOfAvalibleEmps').append("<li> <a href='/profile/" + response["id"][i] + "'>" + response["emp"][i] + "</a></li>");
                             }
