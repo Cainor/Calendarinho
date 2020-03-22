@@ -242,7 +242,7 @@ def EmployeesCal(request):
             emp = Employee.objects.get(id=empID)
             engagements = engagements | emp.Engagements.all()
         engagements = engagements.distinct()  # Remove Doublicate
-    emps = Employee.objects.all()
+    emps = Employee.objects.all().order_by('first_name')
     return render(request, 'CalendarinhoApp/EmployeesCalendar.html', {'employees': emps, 'leaves': leaves, 'engagements': engagements, 'selectedEmps': selectedEmps})
 
 

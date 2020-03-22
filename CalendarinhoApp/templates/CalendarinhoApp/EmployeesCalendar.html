@@ -72,7 +72,12 @@
         <div class="card-body">
 
             <div id='calendar'></div>
+            <ul class="legend" style="padding-top:10px">
+                <li><span class="Vacation"></span>Vacation</li>
+                <li><span class="Training"></span>Training</li>
+                <li><span class="Engagement"></span>Engagement</li>
 
+            </ul>
         </div>
     </div>
 
@@ -127,4 +132,39 @@
         }
     }
 </script>
+
+    <style>
+        /* basic positioning */
+
+        .legend {
+            list-style: none;
+        }
+
+        .legend li {
+            float: left;
+            margin-right: 10px;
+        }
+
+        .legend span {
+            border: 1px solid #ccc;
+            float: left;
+            width: 12px;
+            height: 12px;
+            margin: 2px;
+        }
+
+        /* your colors */
+
+        .legend .Vacation {
+            background-color: #2C3E50;
+        }
+
+        .legend .Training {
+            background-color: #2980B9;
+        }
+
+        .legend .Engagement {
+            background-color: #BD4932;
+        }
+    </style>
 {%endblock%}
