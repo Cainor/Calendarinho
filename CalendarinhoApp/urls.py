@@ -14,6 +14,7 @@ urlpatterns = [
     path('profile/<int:emp_id>/', views.profile, name='profile'),
     path('engagement/<int:eng_id>/', views.engagement, name='engagement'),
     path('EngagementsCalendar/', views.EngagementsCal, name='EngagementsCal'),
+    path('EmployeesCalendar/', views.EmployeesCal, name='EmployeesCal'),
     path('EmployeesCalendar/overlap/', views.overlap, name='Overlap'),
     path('exportcsv/<int:empID>', views.exportCSV, name='exportCSV'),
     path('exportcsv/<slug:slug>', views.exportCSV, name='exportCSV'),

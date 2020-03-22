@@ -37,7 +37,6 @@ class ServiceAdmin(admin.ModelAdmin):
     search_fields = ('serviceName', 'serviceShort')
 
 
-# if i added more serch fiels will generate error
 admin.site.register(Service, ServiceAdmin)
 
 

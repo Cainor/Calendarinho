@@ -223,6 +223,30 @@ def EngagementsCal(request):
 
 
 @login_required
+def EmployeesCal(request):
+    leaves = {}
+    engagements = Engagement.objects.none()
+    selectedEmps = []
+    if request.method == 'POST':
+        listemp = request.POST.getlist('emps')
+        for empID in listemp:
+            selectedEmps.append(Employee.objects.get(id=empID))
+        # Leaves
+        for empID in listemp:
+            emp = Employee.objects.get(id=empID)
+            leaves.update(
+                {emp.first_name+" "+emp.last_name: emp.getAllLeaves()})
+
+        # Engagements
+        for empID in listemp:
+            emp = Employee.objects.get(id=empID)
+            engagements = engagements | emp.Engagements.all()
+        engagements = engagements.distinct()  # Remove Doublicate
+    emps = Employee.objects.all()
+    return render(request, 'CalendarinhoApp/EmployeesCalendar.html', {'employees': emps, 'leaves': leaves, 'engagements': engagements, 'selectedEmps': selectedEmps})
+
+
+@login_required
 def overlap(request):
     emps = Employee.objects.exclude(user_type='M').order_by('first_name')
     avalibleEmps = {"emp": [],
