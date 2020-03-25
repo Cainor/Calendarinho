@@ -21,7 +21,7 @@ def not_found(request, exception=None):
 
 @login_required
 def Dashboard(request):
-    emps = Employee.objects.exclude(user_type='M')
+    emps = Employee.objects.all()
 
     # calculation for pie chart
     state = {}
@@ -248,7 +248,7 @@ def EmployeesCal(request):
 
 @login_required
 def overlap(request):
-    emps = Employee.objects.exclude(user_type='M').order_by('first_name')
+    emps = Employee.objects.order_by('first_name')
     avalibleEmps = {"emp": [],
                     "id": []}
     sdate = request.POST.get("Start_Date")
@@ -270,7 +270,7 @@ def overlap(request):
 
 
 def overlapPrecentage():
-    emps = Employee.objects.exclude(user_type='M')
+    emps = Employee.objects.all()
     count = 0
     todayDate = datetime.date.today()
 
@@ -357,8 +357,6 @@ def loginForm(request, next=''):
                     return HttpResponse("Your account was inactive.")
             else:
                 print("Someone tried to login and failed.")
-                print("They used username: {} and password: {}".format(
-                    username, password))
                 messages.error(request, "Invalid login details given")
                 form = Login_Form()
                 return render(request, 'CalendarinhoApp/login.html', {'form': form})

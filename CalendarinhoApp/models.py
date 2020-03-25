@@ -121,6 +121,9 @@ class Client(models.Model):
     CliShort = models.CharField(max_length=10, verbose_name="Acronym")
     CliCode = models.CharField(max_length=4, default='9999')
 
+    class Meta:
+        ordering = ['CliName']
+
     def __str__(self):
         return str(self.CliName)
 
@@ -135,8 +138,7 @@ class Service(models.Model):
 
 
 class Engagement(models.Model):
-    EngName = models.CharField(max_length=200, verbose_name="Engagement Name",
-                               help_text="Don't forget to use the naming convention we have in this URL <a href='#'>HERE</a>")
+    EngName = models.CharField(max_length=200, verbose_name="Engagement Name")
     CliName = models.ForeignKey(
         Client, on_delete=models.PROTECT, verbose_name="Client Name")
     Employees = models.ManyToManyField(
