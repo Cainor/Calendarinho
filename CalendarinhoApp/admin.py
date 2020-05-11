@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import Employee, Engagement, Leave, Client, Service, Comment
+from .views import *
 
 admin.site.register(Employee)
 
@@ -19,6 +20,22 @@ class EngagementAdmin(admin.ModelAdmin):
     list_filter = ('ServiceType', 'StartDate')
     search_fields = ('EngName', 'CliName__CliName')
 
+
+    def save_model(self, request, obj, form, change):
+        """Save engagement and sent notifications to the related employees."""
+
+        super().save_model(request, obj, form, change)
+
+        empsBefore=None
+        if change:
+            empsBefore = obj.Employees.all()
+            if empsBefore.count() < 1:
+                empsBefore = None
+        empsAfter=None
+        if request.POST.getlist('Employees'):
+            empsAfter=Employee.objects.filter(id__in=request.POST.getlist('Employees'))
+
+        notifyEngagedEmployees(empsBefore, empsAfter)
 
 admin.site.register(Engagement, EngagementAdmin)
 

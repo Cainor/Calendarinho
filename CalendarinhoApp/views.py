@@ -371,3 +371,32 @@ def loginForm(request, next=''):
 def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse('CalendarinhoApp:login'))
+
+
+def notifyEngagedEmployees(empsBefore, empsAfter):
+    """Send emails to employees when he added or removed from engagement."""
+
+    #Check the users added to the engagement
+    addedEmps = None
+    if empsAfter is None:
+        addedEmps= None
+    elif empsBefore is None :
+        addedEmps = empsAfter
+    else:
+        addedEmps=empsAfter.exclude(id__in=empsBefore)
+
+    #Check the users removed from the engagement
+    removedEmps = None
+    if empsBefore is None:
+        removedEmps= None
+    elif empsAfter is None :
+        removedEmps = empsBefore
+    else:
+        removedEmps=empsBefore.exclude(id__in=empsAfter)
+    print(removedEmps)
+
+    #Send email to the added users
+    #...
+
+    #Send email to the removed users
+    #...
