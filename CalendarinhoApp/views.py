@@ -11,6 +11,13 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core import mail
+from django.core.mail import EmailMessage
+from django.contrib.auth.forms import PasswordResetForm
+import logging
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 def not_found(request, exception=None):
@@ -190,6 +197,8 @@ def engagement(request, eng_id):
             new_comment.user = request.user
             # Save the comment to the database
             new_comment.save()
+            # Send notification to the users those involved in the engagement
+            notifyNewComment(new_comment)
     try:
         comment_form = CommentForm()
         comments = Comment.objects.filter(eng_id=engagement.id)
@@ -356,7 +365,6 @@ def loginForm(request, next=''):
                 else:
                     return HttpResponse("Your account was inactive.")
             else:
-                print("Someone tried to login and failed.")
                 messages.error(request, "Invalid login details given")
                 form = Login_Form()
                 return render(request, 'CalendarinhoApp/login.html', {'form': form})
@@ -377,26 +385,159 @@ def notifyEngagedEmployees(empsBefore, empsAfter):
     """Send emails to employees when he added or removed from engagement."""
 
     #Check the users added to the engagement
-    addedEmps = None
+    addedEmps = []
     if empsAfter is None:
-        addedEmps= None
+        addedEmps = []
     elif empsBefore is None :
         addedEmps = empsAfter
     else:
         addedEmps=empsAfter.exclude(id__in=empsBefore)
 
     #Check the users removed from the engagement
-    removedEmps = None
+    removedEmps = []
     if empsBefore is None:
-        removedEmps= None
+        removedEmps= []
     elif empsAfter is None :
         removedEmps = empsBefore
     else:
         removedEmps=empsBefore.exclude(id__in=empsAfter)
-    print(removedEmps)
 
+    emails = []
     #Send email to the added users
-    #...
+    for addedEmp in addedEmps :
+        email_body = """\
+        <html>
+        <head> you have been added</head>
+        <body>
+            <h2>%s</h2>
+            <p>%s</p>
+            <h5>%s</h5>
+        </body>
+        </html>
+        """ % ('user', 'message', 'email')
+        email = EmailMessage('A new mail!', email_body, to=[addedEmp.email])
+        email.content_subtype = "html"
+        emails.append(email)
 
     #Send email to the removed users
-    #...
+    for removedEmp in removedEmps :
+        email_body = """\
+        <html>
+        <head>you have been removed</head>
+        <body>
+            <h2>%s</h2>
+            <p>%s</p>
+            <h5>%s</h5>
+        </body>
+        </html>
+        """ % ('user', 'message', 'email')
+        email = EmailMessage('A new mail!', email_body, to=[removedEmp.email])
+        email.content_subtype = "html"
+        emails.append(email)
+    try:
+        connection = mail.get_connection()
+        connection.send_messages(emails)
+    except ConnectionRefusedError as e:
+        logger.error("Failed to send emails: \n" + str(e))
+
+def notifyNewComment(comment):
+    engagement = comment.eng
+    employees= engagement.Employees.all()
+    emails = []
+    for employee in employees :
+        email_body = """\
+        <html>
+        <head>new comment</head>
+        <body>
+            <h2>%s</h2>
+            <p>%s</p>
+            <h5>%s</h5>
+        </body>
+        </html>
+        """ % ('user', 'message', 'email')
+        email = EmailMessage('A new mail!', email_body, to=[employee.email])
+        email.content_subtype = "html"
+        emails.append(email)
+    try:
+        connection = mail.get_connection()
+        connection.send_messages(emails)
+    except ConnectionRefusedError as e:
+        logger.error("Failed to send emails: \n" + str(e))
+
+def reset_password(email, from_email, domain, template='CalendarinhoApp/new_user_password_reset_email.html'):
+    """
+    Reset the password for all (active) users with given E-Mail adress
+    """
+    form = PasswordResetForm({'email': email})
+    if form.is_valid():
+        return form.save(from_email=from_email, email_template_name=template, domain_override=domain)
+
+def notifyAfterPasswordReset(user):
+    """Send email to the user after password reset."""
+
+    email_body = """\
+    <html>
+    <head>Your password has been changed successfully</head>
+    <body>
+        <h2>%s</h2>
+        <p>%s</p>
+        <h5>%s</h5>
+    </body>
+    </html>
+    """ % ('user', 'message', 'email')
+    email = EmailMessage('A new mail!', email_body, to=[user.email])
+    email.content_subtype = "html"
+    try:
+        email.send()
+    except ConnectionRefusedError as e:
+        logger.error("Failed to send emails: \n" + str(e))
+
+def notifyManagersNewEngagement(user, engagement):
+    """Send notifications to the managers after a new engagement is added."""
+    
+    managars = Employee.getManagers()
+    emails = []
+    for managar in managars :
+        email_body = """\
+        <html>
+        <head>There is new engagement added</head>
+        <body>
+            <h2>%s</h2>
+            <p>%s</p>
+            <h5>%s</h5>
+        </body>
+        </html>
+        """ % ('user', 'message', 'email')
+        email = EmailMessage('A new mail!', email_body, to=[managar.email])
+        email.content_subtype = "html"
+        emails.append(email)
+    try:
+        connection = mail.get_connection()
+        connection.send_messages(emails)
+    except ConnectionRefusedError as e:
+        logger.error("Failed to send emails: \n" + str(e))
+
+def notifyManagersNewLeave(user, leave):
+    """Send notifications to the managers after a new leave is added."""
+    
+    managars = Employee.getManagers()
+    emails = []
+    for managar in managars :
+        email_body = """\
+        <html>
+        <head>There is new leave added</head>
+        <body>
+            <h2>%s</h2>
+            <p>%s</p>
+            <h5>%s</h5>
+        </body>
+        </html>
+        """ % ('user', 'message', 'email')
+        email = EmailMessage('A new mail!', email_body, to=[managar.email])
+        email.content_subtype = "html"
+        emails.append(email)
+    try:
+        connection = mail.get_connection()
+        connection.send_messages(emails)
+    except ConnectionRefusedError as e:
+        logger.error("Failed to send emails: \n" + str(e))

@@ -2,7 +2,9 @@ from django.urls import path
 
 from . import views
 from django.conf.urls import url
-
+from django.contrib.auth import views as auth_views
+from django.urls import reverse_lazy
+from users.forms import MySetPasswordForm
 
 app_name = 'CalendarinhoApp'
 
@@ -21,10 +23,14 @@ urlpatterns = [
     path('exportcsv/', views.exportCSV, name='exportCSV'),
     path('login', views.loginForm, name='login'),
     # path(regex=r'^login\/(?P<next>.*)$', views.loginForm, name='login_next'),
-    url(regex=r'^login\/(?P<next>.*)$', view=views.loginForm),
+    url(regex=r'^login\/(?P<next>.*)$', view=views.loginForm, name='login'),
     path('logout', views.logout_view, name='logout'),
     path('client/<int:cli_id>/', views.client, name='client'),
     path('ClientsTable', views.ClientsTable, name='ClientsTable'),
-    path('DeleteComment/<int:commentID>',
-         views.deleteMyComment, name='deleteMyComment')
+    path('DeleteComment/<int:commentID>',views.deleteMyComment, name='deleteMyComment'),
+    path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
+        template_name='CalendarinhoApp/password_reset_confirm.html', success_url=reverse_lazy(
+            'CalendarinhoApp:password_reset_complete'), form_class=MySetPasswordForm), name='password_reset_confirm'),
+    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(
+        template_name='CalendarinhoApp/password_reset_complete.html'), name='password_reset_complete')
 ]

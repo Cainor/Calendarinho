@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from .models import Employee, Engagement, Leave, Client, Service, Comment
-from .views import *
+from .views import notifyEngagedEmployees, notifyManagersNewEngagement, notifyManagersNewLeave
 
 admin.site.register(Employee)
 
@@ -22,10 +22,11 @@ class EngagementAdmin(admin.ModelAdmin):
 
 
     def save_model(self, request, obj, form, change):
-        """Save engagement and sent notifications to the related employees."""
+        """Save engagement and send notifications to the related employees and managers."""
 
         super().save_model(request, obj, form, change)
 
+        # Send notifications to the related employees.
         empsBefore=None
         if change:
             empsBefore = obj.Employees.all()
@@ -34,8 +35,12 @@ class EngagementAdmin(admin.ModelAdmin):
         empsAfter=None
         if request.POST.getlist('Employees'):
             empsAfter=Employee.objects.filter(id__in=request.POST.getlist('Employees'))
-
+    
         notifyEngagedEmployees(empsBefore, empsAfter)
+
+        if not change:
+            # Send notifications to the managers after a new engagement is added.
+            notifyManagersNewEngagement(user=request.user, engagement=obj)
 
 admin.site.register(Engagement, EngagementAdmin)
 
@@ -44,6 +49,14 @@ class LeaveAdmin(admin.ModelAdmin):
     list_display = ('Note', 'emp', 'LeaveType', 'StartDate', 'EndDate')
     list_filter = ('LeaveType', 'StartDate', 'EndDate')
     search_fields = ('Note', 'emp__first_name', 'emp__last_name')
+
+    def save_model(self, request, obj, form, change):
+        """Save Leave and send notifications to the related employees and managers."""
+
+        super().save_model(request, obj, form, change)
+        if not change:
+            # Send notifications to the managers after a new leave is added.
+            notifyManagersNewLeave(user=request.user, leave=obj)
 
 
 admin.site.register(Leave, LeaveAdmin)

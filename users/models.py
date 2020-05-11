@@ -134,4 +134,9 @@ class CustomUser(AbstractUser):
                 return [lev.__str__(), lev.StartDate]
             else:
                 return [eng.__str__(), eng.StartDate]
-        
+
+    def getManagers():
+        return CustomUser.objects.filter(user_type="M")
+
+    def getEmployees():
+        return CustomUser.objects.filter(user_type="E")
