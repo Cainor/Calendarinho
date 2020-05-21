@@ -410,7 +410,8 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
         context = {
                 'first_name': addedEmp.first_name,
                 'message': 'You have been engaged',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                    args=[engagement.id])),
                 'engagement_name': engagement.EngName
             }
         email_body = loader.render_to_string(
@@ -424,7 +425,8 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
         context = {
                 'first_name': removedEmp.first_name,
                 'message': 'You have been unengaged',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                    args=[engagement.id])),
                 'engagement_name': engagement.EngName
             }
         email_body = loader.render_to_string(
@@ -450,7 +452,8 @@ def notifyNewComment(comment, request):
         context = {
                 'first_name': employee.first_name,
                 'message': 'New comment on your engagement by ' + user.first_name + ' ' + user.last_name + '.',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                    args=[engagement.id])),
                 'engagement_name': engagement.EngName,
             }
         email_body = loader.render_to_string(
@@ -464,7 +467,8 @@ def notifyNewComment(comment, request):
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
-def reset_password(email, from_email, domain, template='CalendarinhoApp/emails/new_user_password_reset_email.html'):
+def reset_password(email, from_email, domain,
+        template='CalendarinhoApp/emails/new_user_password_reset_email.html'):
     """
     Reset the password for all (active) users with given E-Mail adress
     """
@@ -496,7 +500,8 @@ def notifyManagersNewEngagement(user, engagement, request):
         context = {
                 'first_name': manager.first_name,
                 'message': 'New engagement added by ' + user.first_name + ' ' + user.last_name + '.',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                    args=[engagement.id])),
                 'engagement_name': engagement.EngName,
             }
         email_body = loader.render_to_string(
@@ -510,23 +515,38 @@ def notifyManagersNewEngagement(user, engagement, request):
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
-def notifyManagersNewLeave(user, leave):
+def notifyManagersNewLeave(user, leave , request):
     """Send notifications to the managers after a new leave is added."""
     
     managers = Employee.getManagers()
     emails = []
     for manager in managers :
-        # check if the employee add leave for him or herself
-        forEmployee = user.first_name + ' ' + user.last_name if manager != user else 'him or herself'
+        forEmployee = leave.emp.first_name + ' ' + leave.emp.last_name
+        addBy = user.first_name + ' ' + user.last_name
+        if leave.emp == user :
+              forEmployee = 'him or herself'
+        if leave.emp == manager:
+              forEmployee = 'you'
+        if user == manager:
+            addBy = 'you'
+        if user == manager == leave.emp:
+            addBy = 'you'
+            forEmployee = 'yourself'
         context = {
                 'first_name': manager.first_name,
-                'message': 'New leave added by ' + user.first_name + ' ' + user.last_name
+                'message': 'New leave added by ' + addBy
                     + ' for ' + forEmployee,
                 'leave_type': leave.LeaveType,
+                'start_date': leave.StartDate,
+                'end_date': leave.EndDate,
+                'note': leave.Note,
+                'Employee': leave.emp.first_name + ' ' + leave.emp.last_name,
+                'profile_url': request.build_absolute_uri(reverse('CalendarinhoApp:profile',
+                    args=[leave.emp.id])),
             }
         email_body = loader.render_to_string(
-            'CalendarinhoApp/emails/manager_new_engagement_email.html', context)
-        email = EmailMessage('A new mail!', email_body, to=[manager.email])
+            'CalendarinhoApp/emails/manager_new_leave_email.html', context)
+        email = EmailMessage('New leave added', email_body, to=[manager.email])
         email.content_subtype = "html"
         emails.append(email)
     try:

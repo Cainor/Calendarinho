@@ -56,7 +56,7 @@ class LeaveAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
         if not change:
             # Send notifications to the managers after a new leave is added.
-            notifyManagersNewLeave(user=request.user, leave=obj)
+            notifyManagersNewLeave(user=request.user, leave=obj, request=request)
 
 
 admin.site.register(Leave, LeaveAdmin)
