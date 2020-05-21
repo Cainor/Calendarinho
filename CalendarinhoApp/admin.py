@@ -36,11 +36,11 @@ class EngagementAdmin(admin.ModelAdmin):
         if request.POST.getlist('Employees'):
             empsAfter=Employee.objects.filter(id__in=request.POST.getlist('Employees'))
     
-        notifyEngagedEmployees(empsBefore, empsAfter)
+        notifyEngagedEmployees(empsBefore, empsAfter, engagement=obj, request=request)
 
         if not change:
             # Send notifications to the managers after a new engagement is added.
-            notifyManagersNewEngagement(user=request.user, engagement=obj)
+            notifyManagersNewEngagement(user=request.user, engagement=obj ,request=request)
 
 admin.site.register(Engagement, EngagementAdmin)
 

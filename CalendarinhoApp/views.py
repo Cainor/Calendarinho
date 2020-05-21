@@ -15,6 +15,8 @@ from django.core import mail
 from django.core.mail import EmailMessage
 from django.contrib.auth.forms import PasswordResetForm
 import logging
+from django.shortcuts import resolve_url
+from django.conf import settings
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -198,7 +200,7 @@ def engagement(request, eng_id):
             # Save the comment to the database
             new_comment.save()
             # Send notification to the users those involved in the engagement
-            notifyNewComment(new_comment)
+            notifyNewComment(new_comment, request)
     try:
         comment_form = CommentForm()
         comments = Comment.objects.filter(eng_id=engagement.id)
@@ -381,7 +383,7 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('CalendarinhoApp:login'))
 
 
-def notifyEngagedEmployees(empsBefore, empsAfter):
+def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
     """Send emails to employees when he added or removed from engagement."""
 
     #Check the users added to the engagement
@@ -405,33 +407,29 @@ def notifyEngagedEmployees(empsBefore, empsAfter):
     emails = []
     #Send email to the added users
     for addedEmp in addedEmps :
-        email_body = """\
-        <html>
-        <head> you have been added</head>
-        <body>
-            <h2>%s</h2>
-            <p>%s</p>
-            <h5>%s</h5>
-        </body>
-        </html>
-        """ % ('user', 'message', 'email')
-        email = EmailMessage('A new mail!', email_body, to=[addedEmp.email])
+        context = {
+                'first_name': addedEmp.first_name,
+                'message': 'You have been engaged',
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_name': engagement.EngName
+            }
+        email_body = loader.render_to_string(
+            'CalendarinhoApp/emails/employee_engagement_email.html', context)
+        email = EmailMessage('You have been engaged', email_body, to=[addedEmp.email])
         email.content_subtype = "html"
         emails.append(email)
 
     #Send email to the removed users
     for removedEmp in removedEmps :
-        email_body = """\
-        <html>
-        <head>you have been removed</head>
-        <body>
-            <h2>%s</h2>
-            <p>%s</p>
-            <h5>%s</h5>
-        </body>
-        </html>
-        """ % ('user', 'message', 'email')
-        email = EmailMessage('A new mail!', email_body, to=[removedEmp.email])
+        context = {
+                'first_name': removedEmp.first_name,
+                'message': 'You have been unengaged',
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_name': engagement.EngName
+            }
+        email_body = loader.render_to_string(
+            'CalendarinhoApp/emails/employee_engagement_email.html', context)
+        email = EmailMessage('You have been unengaged', email_body, to=[removedEmp.email])
         email.content_subtype = "html"
         emails.append(email)
     try:
@@ -440,22 +438,24 @@ def notifyEngagedEmployees(empsBefore, empsAfter):
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
-def notifyNewComment(comment):
+def notifyNewComment(comment, request):
+    user = comment.user
     engagement = comment.eng
     employees= engagement.Employees.all()
     emails = []
     for employee in employees :
-        email_body = """\
-        <html>
-        <head>new comment</head>
-        <body>
-            <h2>%s</h2>
-            <p>%s</p>
-            <h5>%s</h5>
-        </body>
-        </html>
-        """ % ('user', 'message', 'email')
-        email = EmailMessage('A new mail!', email_body, to=[employee.email])
+        # check if the comment is by the employee him or herself
+        if user == employee:
+            continue
+        context = {
+                'first_name': employee.first_name,
+                'message': 'New comment on your engagement by ' + user.first_name + ' ' + user.last_name + '.',
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_name': engagement.EngName,
+            }
+        email_body = loader.render_to_string(
+            'CalendarinhoApp/emails/engagement_comment_email.html', context)
+        email = EmailMessage('New comment on your engagement', email_body, to=[employee.email])
         email.content_subtype = "html"
         emails.append(email)
     try:
@@ -464,7 +464,7 @@ def notifyNewComment(comment):
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
-def reset_password(email, from_email, domain, template='CalendarinhoApp/new_user_password_reset_email.html'):
+def reset_password(email, from_email, domain, template='CalendarinhoApp/emails/new_user_password_reset_email.html'):
     """
     Reset the password for all (active) users with given E-Mail adress
     """
@@ -475,40 +475,33 @@ def reset_password(email, from_email, domain, template='CalendarinhoApp/new_user
 def notifyAfterPasswordReset(user):
     """Send email to the user after password reset."""
 
-    email_body = """\
-    <html>
-    <head>Your password has been changed successfully</head>
-    <body>
-        <h2>%s</h2>
-        <p>%s</p>
-        <h5>%s</h5>
-    </body>
-    </html>
-    """ % ('user', 'message', 'email')
-    email = EmailMessage('A new mail!', email_body, to=[user.email])
+    context = {
+                'username': user.username
+            }
+    email_body = loader.render_to_string(
+            'CalendarinhoApp/emails/password_reset_complete_email.html', context)
+    email = EmailMessage('Calendarinho password reset', email_body, to=[user.email])
     email.content_subtype = "html"
     try:
         email.send()
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
-def notifyManagersNewEngagement(user, engagement):
+def notifyManagersNewEngagement(user, engagement, request):
     """Send notifications to the managers after a new engagement is added."""
     
-    managars = Employee.getManagers()
+    managers = Employee.getManagers()
     emails = []
-    for managar in managars :
-        email_body = """\
-        <html>
-        <head>There is new engagement added</head>
-        <body>
-            <h2>%s</h2>
-            <p>%s</p>
-            <h5>%s</h5>
-        </body>
-        </html>
-        """ % ('user', 'message', 'email')
-        email = EmailMessage('A new mail!', email_body, to=[managar.email])
+    for manager in managers :
+        context = {
+                'first_name': manager.first_name,
+                'message': 'New engagement added by ' + user.first_name + ' ' + user.last_name + '.',
+                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+                'engagement_name': engagement.EngName,
+            }
+        email_body = loader.render_to_string(
+            'CalendarinhoApp/emails/manager_new_engagement_email.html', context)
+        email = EmailMessage('New engagement added', email_body, to=[manager.email])
         email.content_subtype = "html"
         emails.append(email)
     try:
@@ -520,20 +513,20 @@ def notifyManagersNewEngagement(user, engagement):
 def notifyManagersNewLeave(user, leave):
     """Send notifications to the managers after a new leave is added."""
     
-    managars = Employee.getManagers()
+    managers = Employee.getManagers()
     emails = []
-    for managar in managars :
-        email_body = """\
-        <html>
-        <head>There is new leave added</head>
-        <body>
-            <h2>%s</h2>
-            <p>%s</p>
-            <h5>%s</h5>
-        </body>
-        </html>
-        """ % ('user', 'message', 'email')
-        email = EmailMessage('A new mail!', email_body, to=[managar.email])
+    for manager in managers :
+        # check if the employee add leave for him or herself
+        forEmployee = user.first_name + ' ' + user.last_name if manager != user else 'him or herself'
+        context = {
+                'first_name': manager.first_name,
+                'message': 'New leave added by ' + user.first_name + ' ' + user.last_name
+                    + ' for ' + forEmployee,
+                'leave_type': leave.LeaveType,
+            }
+        email_body = loader.render_to_string(
+            'CalendarinhoApp/emails/manager_new_engagement_email.html', context)
+        email = EmailMessage('A new mail!', email_body, to=[manager.email])
         email.content_subtype = "html"
         emails.append(email)
     try:
