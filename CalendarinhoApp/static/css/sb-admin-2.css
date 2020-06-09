@@ -10587,6 +10587,7 @@ a:focus {
     background: url(../img/logo.svg);
     background-position: center;
     background-size: cover;
+    width: 20px;
 }
 
 .bg-register-image {
