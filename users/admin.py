@@ -46,7 +46,7 @@ class CustomUserAdmin(UserAdmin):
             site_name = current_site.name
             domain = current_site.domain
 
-            reset_password(email=email[0], from_email='Calendarinho' , domain=domain)
+            reset_password(email=email[0], from_email='' , domain=domain)
 
 
 admin.site.unregister(CustomUser)
