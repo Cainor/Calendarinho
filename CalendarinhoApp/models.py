@@ -147,6 +147,7 @@ class Engagement(models.Model):
         Service, on_delete=models.PROTECT, verbose_name="Service Type")
     StartDate = models.DateField('Start Date')
     EndDate = models.DateField('End Date')
+    Scope = models.TextField(blank=True, verbose_name="Scope", help_text="Enter one domain/IP per line")
 
     def getAllEngs():
         event_arr = []

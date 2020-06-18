@@ -204,7 +204,7 @@ def engagement(request, eng_id):
     try:
         comment_form = CommentForm()
         comments = Comment.objects.filter(eng_id=engagement.id)
-        context = {'eng': engagement, 'comment_form': comment_form,
+        context = {'eng': engagement, 'scope_list': engagement.Scope.split('\n'),'comment_form': comment_form,
                    'comments': comments}
     except Engagement.DoesNotExist:
         return not_found(request)
