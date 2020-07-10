@@ -30,7 +30,7 @@ def not_found(request, exception=None):
 
 @login_required
 def Dashboard(request):
-    emps = Employee.objects.all()
+    emps = Employee.objects.exclude(is_active=False)
 
     # calculation for pie chart
     state = {}
@@ -259,7 +259,7 @@ def EmployeesCal(request):
 
 @login_required
 def overlap(request):
-    emps = Employee.objects.order_by('first_name')
+    emps = Employee.objects..exclude(is_active=False)
     avalibleEmps = {"emp": [],
                     "id": []}
     sdate = request.POST.get("Start_Date")
@@ -281,7 +281,7 @@ def overlap(request):
 
 
 def overlapPrecentage():
-    emps = Employee.objects.all()
+    emps = Employee.objects.exclude(is_active=False)
     count = 0
     todayDate = datetime.date.today()
 
@@ -357,16 +357,14 @@ def loginForm(request, next=''):
             username = request.POST.get('username')
             password = request.POST.get('password')
             user = user = authenticate(username=username, password=password)
-            if user:
-                if user.is_active:
-                    login(request, user)
-                    if 'next' in request.POST:
-                        return HttpResponseRedirect(request.POST.get('next'))
-                    else:
-                        return HttpResponseRedirect(reverse('CalendarinhoApp:Dashboard'))
+            if user and user.is_active:
+                login(request, user)
+                if 'next' in request.POST:
+                    return HttpResponseRedirect(request.POST.get('next'))
                 else:
-                    return HttpResponse("Your account was inactive.")
+                    return HttpResponseRedirect(reverse('CalendarinhoApp:Dashboard'))
             else:
+                print("Someone tried to login and failed. is_active = "+str(Employee.objects.get(username=username).is_active))
                 messages.error(request, "Invalid login details given")
                 form = Login_Form()
                 return render(request, 'CalendarinhoApp/login.html', {'form': form})
