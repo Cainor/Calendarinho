@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from .models import Employee, Engagement, Leave, Client, Comment
-from .forms import EmployeeOverlapForm, Login_Form, CommentForm
+from .models import Employee, Engagement, Leave, Client, Comment, OTP
+from .forms import *
 from django.views.decorators.csrf import csrf_exempt  # To Disable CSRF
 from django.http import JsonResponse
 import datetime
@@ -21,6 +21,10 @@ from django.conf import settings
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
+from .MZemail import send_forget_password_OTP
+from threading import Thread
+from django.db.models import Q 
+from autocomplete.forms import EmployeeCounter
 
 def not_found(request, exception=None):
     response = render(request, 'CalendarinhoApp/404.html', {})
@@ -85,7 +89,7 @@ def Dashboard(request):
 
 @login_required
 def EmployeesTable(request):
-    emps = Employee.objects.all()
+    emps = Employee.objects.exclude(is_active=False)
     table = []
     row = {}
     for emp in emps:
@@ -364,7 +368,6 @@ def loginForm(request, next=''):
                 else:
                     return HttpResponseRedirect(reverse('CalendarinhoApp:Dashboard'))
             else:
-                print("Someone tried to login and failed. is_active = "+str(Employee.objects.get(username=username).is_active))
                 messages.error(request, "Invalid login details given")
                 form = Login_Form()
                 return render(request, 'CalendarinhoApp/login.html', {'form': form})
@@ -552,3 +555,95 @@ def notifyManagersNewLeave(user, leave , request):
         connection.send_messages(emails)
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
+
+def forgetPasswordInit(request):
+    form = passwordforgetInitForm()
+    return render(request,"CalendarinhoApp/forgetpasswordInit.html",{"form": form})
+
+def forgetpasswordOTP(request):
+    if (request.method == 'POST'):
+        #A thread to send an email in the background. Otherwise we will have an email enumeration using time-based attack.
+        thread = Thread(target = send_forget_password_OTP, args= (request,))
+        thread.start()
+        form = passwordforgetEndForm()
+        emp_mail = request.POST.get("email")
+        return render(request,"CalendarinhoApp/forgetpasswordOTP.html",{"form":form,"emp_mail":emp_mail})
+    else:
+        return HttpResponseRedirect("/login/")
+
+def forgetpasswordEnd(request):
+    if (request.method == 'POST'):
+        emp_mail = request.POST.get("emp_mail")
+        form = passwordforgetEndForm()
+
+        fromDatabase = OTP.objects.filter(Email=emp_mail).first()
+        if(not fromDatabase):
+            messages.error(request, "SOmething IS WRong!")
+            return render(request,"CalendarinhoApp/forgetpasswordOTP.html",{"form":form,"emp_mail":emp_mail})
+
+        if(fromDatabase.OTP == request.POST.get("OTP") and int(fromDatabase.Tries) <= 5 and fromDatabase.now_diff() < 300):
+            emp = Employee.objects.filter(email=emp_mail).first()
+            emp.set_password(request.POST.get("new_Password"))
+            emp.save()
+
+            fromDatabase.delete()
+
+            messages.success(request, "Password Changed Successfully!")
+            Login_form = Login_Form()
+            return render(request,"CalendarinhoApp/login.html",{"form":Login_form})
+        else:
+            messages.error(request, "Something went wrong!")
+
+            #Increase number of tries:
+            fromDatabase.Tries = str(int(fromDatabase.Tries)+1)
+
+            fromDatabase.save()
+            return render(request,"CalendarinhoApp/forgetpasswordOTP.html",{"form":form,"emp_mail":emp_mail})
+    else:
+        return HttpResponseRedirect("/login/")
+
+@login_required
+def counterEmpSvc(request):
+    #Only Managers and Superusers are allowed
+    if(not request.user.is_superuser and not request.user.user_type == 'M'):
+        return not_found(request)
+    else:
+        form = EmployeeCounter()
+        if (request.method == 'GET'):
+            countList = {}
+            for emp in Employee.objects.all().order_by('first_name'):
+                empCount = []
+                for srv in Service.objects.all():
+                    empCount.append(emp.countSrv(srv.id))
+                countList.update({emp:empCount})
+            
+            serviceList = Service.objects.all()
+            return render(request,"CalendarinhoApp/counterEmpSvc.html",{'form':form, 'countList':countList, 'serviceList':serviceList})
+        else:
+            countList = {}
+            
+            if(not request.POST.get("Employees")):
+                for emp in Employee.objects.all().order_by('first_name'):
+                    countList.update({emp:''})
+            else:
+                empInputList = request.POST.getlist("Employees")
+                for empID in empInputList:
+                    emp = Employee.objects.get(id=empID)
+                    countList.update({emp:''})
+            
+            serviceList = []
+            if(not request.POST.get("ServiceType")):
+                for serv in Service.objects.all():
+                    serviceList.append(serv)
+            else:
+                servInputList = request.POST.getlist("ServiceType")
+                for serv in servInputList:
+                    serviceList.append(Service.objects.get(id=serv))
+            
+            for emp in countList:
+                countSrvList = []
+                for serv in serviceList:
+                    countSrvList.append(emp.countSrv(serv.id))
+                countList.update({emp:countSrvList})
+
+            return render(request,"CalendarinhoApp/counterEmpSvc.html",{'form':form, 'countList':countList, 'serviceList':serviceList})

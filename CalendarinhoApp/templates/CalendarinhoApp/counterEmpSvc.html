@@ -1,0 +1,72 @@
+{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block head_block %}
+<!-- Custom styles for this page -->
+<link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block body_block %} 
+<!-- Page level plugins -->
+<script src="{% static 'js/demo/datatables-demo.js' %}"></script>
+<script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
+<script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
+<div class="container-fluid">
+    <h1 class="h3 mb-2 text-gray-800 col-sm">Service Involvement</h1>
+    <div class="row d-flex justify-content-center" style="margin-top:100px">
+        <form action="/counterTable" method="POST">
+            {{form}}
+            {% csrf_token %}
+            <input type="submit" value="Filter" class="rounded-pill btn-primary btn-sm" style="padding-right:25px;padding-left: 25px;padding-top: 6px;padding-bottom: 8px;">
+            <br>
+            <lable class="d-flex justify-content-center mt-2">Empty field means "Any"</lable>
+        </form>
+    </div>
+
+    <div class="card shadow mb-4 mt-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Counter Table</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            {% for srv in serviceList %}
+                            <th>{{srv}}</th>
+                            {% endfor %}
+
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>Name</th>
+                            {% for srv in serviceList %}
+                            <th>{{srv}}</th>
+                            {% endfor %}
+
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for emp,count in countList.items %}
+                        <tr>
+                            <td><a href="/profile/{{emp.id}}">{{emp}}</a></td>
+                            {% for number in count %}
+                                <td>{{number}}</td>
+                            {% endfor %}
+
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
+{{form.media}}
+{% endblock %}

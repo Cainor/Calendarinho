@@ -3,7 +3,9 @@ from django.contrib import admin
 from .models import Employee, Engagement, Leave, Client, Service, Comment
 from .views import notifyEngagedEmployees, notifyManagersNewEngagement, notifyManagersNewLeave
 
+from autocomplete.forms import EngagementForm, LeaveForm
 admin.site.register(Employee)
+
 
 
 class ClientAdmin(admin.ModelAdmin):
@@ -19,6 +21,7 @@ class EngagementAdmin(admin.ModelAdmin):
                     'StartDate', 'EndDate')
     list_filter = ('ServiceType', 'StartDate')
     search_fields = ('EngName', 'CliName__CliName')
+    form = EngagementForm
 
 
     def save_model(self, request, obj, form, change):
@@ -49,6 +52,7 @@ class LeaveAdmin(admin.ModelAdmin):
     list_display = ('Note', 'emp', 'LeaveType', 'StartDate', 'EndDate')
     list_filter = ('LeaveType', 'StartDate', 'EndDate')
     search_fields = ('Note', 'emp__first_name', 'emp__last_name')
+    form = LeaveForm
 
     def save_model(self, request, obj, form, change):
         """Save Leave and send notifications to the related employees and managers."""

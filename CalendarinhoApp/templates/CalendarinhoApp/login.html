@@ -57,18 +57,16 @@
                     </div> -->
                                         {% if messages %}
                                         {% for message in messages %}
-                                        {% if message.tags %} <div class="alert alert-danger" role="alert">{{ message }}</div>{% endif %}
+                                        {% if message.tags %} <div class="alert {{ message.tags }}" role="alert">{{ message }}</div>{% endif %}
                                         {% endfor %}
                                         {% endif %}
                                         <button type="submit" class="btn btn-primary btn-user btn-block">Login</button>
-                                    </form>
+                                    </form>                                    
                                     <hr>
-                                    <!--<div class="text-center">
-                  <a class="small" href="#">Forgot Password?</a>
+                                    
+                                    <div class="text-center">
+                  <a class="small" href="/forgetpassword">Forgot Password?</a>
                 </div>
-                <div class="text-center">
-                  <a class="small" href="#">Create an Account!</a>
-                </div>-->
                                 </div>
                             </div>
                         </div>

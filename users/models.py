@@ -48,7 +48,7 @@ class CustomUser(AbstractUser):
 
     def getAllEngagements(self):
         event_arr = []
-        all_engagements = self.Engagements.all()
+        all_engagements = self.Engagements.all().order_by('StartDate')
         colors = ["#BD4932"]
         for i in all_engagements:
             event_sub_arr = {}
@@ -141,3 +141,10 @@ class CustomUser(AbstractUser):
 
     def getEmployees():
         return CustomUser.objects.filter(user_type="E")
+        
+    def countSrv(self,service_id):
+        result = 0
+        all_engagements = self.Engagements.all()
+        
+        result = all_engagements.filter(ServiceType = service_id).count()
+        return result

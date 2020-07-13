@@ -147,7 +147,7 @@ class Engagement(models.Model):
         Service, on_delete=models.PROTECT, verbose_name="Service Type")
     StartDate = models.DateField('Start Date')
     EndDate = models.DateField('End Date')
-    Scope = models.TextField(blank=True, verbose_name="Scope", help_text="Enter one domain/IP per line")
+    Scope = models.TextField(blank=False, verbose_name="Scope", help_text="Enter one domain/IP per line")
 
     def getAllEngs():
         event_arr = []
@@ -203,13 +203,13 @@ class Engagement(models.Model):
 
 
 class Leave(models.Model):
-    emp = models.ForeignKey(Employee, on_delete=models.CASCADE)
+    emp = models.ForeignKey(Employee, verbose_name="Employee Name",on_delete=models.CASCADE)
     Note = models.CharField(max_length=200)
     StartDate = models.DateField('Start Date')
     EndDate = models.DateField('End Date')
     Types = (("Training", "Training"), ("Vacation", "Vacation"))
     LeaveType = models.CharField(
-        max_length=8, choices=Types, default="Vacation")
+        max_length=8, choices=Types, default="Vacation", verbose_name="Leave Type")
 
     def __str__(self):
         return str(self.LeaveType) + " -- " + str(self.Note)
@@ -229,3 +229,17 @@ class Comment(models.Model):
 
     def __str__(self):
         return 'Comment {} by {}'.format(self.body, self.user)
+
+
+class OTP(models.Model):
+    OTP = models.CharField(max_length=6, default='999999')
+    Email = models.CharField(max_length=50)
+    Timestamp = models.DateTimeField(auto_now_add=True)
+    Tries = models.CharField(max_length=1, default='0')
+
+    def __str__(self):
+        return str(self.OTP)
+
+    def now_diff(self):
+        delta = datetime.datetime.now() - self.Timestamp
+        return delta.total_seconds()

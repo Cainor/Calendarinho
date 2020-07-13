@@ -1,7 +1,7 @@
 from django import forms
 from crispy_forms.helper import FormHelper
 import datetime
-from .models import Comment
+from .models import Comment,Service
 
 
 class EmployeeOverlapForm(forms.Form):
@@ -25,3 +25,10 @@ class CommentForm(forms.ModelForm):
         widgets = {
             'body': forms.Textarea(attrs={'style': 'height: 5em;'}),
         }
+
+class passwordforgetInitForm(forms.Form):
+    email = forms.CharField(label='Email Address', max_length=100)
+
+class passwordforgetEndForm(forms.Form):
+    OTP = forms.CharField(label='One Time Password', max_length=100)
+    new_Password = forms.CharField(widget=forms.PasswordInput())

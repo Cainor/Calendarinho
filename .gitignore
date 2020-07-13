@@ -603,3 +603,4 @@ MigrationBackup/
 *.pyproj*
 
 .vscode
+sqlite3.db

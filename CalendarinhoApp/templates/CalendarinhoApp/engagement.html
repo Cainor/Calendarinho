@@ -10,7 +10,11 @@
 
 {% block body_block %}
 <div class="container-fluid">
-    <h1 class="h3 mb-2 text-gray-800">{{eng.EngName}}</h1>
+    <div class="row">
+    <h1 class="h3 mb-2 text-gray-800 col-sm">{{eng.EngName}}</h1>
+    <a href="/admin/CalendarinhoApp/engagement/{{eng.id}}/change/">
+        <input class="btn btn-primary btn-md" style="margin-bottom: 35px; margin-right: 10px;" type="button" value="Edit"></input>
+    </a></div>
     <div class="row">
         <!-- Upcoming Engagement Card-->
         <div class="col-xl-4 col-lg-7">
