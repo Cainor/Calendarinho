@@ -410,7 +410,7 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
     for addedEmp in addedEmps :
         context = {
                 'first_name': addedEmp.first_name,
-                'message': 'You have been engaged',
+                'message': 'You have been assigned to a new engagement',
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName
@@ -425,7 +425,7 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
     for removedEmp in removedEmps :
         context = {
                 'first_name': removedEmp.first_name,
-                'message': 'You have been unengaged',
+                'message': 'You have been un-assigned from an engagement ',
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName

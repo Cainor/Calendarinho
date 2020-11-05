@@ -2,13 +2,23 @@
     <head><h2>Calendarinho Notification</h2></head>
     <body>
         <p>Dear {{first_name}},</p>
-        <p><b>{{ message }}</b></p>
-        <p><b>Leave type:</b> {{ leave_type }}</p>
-        <p><b>Leave note:</b> {{ note }}</p>
-        <p><b>Start date:</b> {{ start_date }}</p>
-        <p><b>End date:</b> {{ end_date }}</p>
-        <p>You can see {{ Employee }} calendar <a href="{{profile_url}}" class="alert-link">here</a></p>
-        <br>
-        <p>The Calendarinho team</p>
+        <p>
+            <b>{{ message }}</b>
+            <br>
+            <b>Leave type:</b> {{ leave_type }}
+            <br>
+            <b>Leave note:</b> {{ note }}
+            <br>
+            <b>Start date:</b> {{ start_date }}
+            <br>
+            <b>End date:</b> {{ end_date }}
+            <br>
+            You can see {{ Employee }} calendar <a href="{{profile_url}}" class="alert-link">here</a>
+        </p>
+        <p>
+            Best Regards,
+            <br>
+            Calendarinho team
+        </p>
     </body>
 </html>
