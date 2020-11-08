@@ -23,4 +23,4 @@ class MySetPasswordForm(SetPasswordForm):
         super().save(commit=True)
         password_after = getattr(self.user, "password")
         if password_before != password_after:
-            notifyAfterPasswordReset(self.user)
+            notifyAfterPasswordReset(self.user,domain="Calendarinho", protocol="https")

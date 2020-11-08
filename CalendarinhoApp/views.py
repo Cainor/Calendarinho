@@ -1,3 +1,4 @@
+from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render, get_object_or_404
 from django.template import loader
 from django.http import HttpResponse, Http404, HttpResponseRedirect
@@ -17,6 +18,8 @@ from django.contrib.auth.forms import PasswordResetForm
 import logging
 from django.shortcuts import resolve_url
 from django.conf import settings
+from datetime import timedelta, date
+import calendar
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -34,6 +37,18 @@ def not_found(request, exception=None):
 
 @login_required
 def Dashboard(request):
+    emps = Employee.objects.exclude(is_active=False)
+
+    # calculation for utilization chart
+    try:
+        monthsDates = monthesStartAndEndDates(2020)
+        utilizationList = []
+        for i in range(len(monthsDates)):
+            utilization = employeesUtilization(monthsDates[i][0], monthsDates[i][1])
+            utilizationList.append(int(100 * (round(utilization,2))))
+    except Exception as e:
+        print(e)
+        
     emps = Employee.objects.exclude(is_active=False)
 
     # calculation for pie chart
@@ -78,6 +93,8 @@ def Dashboard(request):
     statistics['numberOfEmployees'] = emps.count()  # Number of Employees
     statistics['pieChartStatus'] = state
     statistics['engagementsBars'] = engsTable
+    if utilizationList:
+        statistics['2020UtilizationChart'] = utilizationList
     context = {
         'statistics': statistics
     }
@@ -204,7 +221,8 @@ def engagement(request, eng_id):
             # Save the comment to the database
             new_comment.save()
             # Send notification to the users those involved in the engagement
-            notifyNewComment(new_comment, request)
+            thread = Thread(target = notifyNewComment, args= (new_comment, request))
+            thread.start()     
     try:
         comment_form = CommentForm()
         comments = Comment.objects.filter(eng_id=engagement.id)
@@ -410,10 +428,12 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
     for addedEmp in addedEmps :
         context = {
                 'first_name': addedEmp.first_name,
-                'message': 'You have been assigned to a new engagement',
+                'message': str(request.user) + ' has assigned you to a new engagement',
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
-                'engagement_name': engagement.EngName
+                'engagement_name': engagement.EngName,
+                'protocol': 'https' if request.is_secure() else 'http',
+                'domain' : get_current_site(request).domain,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/employee_engagement_email.html', context)
@@ -425,10 +445,12 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
     for removedEmp in removedEmps :
         context = {
                 'first_name': removedEmp.first_name,
-                'message': 'You have been un-assigned from an engagement ',
+                'message': str(request.user) + ' has removed you from an engagement ',
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
-                'engagement_name': engagement.EngName
+                'engagement_name': engagement.EngName,
+                'protocol': 'https' if request.is_secure() else 'http',
+                'domain' : get_current_site(request).domain,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/employee_engagement_email.html', context)
@@ -456,6 +478,9 @@ def notifyNewComment(comment, request):
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
+                'user':user,
+                'protocol': 'https' if request.is_secure() else 'http',
+                'domain' : get_current_site(request).domain,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/engagement_comment_email.html', context)
@@ -471,24 +496,27 @@ def notifyNewComment(comment, request):
 def reset_password(email, from_email, domain,
         template='CalendarinhoApp/emails/new_user_password_reset_email.html'):
     """
-    Reset the password for all (active) users with given E-Mail adress
+    Reset the password for all (active) users with given E-Mail address
     """
     form = PasswordResetForm({'email': email})
     if form.is_valid():
-        return form.save(from_email=from_email, email_template_name=template, domain_override=domain)
+        return form.save(from_email=from_email, html_email_template_name=template,email_template_name=template, domain_override=domain, use_https=False)
 
-def notifyAfterPasswordReset(user):
+def notifyAfterPasswordReset(user, request=None, domain=None, protocol=None):
     """Send email to the user after password reset."""
 
     context = {
-                'username': user.username
+                'username': user.username,
+                'protocol': 'https', #CHANGE IT IN PRODUCTION
+                'domain' : get_current_site(request).domain if request else domain,
             }
     email_body = loader.render_to_string(
             'CalendarinhoApp/emails/password_reset_complete_email.html', context)
     email = EmailMessage('Calendarinho password reset', email_body, to=[user.email])
     email.content_subtype = "html"
     try:
-        email.send()
+        thread = Thread(target = email.send, args= ())
+        thread.start()
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
@@ -504,6 +532,9 @@ def notifyManagersNewEngagement(user, engagement, request):
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
+                'user':user,
+                'protocol': 'https' if request.is_secure() else 'http',
+                'domain' : get_current_site(request).domain,                
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/manager_new_engagement_email.html', context)
@@ -544,6 +575,8 @@ def notifyManagersNewLeave(user, leave , request):
                 'Employee': leave.emp.first_name + ' ' + leave.emp.last_name,
                 'profile_url': request.build_absolute_uri(reverse('CalendarinhoApp:profile',
                     args=[leave.emp.id])),
+                'protocol': 'https' if request.is_secure() else 'http',
+                'domain' : get_current_site(request).domain,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/manager_new_leave_email.html', context)
@@ -574,23 +607,29 @@ def forgetpasswordOTP(request):
 def forgetpasswordEnd(request):
     if (request.method == 'POST'):
         emp_mail = request.POST.get("emp_mail")
-        form = passwordforgetEndForm()
+        form = passwordforgetEndForm(request.POST)
 
         fromDatabase = OTP.objects.filter(Email=emp_mail).first()
         if(not fromDatabase):
-            messages.error(request, "SOmething IS WRong!")
+            messages.error(request, "Something is Wrong!")
             return render(request,"CalendarinhoApp/forgetpasswordOTP.html",{"form":form,"emp_mail":emp_mail})
 
         if(fromDatabase.OTP == request.POST.get("OTP") and int(fromDatabase.Tries) <= 5 and fromDatabase.now_diff() < 300):
-            emp = Employee.objects.filter(email=emp_mail).first()
-            emp.set_password(request.POST.get("new_Password"))
-            emp.save()
+            if form.is_valid():
+                emp = Employee.objects.filter(email=emp_mail).first()
+                emp.set_password(request.POST.get("new_Password"))
+                emp.save()
 
-            fromDatabase.delete()
+                fromDatabase.delete()
 
-            messages.success(request, "Password Changed Successfully!")
-            Login_form = Login_Form()
-            return render(request,"CalendarinhoApp/login.html",{"form":Login_form})
+
+                notifyAfterPasswordReset(emp, request=request)
+
+                messages.success(request, "Password Changed Successfully!")
+                Login_form = Login_Form()
+                return render(request,"CalendarinhoApp/login.html",{"form":Login_form})
+            else:
+                return render(request,"CalendarinhoApp/forgetpasswordOTP.html",{"form":form,"emp_mail":emp_mail})
         else:
             messages.error(request, "Something went wrong!")
 
@@ -647,3 +686,42 @@ def counterEmpSvc(request):
                 countList.update({emp:countSrvList})
 
             return render(request,"CalendarinhoApp/counterEmpSvc.html",{'form':form, 'countList':countList, 'serviceList':serviceList})
+
+
+def employeesUtilization(start_date, end_date):
+    """ Calculate employees utilization in a specific period of time """
+
+    if not (isinstance(start_date, datetime.date) and isinstance(end_date, datetime.date)):
+        raise Exception("Sorry, start date and end date should be date objects")
+    totalUtilization = 0
+    numberOFDays = 0
+    for single_date in daterange(start_date, end_date):
+        numberOFDays += 1
+        dayUtilization = 0
+        employees_in_that_day = Employee.objects.filter(date_joined__lte = single_date).exclude(is_active=False)
+        engaged_employees = []
+        engagements_in_that_day = Engagement.objects.filter(StartDate__lte = single_date).filter(EndDate__gt = (single_date))
+        for eng in engagements_in_that_day:
+            engEmployees = eng.Employees.all()
+            for employee in engEmployees:
+                if employee not in engaged_employees:
+                    engaged_employees.append(employee)
+        dayUtilization = len(engaged_employees) / employees_in_that_day.count()
+        totalUtilization += dayUtilization
+    totalUtilization = totalUtilization / numberOFDays
+    return totalUtilization
+
+
+def daterange(start_date, end_date):
+    """ Rturn dates range in a specific period of time  """
+    for n in range(int((end_date - start_date).days)):
+        yield start_date + timedelta(n)
+
+def monthesStartAndEndDates(year):
+    """ Return a list containing the start date and end date for each month in a specific year """
+    result = []
+    for i in range(12):
+        startdate = date(2020, i+1, 1).replace(day=1) 
+        enddate = date(2020, i+1, calendar.monthrange(2020, i+1)[1])
+        result.append((startdate, enddate))
+    return result

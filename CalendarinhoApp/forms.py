@@ -2,6 +2,9 @@ from django import forms
 from crispy_forms.helper import FormHelper
 import datetime
 from .models import Comment,Service
+from django.contrib.auth import password_validation
+from django.core.exceptions import ValidationError
+
 
 
 class EmployeeOverlapForm(forms.Form):
@@ -32,3 +35,8 @@ class passwordforgetInitForm(forms.Form):
 class passwordforgetEndForm(forms.Form):
     OTP = forms.CharField(label='One Time Password', max_length=100)
     new_Password = forms.CharField(widget=forms.PasswordInput())
+    
+    def clean_new_Password(self):
+        data = self.cleaned_data['new_Password']
+        password_validation.validate_password(data)
+

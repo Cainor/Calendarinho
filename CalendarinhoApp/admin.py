@@ -1,4 +1,5 @@
 from django.contrib import admin
+from threading import Thread
 
 from .models import Employee, Engagement, Leave, Client, Service, Comment
 from .views import notifyEngagedEmployees, notifyManagersNewEngagement, notifyManagersNewLeave
@@ -38,12 +39,14 @@ class EngagementAdmin(admin.ModelAdmin):
         empsAfter=None
         if request.POST.getlist('Employees'):
             empsAfter=Employee.objects.filter(id__in=request.POST.getlist('Employees'))
-    
-        notifyEngagedEmployees(empsBefore, empsAfter, engagement=obj, request=request)
+        
+        thread = Thread(target = notifyEngagedEmployees, args= (empsBefore, empsAfter, obj, request))
+        thread.start()
 
         if not change:
             # Send notifications to the managers after a new engagement is added.
-            notifyManagersNewEngagement(user=request.user, engagement=obj ,request=request)
+            thread = Thread(target = notifyManagersNewEngagement, args= (request.user, obj, request))
+            thread.start()
 
 admin.site.register(Engagement, EngagementAdmin)
 
@@ -60,7 +63,8 @@ class LeaveAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
         if not change:
             # Send notifications to the managers after a new leave is added.
-            notifyManagersNewLeave(user=request.user, leave=obj, request=request)
+            thread = Thread(target = notifyManagersNewLeave, args= (request.user, obj, request))
+            thread.start()            
 
 
 admin.site.register(Leave, LeaveAdmin)

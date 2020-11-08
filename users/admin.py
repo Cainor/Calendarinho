@@ -3,12 +3,15 @@ from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext, gettext_lazy as _
+from threading import Thread
 
 from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
 from CalendarinhoApp.views import reset_password
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.models import User
+from django.conf import settings
+
 
 
 class CustomUserAdmin(UserAdmin):
@@ -45,8 +48,8 @@ class CustomUserAdmin(UserAdmin):
             current_site = get_current_site(request)
             site_name = current_site.name
             domain = current_site.domain
-
-            reset_password(email=email[0], from_email='' , domain=domain)
+            thread = Thread(target = reset_password, args= (email[0], settings.EMAIL_HOST_USER,request))
+            thread.start()
 
 
 admin.site.unregister(CustomUser)

@@ -3,6 +3,19 @@ from django.db import models
 import datetime
 from collections import namedtuple
 
+class EmailField(models.CharField):
+    def __init__(self, *args, **kwargs):
+        super(EmailField, self).__init__(*args, **kwargs)
+
+    def get_prep_value(self, value):
+        return str(value).lower()
+
+class CharField(models.Field):
+    def __init__(self, *args, **kwargs):
+        super(CharField, self).__init__(*args, **kwargs)
+
+    def get_prep_value(self, value):
+        return str(value).lower()
 
 class CustomUser(AbstractUser):
     pass
@@ -20,6 +33,9 @@ class CustomUser(AbstractUser):
         null=True,
     )
     is_active = models.BooleanField(default=True)
+
+    email = EmailField(max_length=50, unique=True)
+    username = CharField(max_length=100, unique=True)
 
     def __str__(self):
         return self.first_name + " " + self.last_name
