@@ -20,6 +20,7 @@ from django.shortcuts import resolve_url
 from django.conf import settings
 from datetime import timedelta, date
 import calendar
+import os
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -39,16 +40,17 @@ def not_found(request, exception=None):
 def Dashboard(request):
     emps = Employee.objects.exclude(is_active=False)
 
+    calculateUtilizationToFile(2020)
     # calculation for utilization chart
     try:
-        monthsDates = monthesStartAndEndDates(2020)
+        f = open("UtilizationChartIput.txt", "r")
         utilizationList = []
-        for i in range(len(monthsDates)):
-            utilization = employeesUtilization(monthsDates[i][0], monthsDates[i][1])
-            utilizationList.append(int(100 * (round(utilization,2))))
+        for line in f:
+            utilizationList.append(int(line))
     except Exception as e:
-        print(e)
-        
+        logger.error("Failed to calculate utilization: \n" + str(e))
+
+
     emps = Employee.objects.exclude(is_active=False)
 
     # calculation for pie chart
@@ -689,6 +691,8 @@ def counterEmpSvc(request):
 
 
 def employeesUtilization(start_date, end_date):
+
+    
     """ Calculate employees utilization in a specific period of time """
 
     if not (isinstance(start_date, datetime.date) and isinstance(end_date, datetime.date)):
@@ -698,15 +702,12 @@ def employeesUtilization(start_date, end_date):
     for single_date in daterange(start_date, end_date):
         numberOFDays += 1
         dayUtilization = 0
-        employees_in_that_day = Employee.objects.filter(date_joined__lte = single_date).exclude(is_active=False)
-        engaged_employees = []
-        engagements_in_that_day = Engagement.objects.filter(StartDate__lte = single_date).filter(EndDate__gt = (single_date))
-        for eng in engagements_in_that_day:
-            engEmployees = eng.Employees.all()
-            for employee in engEmployees:
-                if employee not in engaged_employees:
-                    engaged_employees.append(employee)
-        dayUtilization = len(engaged_employees) / employees_in_that_day.count()
+        employees_in_that_day = Employee.objects.filter(date_joined__lt = (single_date + timedelta(days=1)) ).exclude(is_active=False)
+        utilized_employees = []
+        for employee in employees_in_that_day:
+            if employee.overlapCheck(single_date,single_date):
+                utilized_employees.append(employee)
+        dayUtilization = len(utilized_employees) / employees_in_that_day.count()
         totalUtilization += dayUtilization
     totalUtilization = totalUtilization / numberOFDays
     return totalUtilization
@@ -714,7 +715,7 @@ def employeesUtilization(start_date, end_date):
 
 def daterange(start_date, end_date):
     """ Rturn dates range in a specific period of time  """
-    for n in range(int((end_date - start_date).days)):
+    for n in range(int((end_date - start_date).days)+1):
         yield start_date + timedelta(n)
 
 def monthesStartAndEndDates(year):
@@ -725,3 +726,25 @@ def monthesStartAndEndDates(year):
         enddate = date(2020, i+1, calendar.monthrange(2020, i+1)[1])
         result.append((startdate, enddate))
     return result
+
+
+def calculateUtilizationToFile(year):
+    try:
+        f = open("UtilizationChartIput.txt")
+        # Do something with the file
+    except IOError:
+        try:
+            f = open("UtilizationChartIput.txt", "w")
+            monthsDates = monthesStartAndEndDates(year)
+            first= True
+            for i in range(len(monthsDates)):
+                utilization = employeesUtilization(monthsDates[i][0], monthsDates[i][1])
+                if not first:
+                    f.write("\n")
+                first = False
+                f.write(str((int(100 * (round(utilization,2))))))
+                print((int(100 * (round(utilization,2)))))
+        except Exception as e:
+            logger.error("Failed to calculate utilization: \n" + str(e))
+    finally:
+        f.close()

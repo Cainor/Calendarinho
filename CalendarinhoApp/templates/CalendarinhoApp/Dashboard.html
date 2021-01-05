@@ -135,47 +135,10 @@
             </div>
         </div>
             </div>-->
-        <!-- Project Card Example -->
-        <div class="col-xl-8 col-lg-7">
-            <div class="card shadow mb-4">
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Ongoing Engagements</h6>
-                </div>
-                <div class="card-body">
-                    {% for eng in statistics.engagementsBars%}
-                    {% if eng.precent < 25 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    {% endif %}
-                    {% if eng.precent < 50 and eng.precent >= 25 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    {% endif %}
-                    {% if eng.precent < 75 and eng.precent >= 50 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar bg-info" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    {% endif %}
-                    {% if eng.precent <= 100 and eng.precent >= 75 %}
-                    <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                    <div class="progress mb-4">
-                        <div class="progress-bar bg-success" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    {% endif %}
-                    {% endfor %}
 
-                </div>
-            </div>
-        </div>
-        
+        <div class="col-xl-8 col-lg-7">
         {% if statistics.2020UtilizationChart %}
             <!-- Utilization Chart -->
-            <div class="col-xl-8 col-lg-7">
                 <div class="card shadow mb-4">
                     <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                         <h6 class="m-0 font-weight-bold text-primary">2020 Utilization</h6>
@@ -184,8 +147,43 @@
                         {% include "CalendarinhoApp/utilizationChart.html" %}
                     </div>
                 </div>
-            </div>
         {% endif %}
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                <h6 class="m-0 font-weight-bold text-primary">Ongoing Engagements</h6>
+            </div>
+            <div class="card-body">
+                {% for eng in statistics.engagementsBars%}
+                {% if eng.precent < 25 %}
+                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar bg-warning" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                {% endif %}
+                {% if eng.precent < 50 and eng.precent >= 25 %}
+                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                {% endif %}
+                {% if eng.precent < 75 and eng.precent >= 50 %}
+                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar bg-info" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                {% endif %}
+                {% if eng.precent <= 100 and eng.precent >= 75 %}
+                <h4 class="small font-weight-bold"><a href="engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
+                <div class="progress mb-4">
+                    <div class="progress-bar bg-success" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+        </div>
+        </div>
 
         <!-- Pie Chart -->
         <div class="col-xl-4 col-lg-5">
@@ -238,6 +236,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 
 </div>
