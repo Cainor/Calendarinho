@@ -707,7 +707,11 @@ def employeesUtilization(start_date, end_date):
         for employee in employees_in_that_day:
             if employee.overlapCheck(single_date,single_date):
                 utilized_employees.append(employee)
-        dayUtilization = len(utilized_employees) / employees_in_that_day.count()
+        try:
+            dayUtilization = len(utilized_employees) / employees_in_that_day.count()
+        except ZeroDivisionError as e:
+            logger.error("Number of employees in " + str(single_date) + " is zero so utilization will be zero: \n" + str(e))
+            dayUtilization = 0
         totalUtilization += dayUtilization
     totalUtilization = totalUtilization / numberOFDays
     return totalUtilization
@@ -722,8 +726,8 @@ def monthesStartAndEndDates(year):
     """ Return a list containing the start date and end date for each month in a specific year """
     result = []
     for i in range(12):
-        startdate = date(2020, i+1, 1).replace(day=1) 
-        enddate = date(2020, i+1, calendar.monthrange(2020, i+1)[1])
+        startdate = date(int(year), i+1, 1).replace(day=1) 
+        enddate = date(int(year), i+1, calendar.monthrange(int(year), i+1)[1])
         result.append((startdate, enddate))
     return result
 
@@ -743,7 +747,6 @@ def calculateUtilizationToFile(year):
                     f.write("\n")
                 first = False
                 f.write(str((int(100 * (round(utilization,2))))))
-                print((int(100 * (round(utilization,2)))))
         except Exception as e:
             logger.error("Failed to calculate utilization: \n" + str(e))
     finally:

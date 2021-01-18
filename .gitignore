@@ -10,7 +10,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+# dist/
 downloads/
 eggs/
 .eggs/
@@ -162,7 +162,7 @@ media
 .Python
 build/
 develop-eggs/
-dist/
+# dist/
 downloads/
 eggs/
 .eggs/
@@ -604,3 +604,5 @@ MigrationBackup/
 
 .vscode
 sqlite3.db
+
+UtilizationChartIput.txt
