@@ -1,17 +1,15 @@
-
-.bg-gradient-primary{
+.bg-gradient-primary {
     background: rgb(0, 64, 40) !important;
     background: linear-gradient(0deg, rgba(0, 64, 40, 1) 0%, rgba(0, 83, 52, 1) 100%) !important;
 }
 
-.bg-primary{
+.bg-primary {
     background: #A49775 !important;
 }
 
-.border-primary{
+.border-primary {
     border-color: #A49775 !important;
 }
-
 
 .btn-primary {
     background: rgb(0, 64, 40) !important;
@@ -36,20 +34,28 @@ a.d-none.d-sm-inline-block.btn.btn-sm.btn-primary.shadow-sm {
     background-color: #A49775 !important;
 }
 
-
-
-ul.pagination li.paginate_button.page-item.active a.page-link{
+ul.pagination li.paginate_button.page-item.active a.page-link {
     background-color: #004028 !important;
     color: white !important;
     border-color: #42778D !important;
 }
 
-.pagination a{
-    color: #42778D !important; 
+.pagination a {
+    color: #42778D !important;
 }
-  
+
 .pagination a:hover:not(.active) {
     background-color: #F2F2E9 !important;
     border-color: #A49775;
     color: #42778D !important;
+}
+
+.text-title-color {
+    color: #5a5c69 !important;
+}
+
+:root {
+    --primaryColor: rgb(66, 119, 141);
+    --chartColor: #A49775;
+    --gridlines: #b6b6b6;
 }

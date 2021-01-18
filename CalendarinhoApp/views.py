@@ -1,5 +1,5 @@
 from django.contrib.sites.shortcuts import get_current_site
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from .models import Employee, Engagement, Leave, Client, Comment, OTP
@@ -751,3 +751,13 @@ def calculateUtilizationToFile(year):
             logger.error("Failed to calculate utilization: \n" + str(e))
     finally:
         f.close()
+
+def toggleTheme(request):
+    response = redirect("/Dashboard")
+    if (not request.COOKIES.get("theme")):
+        response.set_cookie("theme","Light")
+    elif (request.COOKIES.get("theme") == "Dark"):
+        response.set_cookie("theme","Light")
+    else:
+        response.set_cookie("theme","Dark")
+    return response

@@ -4,6 +4,10 @@
 <script>
     var chartData = {{ statistics.2020UtilizationChart }};
     var ctx = document.getElementById('myChart').getContext('2d');
+    var style = getComputedStyle(document.body);
+    var primCol = style.getPropertyValue('--primaryColor');
+    var chartCol = style.getPropertyValue('--chartColor');
+    var gridCol = style.getPropertyValue('--gridlines');
     var chart = new Chart(ctx, {
     // The type of chart we want to create
     type: 'line',
@@ -13,21 +17,38 @@
         labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
         datasets: [{
             label: '2020 Employees Utilization',
-            backgroundColor: 'rgb(66, 119, 141)',
-            borderColor: 'rgb(66, 119, 141)',
+            backgroundColor: primCol,
+            borderColor: chartCol,
             data: chartData
         }]
     },
 
     // Configuration options go here
     options: {
+        legend:{
+            labels: {
+                fontColor: gridCol
+            }
+        },
         scales: {
             yAxes: [{
+                gridLines: {
+                    color: gridCol
+                },
                 ticks: {
-                    // Include a dollar sign in the ticks
+                    fontColor: gridCol,
+                    // Include a precentage sign in the ticks
                     callback: function(value, index, values) {
                         return value +'%';
                     }
+                }
+            }],
+            xAxes: [{
+                gridLines: {
+                    color: gridCol
+                },
+                ticks: {
+                    fontColor: gridCol,
                 }
             }]
         }

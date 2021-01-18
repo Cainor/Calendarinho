@@ -40,5 +40,7 @@ urlpatterns = [
          views.deleteMyComment, name='deleteMyComment'),
     path('forgetpassword',views.forgetPasswordInit, name='forgetpasswordInit'),
     path('forgetpasswordOTP',views.forgetpasswordOTP, name='forgetpasswordOTP'),
-    path('forgetpasswordEnd',views.forgetpasswordEnd, name='forgetpasswordEnd')
+    path('forgetpasswordEnd',views.forgetpasswordEnd, name='forgetpasswordEnd'),
+
+    path("ToggleTheme",views.toggleTheme, name="ToggleTheme")
 ]
