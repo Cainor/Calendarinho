@@ -11328,3 +11328,9 @@ footer.sticky-footer .copyright {
 body.sidebar-toggled footer.sticky-footer {
     width: 100%
 }
+
+:root {
+    --primaryColor: rgb(66, 119, 141);
+    --chartColor: #A49775;
+    --gridlines: #b6b6b6;
+}

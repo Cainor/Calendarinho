@@ -22,6 +22,7 @@ from datetime import timedelta, date
 import calendar
 import os
 
+
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
@@ -283,7 +284,7 @@ def EmployeesCal(request):
 
 @login_required
 def overlap(request):
-    emps = Employee.objects..exclude(is_active=False)
+    emps = Employee.objects.exclude(is_active=False)
     avalibleEmps = {"emp": [],
                     "id": []}
     sdate = request.POST.get("Start_Date")
@@ -495,21 +496,21 @@ def notifyNewComment(comment, request):
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
-def reset_password(email, from_email, domain,
+def reset_password(email, from_email, domain, use_ssl,
         template='CalendarinhoApp/emails/new_user_password_reset_email.html'):
     """
     Reset the password for all (active) users with given E-Mail address
     """
     form = PasswordResetForm({'email': email})
     if form.is_valid():
-        return form.save(from_email=from_email, html_email_template_name=template,email_template_name=template, domain_override=domain, use_https=False)
+        return form.save(from_email=from_email, html_email_template_name=template,email_template_name=template, domain_override=domain, use_https=use_ssl)
 
 def notifyAfterPasswordReset(user, request=None, domain=None, protocol=None):
     """Send email to the user after password reset."""
 
     context = {
                 'username': user.username,
-                'protocol': 'https', #CHANGE IT IN PRODUCTION
+                'protocol': 'https' if request.is_secure() else 'http',
                 'domain' : get_current_site(request).domain if request else domain,
             }
     email_body = loader.render_to_string(

@@ -48,7 +48,7 @@ class CustomUserAdmin(UserAdmin):
             current_site = get_current_site(request)
             site_name = current_site.name
             domain = current_site.domain
-            thread = Thread(target = reset_password, args= (email[0], settings.EMAIL_HOST_USER,request))
+            thread = Thread(target = reset_password, args= (email[0], settings.EMAIL_HOST_USER,domain, request.is_secure()))
             thread.start()
 
 
