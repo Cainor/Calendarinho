@@ -66,7 +66,7 @@
     <div class="card shadow mb-4">
         <!-- Card Header - Dropdown -->
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-            <h6 class="m-0 font-weight-bold text-primary">Employees Calendar</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Employees Calendar <br/> {% for selected in selectedEmps %}{{ selected }}, {% endfor %}</h6>
         </div>
         <!-- Card Body -->
         <div class="card-body">

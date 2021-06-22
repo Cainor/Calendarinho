@@ -31,6 +31,9 @@ from threading import Thread
 from django.db.models import Q 
 from autocomplete.forms import EmployeeCounter
 
+utilizationFilePath =  os.path.join(os.path.dirname(os.path.dirname(__file__)),"UtilizationChartIput.txt")
+
+
 def not_found(request, exception=None):
     response = render(request, 'CalendarinhoApp/404.html', {})
     response.status_code = 404
@@ -39,12 +42,11 @@ def not_found(request, exception=None):
 
 @login_required
 def Dashboard(request):
-    emps = Employee.objects.exclude(is_active=False)
 
-    calculateUtilizationToFile(2020)
+    # calculateUtilizationToFile(2020)
     # calculation for utilization chart
     try:
-        f = open("UtilizationChartIput.txt", "r")
+        f = open(utilizationFilePath, "r")
         utilizationList = []
         for line in f:
             utilizationList.append(int(line))
@@ -278,13 +280,13 @@ def EmployeesCal(request):
             emp = Employee.objects.get(id=empID)
             engagements = engagements | emp.Engagements.all()
         engagements = engagements.distinct()  # Remove Doublicate
-    emps = Employee.objects.all().order_by('first_name')
+    emps = Employee.objects.all().exclude(is_active=False).order_by('first_name')
     return render(request, 'CalendarinhoApp/EmployeesCalendar.html', {'employees': emps, 'leaves': leaves, 'engagements': engagements, 'selectedEmps': selectedEmps})
 
 
 @login_required
 def overlap(request):
-    emps = Employee.objects.exclude(is_active=False)
+    emps = Employee.objects.exclude(is_active=False).order_by('first_name')
     avalibleEmps = {"emp": [],
                     "id": []}
     sdate = request.POST.get("Start_Date")
@@ -496,21 +498,21 @@ def notifyNewComment(comment, request):
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
-def reset_password(email, from_email, domain, use_ssl,
+def reset_password(email, from_email, domain,
         template='CalendarinhoApp/emails/new_user_password_reset_email.html'):
     """
     Reset the password for all (active) users with given E-Mail address
     """
     form = PasswordResetForm({'email': email})
     if form.is_valid():
-        return form.save(from_email=from_email, html_email_template_name=template,email_template_name=template, domain_override=domain, use_https=use_ssl)
+        return form.save(from_email=from_email, html_email_template_name=template,email_template_name=template, domain_override=domain, use_https=False)
 
 def notifyAfterPasswordReset(user, request=None, domain=None, protocol=None):
     """Send email to the user after password reset."""
 
     context = {
                 'username': user.username,
-                'protocol': 'https' if request.is_secure() else 'http',
+                'protocol': 'https', #CHANGE IT IN PRODUCTION
                 'domain' : get_current_site(request).domain if request else domain,
             }
     email_body = loader.render_to_string(
@@ -735,11 +737,11 @@ def monthesStartAndEndDates(year):
 
 def calculateUtilizationToFile(year):
     try:
-        f = open("UtilizationChartIput.txt")
+        f = open(utilizationFilePath)
         # Do something with the file
     except IOError:
         try:
-            f = open("UtilizationChartIput.txt", "w")
+            f = open(utilizationFilePath, "w")
             monthsDates = monthesStartAndEndDates(year)
             first= True
             for i in range(len(monthsDates)):
@@ -755,10 +757,50 @@ def calculateUtilizationToFile(year):
 
 def toggleTheme(request):
     response = redirect("/Dashboard")
+    year_inSeconds = 31536000
     if (not request.COOKIES.get("theme")):
-        response.set_cookie("theme","Light")
+        response.set_cookie("theme","Dark",max_age=year_inSeconds)
     elif (request.COOKIES.get("theme") == "Dark"):
-        response.set_cookie("theme","Light")
+        response.set_cookie("theme","Light",max_age=year_inSeconds)
     else:
-        response.set_cookie("theme","Dark")
+        response.set_cookie("theme","Dark",max_age=year_inSeconds)
     return response
+
+
+def ResourceAssignment(request):
+        #Only Managers and Superusers are allowed
+    if(not request.user.is_superuser and not request.user.user_type == 'M'):
+        return not_found(request)
+    else:
+        form = ResourceManagment()
+        if (request.method == 'GET'):
+            return render(request,"CalendarinhoApp/ResourceAssignment.html",{"form":form})
+        
+        else:
+            form = ResourceManagment(data=request.POST)
+            countList = {}
+            # Check if emp has the skill
+            emps = Employee.objects.exclude(username="aalnogaithan").exclude(user_type__in=['D']).order_by('first_name').exclude(is_active=False).filter(SkilledEmployees=request.POST.get("servList"))
+
+            # Check if emp is avalible
+            sdate = request.POST.get("start_date")
+            edate = request.POST.get("end_date")
+            empsAvail = []
+            for emp in emps:
+                if (not emp.overlapCheck(sdate,edate)):
+                    empsAvail.append(emp)
+            # Count eng with the same service
+            for emp in empsAvail:
+
+                countList[emp] = emp.countSrv(request.POST.get("servList"))
+            # Order by less count
+            print (countList)
+            sortedArray = sorted(countList.items(), key=lambda x: x[1])
+            countList = {}
+            for obj in sortedArray:
+                key, val = obj
+                countList[key] = val
+            print (countList)
+
+            
+            return render(request,"CalendarinhoApp/ResourceAssignment.html",{"countList":countList,"form":form})

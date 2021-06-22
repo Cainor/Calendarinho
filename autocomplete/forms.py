@@ -1,6 +1,8 @@
 from dal import autocomplete
 from django import forms
 from CalendarinhoApp.models import Employee, Engagement, Leave, Service
+from users.models import CustomUser
+
 
 
 class EngagementForm(forms.ModelForm):
@@ -13,6 +15,18 @@ class EngagementForm(forms.ModelForm):
                 'data-minimum-input-length': 2,
                 },),
             'CliName': autocomplete.ModelSelect2(url='autocomplete:client-autocomplete',
+            attrs={
+                'data-minimum-input-length': 2,
+                },)
+        }
+
+
+class ServiceForm(forms.ModelForm):
+    class Meta:
+        model = Service
+        fields = ('__all__')
+        widgets = {
+            'skilledEmp': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete',
             attrs={
                 'data-minimum-input-length': 2,
                 },)

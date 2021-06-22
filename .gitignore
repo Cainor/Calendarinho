@@ -606,3 +606,5 @@ MigrationBackup/
 sqlite3.db
 
 UtilizationChartIput.txt
+
+migrations/

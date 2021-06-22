@@ -14,6 +14,7 @@ urlpatterns = [
     path('EmployeesTable', views.EmployeesTable, name='EmployeesTable'),
     path('EngagementsTable', views.EngagementsTable, name='EngagementsTable'),
     path('counterTable',views.counterEmpSvc, name='counterEmpSvc'),
+    path('ResourceAssignment',views.ResourceAssignment, name='ResourceAssignment'),
     path('profile/<int:emp_id>/', views.profile, name='profile'),
     path('engagement/<int:eng_id>/', views.engagement, name='engagement'),
     path('EngagementsCalendar/', views.EngagementsCal, name='EngagementsCal'),
@@ -30,7 +31,6 @@ urlpatterns = [
     path('logout', views.logout_view, name='logout'),
     path('client/<int:cli_id>/', views.client, name='client'),
     path('ClientsTable', views.ClientsTable, name='ClientsTable'),
-    path('DeleteComment/<int:commentID>',views.deleteMyComment, name='deleteMyComment'),
     path('password-reset-confirm/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(
         template_name='CalendarinhoApp/password_reset_confirm.html', success_url=reverse_lazy(
             'CalendarinhoApp:password_reset_complete'), form_class=MySetPasswordForm), name='password_reset_confirm'),
@@ -41,6 +41,7 @@ urlpatterns = [
     path('forgetpassword',views.forgetPasswordInit, name='forgetpasswordInit'),
     path('forgetpasswordOTP',views.forgetpasswordOTP, name='forgetpasswordOTP'),
     path('forgetpasswordEnd',views.forgetpasswordEnd, name='forgetpasswordEnd'),
+    
 
     path("ToggleTheme",views.toggleTheme, name="ToggleTheme")
 ]

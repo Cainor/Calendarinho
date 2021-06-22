@@ -84,7 +84,17 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Calendarinho.wsgi.application'
 
 # Database
-
+# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'Calendarinho',
+#         'USER': 'USERNAME',
+#         'PASSWORD': 'PASSWORD',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -129,9 +139,6 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-EMAIL_SSL = 'https'
-if DEBUG:
-    EMAIL_SSL = 'http'
 
 
 from django.contrib.messages import constants as messages

@@ -4,7 +4,7 @@ from threading import Thread
 from .models import Employee, Engagement, Leave, Client, Service, Comment
 from .views import notifyEngagedEmployees, notifyManagersNewEngagement, notifyManagersNewLeave
 
-from autocomplete.forms import EngagementForm, LeaveForm
+from autocomplete.forms import EngagementForm, LeaveForm, ServiceForm
 admin.site.register(Employee)
 
 
@@ -73,7 +73,7 @@ admin.site.register(Leave, LeaveAdmin)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('serviceName', 'serviceShort')
     search_fields = ('serviceName', 'serviceShort')
-
+    form = ServiceForm
 
 admin.site.register(Service, ServiceAdmin)
 

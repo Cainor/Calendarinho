@@ -20,6 +20,7 @@ class Service(models.Model):
     serviceName = models.CharField(max_length=200, verbose_name="Service Name")
     serviceShort = models.CharField(
         max_length=10, verbose_name="Service Shortname")
+    skilledEmp =  models.ManyToManyField(Employee, blank=True, related_name="SkilledEmployees", verbose_name="Skilled Employees")
 
     def __str__(self):
         return str(self.serviceName)
@@ -108,7 +109,7 @@ class Comment(models.Model):
         Engagement, on_delete=models.CASCADE, related_name='comments')
     # Can't delete user that has comment
     user = models.ForeignKey(
-        Employee, to_field="username", on_delete=models.PROTECT)
+        Employee, on_delete=models.PROTECT, related_name='user_id')
     body = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 

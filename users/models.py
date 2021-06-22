@@ -32,8 +32,20 @@ class CustomUser(AbstractUser):
         choices=USER_TYPE_CHOICES,
         null=True,
     )
-    is_active = models.BooleanField(default=True)
 
+    USER_LEVEL_CHOICES = [
+        ('1', 'Analyst'),
+        ('2', 'Consultant'),
+        ('3', 'Senior Consultant'),
+        ('4', 'Managing Consultant'),
+    ]
+    user_level = models.CharField(
+        max_length = 1 ,
+        choices=USER_LEVEL_CHOICES,
+        null=True,
+    )
+
+    is_active = models.BooleanField(default=True)
     email = EmailField(max_length=50, unique=True)
     username = CharField(max_length=100, unique=True)
 
@@ -164,3 +176,13 @@ class CustomUser(AbstractUser):
         
         result = all_engagements.filter(ServiceType = service_id).count()
         return result
+    
+    def levelToText(self):
+        if(self.user_level == '1'):
+            return "Analyst"
+        elif(self.user_level == '2'):
+            return "Consultant"
+        elif(self.user_level == '3'):
+            return "Senior Consultant"
+        elif(self.user_level == '4'):
+            return "Managing Consultant"

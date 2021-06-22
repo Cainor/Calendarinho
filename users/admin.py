@@ -23,7 +23,7 @@ class CustomUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {
-         'fields': ('first_name', 'last_name', 'email', 'user_type')}),
+         'fields': ('first_name', 'last_name', 'email', 'user_type', 'user_level','skillset')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
@@ -39,7 +39,15 @@ class CustomUserAdmin(UserAdmin):
 
     def save_model(self, request, obj, form, change):
         """Save new user and send a notification to the user to reset his password."""
-        
+
+        # Here we save the skillset
+        if change:
+            obj.SkilledEmployees.clear()
+            for skill in form.cleaned_data['skillset']:
+                obj.SkilledEmployees.add(skill)
+            obj.save()
+
+
         super().save_model(request, obj, form, change)
         if not change:
             email = request.POST.getlist('email')
@@ -48,9 +56,14 @@ class CustomUserAdmin(UserAdmin):
             current_site = get_current_site(request)
             site_name = current_site.name
             domain = current_site.domain
-            thread = Thread(target = reset_password, args= (email[0], settings.EMAIL_HOST_USER,domain, request.is_secure()))
+            thread = Thread(target = reset_password, args= (email[0], settings.EMAIL_HOST_USER,request))
             thread.start()
 
+    # Load the current skills in the field
+    def get_form(self, request, obj=None, **kwargs):
+        if obj:
+            self.form.base_fields['skillset'].initial = obj.SkilledEmployees.all()
+        return super(CustomUserAdmin, self).get_form(request, obj)
 
 admin.site.unregister(CustomUser)
 admin.site.register(CustomUser, CustomUserAdmin)

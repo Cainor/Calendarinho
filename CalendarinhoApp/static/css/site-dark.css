@@ -93,7 +93,7 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
 }
 
 a:visited {
-    color: pink;
+    color: rgb(71, 236, 71);
     background-color: transparent;
     text-decoration: none;
 }
