@@ -94,31 +94,6 @@
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Comments Section</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <h5>Leave a comment</h5>
-                    <form method="post" style="margin-top: 1.3em;">
-                        {{ comment_form | crispy }}
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-primary  btn-md">Submit</button>
-                    </form>
-                    {% for comment in comments %}
-                    <div class="comment_body mt-2 bg-light text-dark border border-primary ">
-                        <pre class="comment_font">{{comment.body}}</pre>
-                        <div class="row comment_icons bg-primary">
-                            <i class="fa fa-calendar-alt mr-1"></i><span class="mr-3">{{comment.created_on | date}}</span>
-                            <i class="fa fa-pencil-alt mr-1"></i><a href="/profile/{{comment.user.id}}" style="color: inherit;" class="mr-3">{{comment.user.first_name}} {{comment.user.last_name}}</a>
-                            {%if comment.user == request.user or user.user_type == "M"%}
-                            <i class="fa fa-trash-alt mr-1"></i><a href="/DeleteComment/{{comment.id}}" style="color: inherit;" class="mr-3">Delete</a>
-                            {%endif%}
-                        </div>
-                    </div>
-
-                    {% endfor %}
-                </div>
-            </div>
                     <h6 class="m-0 font-weight-bold text-primary">Scope</h6>
                 </div>
                 <!-- Card Body -->

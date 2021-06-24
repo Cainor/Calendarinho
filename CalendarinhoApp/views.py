@@ -454,6 +454,8 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
+                'engagement_strDate':engagement.StartDate,
+                'engagement_endDate':engagement.EndDate,
                 'protocol': 'https' if request.is_secure() else 'http',
                 'domain' : get_current_site(request).domain,
             }
@@ -512,7 +514,7 @@ def notifyAfterPasswordReset(user, request=None, domain=None, protocol=None):
 
     context = {
                 'username': user.username,
-                'protocol': 'https', #CHANGE IT IN PRODUCTION
+                'protocol': 'http', #CHANGE IT IN PRODUCTION
                 'domain' : get_current_site(request).domain if request else domain,
             }
     email_body = loader.render_to_string(
@@ -794,13 +796,11 @@ def ResourceAssignment(request):
 
                 countList[emp] = emp.countSrv(request.POST.get("servList"))
             # Order by less count
-            print (countList)
             sortedArray = sorted(countList.items(), key=lambda x: x[1])
             countList = {}
             for obj in sortedArray:
                 key, val = obj
                 countList[key] = val
-            print (countList)
 
             
             return render(request,"CalendarinhoApp/ResourceAssignment.html",{"countList":countList,"form":form})
