@@ -42,7 +42,7 @@ DATABASES = {
 Also, in the same file, you can setup the Email settings:
 ```python
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-#Gamil Settings (You must enable "Less-Secure-App" in Google account settings)
+# Gamil Settings (You must enable "Less-Secure-App" in Google account settings)
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
