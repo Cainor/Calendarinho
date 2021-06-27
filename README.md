@@ -52,13 +52,8 @@ python3 manage.py migrate CalendarinhoApp
 python3 manage.py migrate
 ```
 
-Will be updated very soon.
 
-This is a team management application
-
---Under Development--
-
-Images of the application:
+## Images of the application:
 
 ![alt text](https://i.imgur.com/pWgx73v.png)
 
