@@ -10,7 +10,7 @@ A web application to easily manage large team of security consultants. It has so
 1. You must have Python 3 installed.
 2. Install the requirements libraries.
 ```
-python3 -m pip install -r requirements
+python -m pip install -r requirements
 ```
 3. Set up the database connection and user (Unless you will use the defualt sqlite settings).
 ```python
@@ -39,26 +39,33 @@ DATABASES = {
 }
 
 ```
+Also, in the same file, you can setup the Email settings:
+```python
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+#Gamil Settings (You must enable "Less-Secure-App" in Google account settings)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+```
+
 4. Run: "makemigrations".
 ```
-python3 manage.py makemigrations users
-python3 manage.py makemigrations CalendarinhoApp
-python3 manage.py makemigrations
+python manage.py makemigrations users
+python manage.py makemigrations CalendarinhoApp
+python manage.py makemigrations
 ```
 5. Run: "migrate".
 ```
-python3 manage.py migrate users
-python3 manage.py migrate CalendarinhoApp
-python3 manage.py migrate
+python manage.py migrate users
+python manage.py migrate CalendarinhoApp
+python manage.py migrate
 ```
 
-Will be updated very soon.
 
-This is a team management application
-
---Under Development--
-
-Images of the application:
+## Images of the application:
 
 ![alt text](https://i.imgur.com/pWgx73v.png)
 
