@@ -10,7 +10,7 @@ A web application to easily manage large team of security consultants. It has so
 1. You must have Python 3 installed.
 2. Install the requirements libraries.
 ```
-python3 -m pip install -r requirements
+python -m pip install -r requirements
 ```
 3. Set up the database connection and user (Unless you will use the defualt sqlite settings).
 ```python
@@ -41,15 +41,15 @@ DATABASES = {
 ```
 4. Run: "makemigrations".
 ```
-python3 manage.py makemigrations users
-python3 manage.py makemigrations CalendarinhoApp
-python3 manage.py makemigrations
+python manage.py makemigrations users
+python manage.py makemigrations CalendarinhoApp
+python manage.py makemigrations
 ```
 5. Run: "migrate".
 ```
-python3 manage.py migrate users
-python3 manage.py migrate CalendarinhoApp
-python3 manage.py migrate
+python manage.py migrate users
+python manage.py migrate CalendarinhoApp
+python manage.py migrate
 ```
 
 
