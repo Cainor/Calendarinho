@@ -4,7 +4,7 @@
 The Mother of ALL Calendars.
 
 ## About
-A web application to easily manage large team of security consultants. It has some functionalities that helps managements in the assignment and following up tasks.
+A web application to easily manage large team of consultants. It has some functionalities that helps managements in the assignment and following up tasks.
 
 ## Installation Guide
 1. You must have Python 3 installed.
