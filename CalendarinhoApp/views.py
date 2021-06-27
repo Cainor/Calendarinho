@@ -51,6 +51,7 @@ def Dashboard(request):
         for line in f:
             utilizationList.append(int(line))
     except Exception as e:
+        utilizationList = False
         logger.error("Failed to calculate utilization: \n" + str(e))
 
 
