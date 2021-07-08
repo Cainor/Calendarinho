@@ -142,7 +142,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_USE_TLS = True
 # EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
 # EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-
+# DEFAULT_FROM_EMAIL = 'name <username@domain.com>'
 
 from django.contrib.messages import constants as messages
 
