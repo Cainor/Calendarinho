@@ -1,4 +1,4 @@
 Django==2.2.24
 django_autocomplete_light==3.8.1
-PyMySQL==0.9.3
+PyMySQL==1.0.2
 django_crispy_forms==1.9.2
