@@ -783,7 +783,7 @@ def ResourceAssignment(request):
             form = ResourceManagment(data=request.POST)
             countList = {}
             # Check if emp has the skill
-            emps = Employee.objects.exclude(username="aalnogaithan").exclude(user_type__in=['D']).order_by('first_name').exclude(is_active=False).filter(SkilledEmployees=request.POST.get("servList"))
+            emps = Employee.objects.exclude(is_active=False).order_by('first_name').filter(SkilledEmployees=request.POST.get("servList"))
 
             # Check if emp is avalible
             sdate = request.POST.get("start_date")
