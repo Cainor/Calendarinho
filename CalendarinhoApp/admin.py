@@ -1,12 +1,13 @@
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from threading import Thread
 
-from .models import Employee, Engagement, Leave, Client, Service, Comment
+from .models import Employee, Engagement, Leave, Client, Service, Comment, ProjectManager
 from .views import notifyEngagedEmployees, notifyManagersNewEngagement, notifyManagersNewLeave
 
 from autocomplete.forms import EngagementForm, LeaveForm, ServiceForm
 admin.site.register(Employee)
-
+admin.site.enable_nav_sidebar = False
 
 
 class ClientAdmin(admin.ModelAdmin):
@@ -21,12 +22,19 @@ class EngagementAdmin(admin.ModelAdmin):
     list_display = ('EngName', 'CliName', 'ServiceType',
                     'StartDate', 'EndDate')
     list_filter = ('ServiceType', 'StartDate')
-    search_fields = ('EngName', 'CliName__CliName')
+    search_fields = ('EngName', 'CliName__CliName', 'Scope')
     form = EngagementForm
 
 
     def save_model(self, request, obj, form, change):
         """Save engagement and send notifications to the related employees and managers."""
+        # The variable obj.EngName is responsible for the engagement name, here you can automate it.
+
+        # M = '{:02d}'.format(obj.StartDate.month)
+        # Y = obj.StartDate.strftime("%y")
+        # ClientObj = obj.CliName
+        # clientCode = ClientObj.CliCode.strip()
+        # obj.EngName = ""+str(M)+str(Y)+"-"+clientCode+"-"+ClientObj.CliShort+"-"+obj.ServiceType.serviceShort
 
         super().save_model(request, obj, form, change)
 
@@ -47,6 +55,10 @@ class EngagementAdmin(admin.ModelAdmin):
             # Send notifications to the managers after a new engagement is added.
             thread = Thread(target = notifyManagersNewEngagement, args= (request.user, obj, request))
             thread.start()
+    
+    def get_form(self, request, obj=None, **kwargs):
+        form = super(EngagementAdmin, self).get_form(request, obj, **kwargs)
+        return form
 
 admin.site.register(Engagement, EngagementAdmin)
 
@@ -59,7 +71,7 @@ class LeaveAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         """Save Leave and send notifications to the related employees and managers."""
-
+        obj.emp = request.user
         super().save_model(request, obj, form, change)
         if not change:
             # Send notifications to the managers after a new leave is added.
@@ -86,3 +98,4 @@ class CommentAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Comment, CommentAdmin)
+admin.site.register(ProjectManager)

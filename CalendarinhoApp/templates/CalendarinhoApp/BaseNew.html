@@ -16,6 +16,8 @@
     <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
     {% if request.COOKIES.theme == "Dark"%}
     <link href="{% static 'css/site-dark.css' %}" rel="stylesheet" type="text/css">
+    {% else %}
+    <link href="{% static 'css/site.css' %}" rel="stylesheet" type="text/css">
     {% endif %}
 
     <!-- Custom styles for this template-->
@@ -46,7 +48,7 @@
 
             <!-- Sidebar - Brand -->
             <a class="sidebar-brand d-flex align-items-center justify-content-center " href="/Dashboard">
-                <img src="{% static 'img/logo-gray.svg' %}" style="width: 200px;" />
+                <img src="{% static 'img/logo-white.svg' %} "style="width: 200px;" />
             </a>
 
             <!-- Divider -->
@@ -89,16 +91,17 @@
                     <span>Admin Panel</span>
                 </a>
             </li>
+            <!-- Nav Item - managerDashboard -->
+            <li class="nav-item">
+                <a class="nav-link" href="/managerDashboard">
+                    <i class="fas fa-fw fa-chart-line"></i>
+                    <span>Manager Dashboard</span>
+                </a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link" href="/counterTable">
                     <i class="fas fa-fw fa-sort-numeric-up-alt"></i>
                     <span>Service Involvement</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="/ResourceAssignment">
-                    <i class="fas fa-fw fa-bullseye"></i>
-                    <span>Resource Assignement</span>
                 </a>
             </li>
             {% endif %}
@@ -172,7 +175,6 @@
                     <span>All Engagements</span>
                 </a>
             </li>
-            
 
             <!-- Divider -->
             <hr class="sidebar-divider d-none d-md-block">
@@ -190,6 +192,12 @@
                 <a class="nav-link" href="/EmployeesCalendar">
                     <i class="fas fa-fw fa-calendar"></i>
                     <span>Employees</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/LeavesCalendar">
+                    <i class="fas fa-fw fa-calendar"></i>
+                    <span>Leaves</span>
                 </a>
             </li>
 

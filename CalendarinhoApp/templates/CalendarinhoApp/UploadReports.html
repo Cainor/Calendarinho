@@ -1,0 +1,104 @@
+{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+
+{% block head_block %}
+{% endblock %}
+
+{% block body_block %}
+<div class="container-fluid">
+  <div class="row">
+    <h1 class="h3 mb-2 text-title-color col-sm">Reports for {{engagement}}</h1>
+    <a href="/engagement/{{engagement.id}}">
+      <input class="btn btn-primary btn-md" style="margin-bottom: 35px; margin-right: 10px;" type="button" value="Back"></input>
+    </a>
+  </div>
+  <div class="row">
+  <!-- File Upload Card-->
+        <div class="col">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">File Upload</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    {% csrf_token %}
+                    {% crispy form form.helper %}
+                    {% if error %}
+                    <p class="text-danger">{{ error }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+  </div>
+  {% if list %}
+  <div class="row">
+  <!-- File List Card-->
+        <div class="col">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">List of Files</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                <link rel="stylesheet" href="{% static 'css/fnon.min.css' %}" />
+                <script src="{% static 'js/fnon.min.js' %}"></script>
+                <table class="table table-bordered sortable" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
+                      <tr>
+                      <th style="text-align:center">Note</th>
+                      <th style="text-align:center">Type</th>
+                      <th style="text-align:center">Uploaded By</th>
+                      <th style="text-align:center">Timestamp</th>
+                      <th style="text-align:center">Download</th>
+                      <th style="text-align:center">Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody class="table-hover">
+                  {% for file in list%}
+                  
+                      <tr>
+                      <td>{{file.note}}</td>
+                      <td>{{file.reportType}}</td>
+                      <td>{{file.user}}</td>
+                      <td>{{file.Timestamp}}</td>
+                      <td align="center"><a href="/download/{{ file.reference }}"><button class="btn btn-primary btn-md"><i class="fas fa-download"></i></button></a></td>
+                      {% if user == file.user or user.is_superuser%}
+                        <td align="center"><button id="delete_btn" class="btn btn-danger btn-md" onclick="DeleteConfirmation('{{ file.reference }}')"><i class="fas fa-trash-alt"></i></button></td>
+                      {% else %}
+                        <td align="center"><button id="delete_btn" class="btn btn-secondary btn-md" disabled><i class="fas fa-trash-alt"></i></button></td>
+                      {% endif %}
+                      </tr>
+                    
+                  {% endfor %}
+                      </tbody>
+                  </table>
+                </div>         
+                <script>
+                  function DeleteConfirmation(uuid){
+                    Fnon.Ask.Dark({
+                    title:'Confirmation',
+                    message:'Are you sure you want to delete this report?',
+                    callback:(result)=>{
+                      if(result){
+                        document.location = "/delete/"+uuid
+                      }
+                      }
+                    });
+                    }
+                </script>  
+            </div>
+        </div>
+  </div>
+  {% else %}
+  <div class="row">
+  <p class="col" align="center"><i>There is no uploaded reports for this engagement.</i></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

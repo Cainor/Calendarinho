@@ -11,10 +11,19 @@
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
-    <h1 class="h3 mb-2 text-title-color col-sm">{{eng.EngName}}</h1>
-    <a href="/admin/CalendarinhoApp/engagement/{{eng.id}}/change/">
-        <input class="btn btn-primary btn-md" style="margin-bottom: 35px; margin-right: 10px;" type="button" value="Edit"></input>
-    </a></div>
+        <h1 class="h3 mb-2 text-title-color col-sm">{{eng.EngName}} - <a href="/projectManager/{{eng.projectManager.id}}">{{eng.projectManager}}</a> </h1>
+        {% if 'jira.sitco.sa' in eng.JiraURL|lower %}
+        <a href="{{eng.JiraURL}}" target="_blank">
+            <input class="btn btn-info btn-md" style="margin-bottom: 35px; margin-right: 10px; background-color: #0d47a1;" type="button" value="Jira"></input>
+        </a>
+        {% endif %}
+        <a href="/engagement/{{eng.id}}/Reports/">
+            <input class="btn btn-primary btn-md" style="margin-bottom: 35px; margin-right: 10px;" type="button" value="Reports"></input>
+        </a>
+        <a href="/admin/CalendarinhoApp/engagement/{{eng.id}}/change/">
+            <input class="btn btn-primary btn-md" style="margin-bottom: 35px; margin-right: 10px;" type="button" value="Edit"></input>
+        </a>
+    </div>
     <div class="row">
         <!-- Upcoming Engagement Card-->
         <div class="col-xl-4 col-lg-7">
@@ -59,6 +68,8 @@
             </div>
         </div>
     </div>
+
+    
     <div class="row">
         <div class="col-xl-4 col-lg-7">
             <div class="card shadow mb-4">
@@ -123,7 +134,29 @@
         </div>
         <!-- Card Body -->
         <div class="card-body">
+                        <div class="row">
+            <div class="col">
             <h5>Leave a comment</h5>
+        </div>
+        <div class="col" align="right">
+            <button id="DailyReportButton" class="btn btn-primary  btn-md">Daily Report Template</button>
+            </div>
+            </div>
+        <script>
+
+            document.getElementById("DailyReportButton").addEventListener("click", function() {
+            document.getElementById("id_body").value = `Current Status:
+-
+
+Issues and Delays:
+-
+
+Tomorrows work:
+-
+`;
+            });
+
+            </script>
             <form method="post" style="margin-top: 1.3em;">
                 {{ comment_form | crispy }}
                 {% csrf_token %}

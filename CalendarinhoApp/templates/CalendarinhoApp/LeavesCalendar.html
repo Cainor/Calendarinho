@@ -1,0 +1,126 @@
+{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+
+{% block head_block %}
+<link href="{% static 'css/checkmarks.css' %}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block body_block %}
+<link href='{% static "fullcalendar/packages/core/main.css"%}' rel='stylesheet' />
+<link href='{% static "fullcalendar/packages/daygrid/main.css"%}' rel='stylesheet' />
+<script src='{% static "fullcalendar/packages/core/main.js" %}'></script>
+<script src='{% static "fullcalendar/packages/interaction/main.js" %}'></script>
+<script src='{% static "fullcalendar/packages/daygrid/main.js" %}'></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['interaction', 'dayGrid'],
+            header: {
+                left: 'prevYear,prev,next,nextYear today',
+                center: 'title',
+                right: 'dayGridMonth,dayGridWeek,dayGridDay'
+            },
+            navLinks: true, // can click day/week names to navigate views
+            editable: false,
+            hiddenDays: [6, 5],
+            eventLimit: true, // allow "more" link when too many events
+            events: [
+              {%for key,array in leaves.items %} 
+                {% for item in array %}{
+                    title: "{{key}} - {{ item.title}}",
+                    start: '{{ item.start}}',
+                    end: '{{ item.end}}',
+                    backgroundColor: '{{item.color}}',
+                    borderColor: 'white',
+                    textColor: 'white'
+
+                },
+                {% endfor %}
+            {% endfor %}
+            ]
+
+        });
+
+        calendar.render();
+    });
+</script>
+<div class="col-xl-12">
+    <div class="card shadow mb-4">
+        <!-- Card Header - Dropdown -->
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Employees Calendar <br/> {% for selected in selectedEmps %}{{ selected }}, {% endfor %}</h6>
+        </div>
+        <!-- Card Body -->
+        <div class="card-body">
+
+            <div id='calendar'></div>
+            <ul class="legend" style="padding-top:10px">
+                <li><span class="Vacation"></span>Vacation</li>
+            </ul>
+        </div>
+    </div>
+
+    <div id='calendar'></div>
+</div>
+
+
+<script>
+    function myFunction() {
+        // Declare variables
+        var input, filter, list, div, a, i, txtValue;
+        input = document.getElementById('myInput');
+        filter = input.value.toUpperCase();
+        list = document.getElementById("ListOfEmployees");
+        div = list.getElementsByTagName('div');
+
+        // Loop through all list items, and hide those who don't match the search query
+        for (i = 0; i < div.length; i++) {
+            a = div[i];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                div[i].style.display = "";
+            } else {
+                div[i].style.display = "none";
+            }
+        }
+    }
+</script>
+    <style>
+        /* basic positioning */
+
+        .legend {
+            list-style: none;
+        }
+
+        .legend li {
+            float: left;
+            margin-right: 10px;
+        }
+
+        .legend span {
+            border: 1px solid #ccc;
+            float: left;
+            width: 12px;
+            height: 12px;
+            margin: 2px;
+        }
+
+        /* your colors */
+
+        .legend .Vacation {
+            background-color: #2C3E50;
+        }
+
+        .legend .Training {
+            background-color: #2980B9;
+        }
+
+        .legend .Engagement {
+            background-color: #BD4932;
+        }
+    </style>
+{%endblock%}

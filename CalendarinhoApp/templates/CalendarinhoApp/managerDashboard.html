@@ -1,0 +1,315 @@
+{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% load static %}
+
+
+
+{% block head_block %}
+<!-- Page level plugins -->
+<script src="{% static 'vendor/chart.js/Chart.min.js' %}"></script>
+{% endblock %}
+
+
+{% block body_block %}
+
+
+{% comment %} Search Settings {% endcomment %}
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div style="display: flex; justify-content: space-between">
+        <div>
+            <h1 class="h3 mb-0 text-title-color">Manager Dashboard</h1>
+            <i>(default settings shows past 3 months)</i>
+        </div>
+        <div>
+            <form action="/managerDashboard" method="POST">
+                <div style="display: flex; flex-direction: row; justify-content: space-between; gap: 6px; font-weight: bold; font-size: 19px; font-variant-position: sub; white-space: nowrap;">
+                    {{form}}
+                    {% csrf_token %}
+                    <input type="submit" value="Update" class="btn-primary btn-sm" style="padding-right:15px; padding-left: 15px; padding-top: 2px; padding-bottom: 3px;">
+                </div>
+            </form>
+        </div>
+    </div>
+    <br>
+
+    <div class="row">
+        <!-- Employees Working Days Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">All Employees Working Days
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-title-color">{{allEmpDays}}</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estimated Cost Card -->
+    <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Estimated Cost
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-title-color">{{allEmpDaysCost}} SR</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-dark shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Avalible
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-title-color">for future use</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-wrench fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+        <div class="card border-left-dark shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Avalible
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-title-color">for future use</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-wrench fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+         
+
+    
+    <div class="row justify-content-start">
+        <!-- Employee Card 2-->
+        <div class="col">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-start">
+                    <h6 class="m-0 font-weight-bold text-primary">Employees Working Days</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body" style="overflow-x: scroll">
+                    <!--Graphs-->
+                    <div class="container" style="position: relative;  width:1500px;">
+                                    <canvas id="myChart"></canvas>
+                                    <script>
+                                        
+                                        names=[];
+                                        {% for emp in empsNumDays%}
+                                            names.push('{{ emp.0 }}');
+                                        {% endfor %}
+
+                                        days=[];
+                                        {% for eng in empsNumDays%}
+                                            days.push('{{ eng.1 }}');
+                                        {% endfor %}
+
+                                        // backgroundcolor = [];
+                                        // bordercolor = [];
+                                        // for (i = 0; i < names.length; i++){
+                                        //     r = Math.floor * 255;
+                                        //     g = Math.floor * 255;
+                                        //     b = Math.floor * 255;
+                                        //     backgroundcolor.push('rgba('+r+', '+g+', '+b+', 0.7)');
+                                        //     bordercolor.push('rgba('+r+', '+g+', '+b+', 0.7)');
+                                        // }
+
+                                        var ctx = document.getElementById('myChart').getContext('2d');
+                                        var myChart = new Chart(ctx, {
+                                            type: 'bar',
+                                            data: {
+                                                labels: names,
+                                                datasets: [{
+                                                    label: 'Days',
+                                                    data: days,
+                                                    backgroundColor: [
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(53, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(53, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)'
+                                                    ],
+                                                    borderColor: [
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(53, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(53, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(75, 192, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(25, 159, 64, 1)',
+                                                        'rgba(211, 99, 12, 1)',
+                                                        'rgba(234, 16, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)',
+                                                        'rgba(34, 142, 192, 1)',
+                                                        'rgba(153, 102, 255, 1)',
+                                                        'rgba(255, 159, 64, 1)',
+                                                        'rgba(255, 99, 132, 1)',
+                                                        'rgba(54, 162, 235, 1)',
+                                                        'rgba(255, 206, 86, 1)'
+                                                    ],
+                                                    borderWidth: 1
+                                                }]
+                                            },
+                                            options: {
+                                                aspectRatio:0.75,
+                                                maintainAspectRatio: false,
+                                                responsive: true,
+                                                scales: {
+                                                    yAxes: [{
+                                                        ticks: {
+                                                            beginAtZero: true
+                                                        }
+                                                    }]
+                                                },
+                                                legend: {
+                                                    display: false
+                                                }
+                                            }
+                                        });
+                                    </script>
+                                
+                    </div>
+                    <!--End Graphs-->
+                </div>
+            </div>
+        </div>
+    </div>
+        <!--start table-->
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <div class="row">
+                    <h6 class="m-0 font-weight-bold text-primary col">Current MC's Projects</h6>
+                    <div class="col-6"></div>
+    
+                </div>
+    
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                {% for i in managerEngs%}
+                                <th>{{i}}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% load my_tags %}
+                            {% for i in range%}
+                                <tr>
+                                    
+                                        {% for key,val in managerEngs.items%}
+                                        <td><a href="/engagement/{{val|return_id:i}}">{{val|return_engName:i}}</a></td>
+                                        {% endfor %}
+                                </tr>
+                                {% endfor %}
+
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!--end table-->
+</div>
+
+{% endblock %}

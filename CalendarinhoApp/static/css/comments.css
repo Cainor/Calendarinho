@@ -4,6 +4,8 @@
     font-size: 12px;
     padding: 7px;
     display: block !important;
+    background-color: var(--chartColor) !important;
+    
 }
 
 .comment_font{
@@ -14,4 +16,5 @@
 .comment_body{
     padding: 10px;
     padding-bottom: 0px;
+    border-color: var(--chartColor) !important;
 }

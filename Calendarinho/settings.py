@@ -20,11 +20,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY', 'changeme')
+SECRET_KEY = '76b9c5ce-9148-4575-82ef-240dd53d24b0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.environ.get('DEBUG', 1)))
-
+DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
 
@@ -89,8 +88,8 @@ WSGI_APPLICATION = 'Calendarinho.wsgi.application'
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'Calendarinho',
-#         'USER': 'USERNAME',
-#         'PASSWORD': 'PASSWORD',
+#         'USER': 'Calendarinhouser',
+#         'PASSWORD': 'Calendarinhopassword',
 #         'HOST': 'localhost',
 #         'PORT': '',
 #     }
@@ -129,20 +128,21 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATIC_URL = '/static/'
-#STATIC_ROOT = posixpath.join(*(BASE_DIR.split(os.path.sep) + ['static']))
-
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
 
+#Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-# Gamil Settings (You must enable "Less-Secure-App" in Google account settings)
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-# EMAIL_HOST = 'smtp.gmail.com'
-# EMAIL_PORT = 587
-# EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
-# DEFAULT_FROM_EMAIL = 'name <username@domain.com>'
+
+#File Upload
+MEDIA_ROOT = os.path.join(BASE_DIR, 'upload')
+MEDIA_URL = '/upload/'
+
 
 from django.contrib.messages import constants as messages
 

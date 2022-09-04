@@ -1,0 +1,164 @@
+.bg-gradient-primary {
+    background: linear-gradient(0deg, #022f04 0%, rgb(0, 0, 0) 100%) !important;
+}
+
+.navbar {
+    background: #121212
+}
+
+.background-color {
+    background: #121212 !important;
+}
+
+.h3 {
+    color: #F2F2E9 !important;
+}
+
+.btn-primary {
+    background: #022f04 !important;
+    border: 0px !important;
+}
+
+.m-0.font-weight-bold.text-primary {
+    color: #f0f0f0 !important;
+}
+
+.dropdown-menu {
+    background-color: #414140 !important;
+    color: #f0f0f0 !important;
+    border-color: #A49775 !important;
+}
+
+.dropdown-header {
+    background-color: #A49775 !important;
+    border: 0px !important;
+}
+
+.dropdown-item {
+    color: #f0f0f0 !important;
+}
+
+.dropdown-item:hover {
+    background-color: #A49775 !important;
+    color: white !important;
+}
+
+a.d-none.d-sm-inline-block.btn.btn-sm.btn-primary.shadow-sm {
+    background-color: #A49775 !important;
+    color: #f0f0f0 !important;
+}
+
+ul.pagination li.paginate_button.page-item.active a.page-link {
+    background-color: #004028 !important;
+    color: white !important;
+    border-color: #42778D !important;
+}
+
+.pagination a {
+    color: #42778D !important;
+}
+
+.pagination a:hover:not(.active) {
+    background-color: #F2F2E9 !important;
+    border-color: #A49775;
+    color: #42778D !important;
+}
+
+.text-title-color {
+    color: #f0f0f0 !important;
+}
+
+.card {
+    background-color: #414140 !important;
+    border: 1px solid #a49775 !important;
+}
+
+.card-header {
+    background-color: #4e4e4e !important;
+    border-bottom: 1px solid #a49775 !important;
+}
+
+.card-body {
+    color: #f0f0f0 !important;
+}
+
+.table {
+    color: #f0f0f0 !important;
+}
+
+.container-fluid a:link {
+    color: rgb(63, 204, 63);
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:visited {
+    color: rgb(71, 236, 71);
+    background-color: transparent;
+    text-decoration: none;
+}
+
+.container-fluid a:hover {
+    color: rgb(71, 236, 71) !important;
+    background-color: transparent;
+    text-decoration: none !important;
+}
+
+a:active {
+    color: yellow;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+.fc-content span {
+    color: #f0f0f0;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a.d-none {
+    color: #f0f0f0;
+}
+
+input {
+    background-color: #4e4e4e;
+    color: #f0f0f0;
+    border: 1px solid #f0f0f0;
+}
+
+.form-control {
+    background-color: #4e4e4e !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #f0f0f0 !important;
+}
+
+:root {
+    --primaryColor: rgb(66, 119, 141);
+    --chartColor: #A49775;
+    --gridlines: #f0f0f0;
+}
+
+.select2-container--default .select2-selection--multiple {
+    background-color: #4e4e4e !important;
+    color: #f0f0f0 !important;
+    border: 1px solid #f0f0f0 !important;
+}
+
+.table .thead-light th {
+    color: #fff !important;
+    background-color: #6a6a6a !important;
+    border-color: #e3e6f0 !important;
+}
+
+label.custom-file-label {
+    background-color: #4e4e4e !important;
+    color: #aeaeae !important;
+}
+
+canvas#myChart {
+    background-color: #292929;
+}
+
+canvas#myChart2 {
+    background-color: #292929;
+}

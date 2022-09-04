@@ -2,7 +2,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render, get_object_or_404, redirect
 from django.template import loader
 from django.http import HttpResponse, Http404, HttpResponseRedirect
-from .models import Employee, Engagement, Leave, Client, Comment, OTP
+from .models import Employee, Engagement, Leave, Client, Comment, OTP, ProjectManager, Reports
 from .forms import *
 from django.views.decorators.csrf import csrf_exempt  # To Disable CSRF
 from django.http import JsonResponse
@@ -18,15 +18,15 @@ from django.contrib.auth.forms import PasswordResetForm
 import logging
 from django.shortcuts import resolve_url
 from django.conf import settings
+from django.core.files.storage import FileSystemStorage
 from datetime import timedelta, date
 import calendar
 import os
 
-
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
 
-from .MZemail import send_forget_password_OTP
+from .email import send_forget_password_OTP
 from threading import Thread
 from django.db.models import Q 
 from autocomplete.forms import EmployeeCounter
@@ -51,7 +51,6 @@ def Dashboard(request):
         for line in f:
             utilizationList.append(int(line))
     except Exception as e:
-        utilizationList = False
         logger.error("Failed to calculate utilization: \n" + str(e))
 
 
@@ -77,6 +76,7 @@ def Dashboard(request):
     # calculation fot the engagements card (bars)
     engs = Engagement.objects.all()
     engsTable = []
+    cliTable = {}
     singleEng = {}
     for eng in engs:
         precent = eng.daysLeftPrecentage()
@@ -85,7 +85,11 @@ def Dashboard(request):
             singleEng['engName'] = eng.EngName
             singleEng['precent'] = precent
             engsTable.append(singleEng.copy())
+            cliTable[eng.CliName] = eng.CliName.countCurrentEng()
     engsTable = sorted(engsTable, key=lambda i: i['precent'])
+
+    # Sort for the new toggled view:
+    cliTable = {k: v for k, v in sorted(cliTable.items(), key=lambda item: item[1],reverse=True)}
 
     # Statistics
     statistics = {}
@@ -95,12 +99,13 @@ def Dashboard(request):
     statistics['ongoingEngagements'] = Engagement.objects.filter(StartDate__lte=str(datetime.date.today())).filter(
         EndDate__gte=str(datetime.date.today())).count()  # Number of engagement that has EndDate greater than or equal today.
     # Precentage of available employees
-    statistics['availabilityPercentage'] = overlapPrecentage()
+    statistics['availabilityPercentage'] = overlapPrecentage(request)
     statistics['numberOfEmployees'] = emps.count()  # Number of Employees
     statistics['pieChartStatus'] = state
     statistics['engagementsBars'] = engsTable
-    if utilizationList:
-        statistics['2020UtilizationChart'] = utilizationList
+    statistics['cliBars'] = cliTable
+    # if utilizationList:
+        # statistics['2020UtilizationChart'] = utilizationList
     context = {
         'statistics': statistics
     }
@@ -109,6 +114,92 @@ def Dashboard(request):
     context.update({"form": form})
     return render(request, "CalendarinhoApp/Dashboard.html", context)
 
+@login_required
+def managerDashboard(request):
+    if(not request.user.is_superuser and not request.user.user_type == 'M'):
+        return not_found(request)
+    else:
+        form = countEngDays()
+        emps = Employee.objects.exclude(is_active=False)
+
+        if (request.method == 'GET'):
+            eDate = datetime.date.today()
+            sDate = eDate - timedelta(days=90)
+            form = countEngDays(initial={'start_date': sDate,'end_date':eDate})
+
+            # list for employees with less than 20% under the average working days
+            empsNumDays = []
+            for emp in emps:
+                result = []
+                noDays = emp.countEngDays(sDate, eDate)
+                result.append(emp)
+                result.append(noDays)
+                empsNumDays.append(result)
+            # sorting results by less emp days
+            empsNumDays.sort(key=lambda x:x[1])
+            
+            # Calculate the total number of wroking days for all emps for specific time period
+            allEmpDays = []
+            for emp in emps:
+                noDays = emp.countEngDays(sDate, eDate)
+                allEmpDays.append(noDays)
+            allEmpDays = sum(allEmpDays)
+
+            # Calculate the cost based on total numbers of emps working days in specific period of time 
+            allEmpDaysCost = []
+            for emp in emps:
+                noDays = emp.countEngDays(sDate, eDate)
+                cost = noDays * 100 #Estimated Cost Per Day (Needs updating)
+                allEmpDaysCost.append(cost)
+            allEmpDaysCost = sum(allEmpDaysCost)
+
+            context = {
+                'empsNumDays': empsNumDays,
+                'allEmpDays': allEmpDays,
+                'allEmpDaysCost': "{:,}".format(allEmpDaysCost),
+                "form":form
+            }
+            return render(request,"CalendarinhoApp/managerDashboard.html",context)
+        
+        else:
+            form = countEngDays(data=request.POST)
+
+            sDate = request.POST.get("start_date")
+            eDate = request.POST.get("end_date")
+
+            empsNumDays = []
+            for emp in emps:
+                result = []
+                noDays = emp.countEngDays(sDate, eDate)
+                result.append(emp)
+                result.append(noDays)
+                empsNumDays.append(result)
+            # sorting results by less emp days
+            empsNumDays.sort(key=lambda x:x[1])
+            
+            # Calculate the total number of wroking days for all emps for specific time period
+            allEmpDays = []
+            for emp in emps:
+                noDays = emp.countEngDays(sDate, eDate)
+                allEmpDays.append(noDays)
+            allEmpDays = sum(allEmpDays)
+
+            # Calculate the cost based on total numbers of emps working days in specific period of time 
+            allEmpDaysCost = []
+            for emp in emps:
+                noDays = emp.countEngDays(sDate, eDate)
+                cost = (noDays * 8) * 1200
+                allEmpDaysCost.append(cost)
+            allEmpDaysCost = sum(allEmpDaysCost)
+
+
+            context = {
+                'empsNumDays': empsNumDays,
+                'allEmpDays': allEmpDays,
+                'allEmpDaysCost': "{:,}".format(allEmpDaysCost),
+                'form': form
+            }
+            return render(request, "CalendarinhoApp/managerDashboard.html", context)
 
 @login_required
 def EmployeesTable(request):
@@ -183,11 +274,23 @@ def profile(request, emp_id):
 def client(request, cli_id):
     try:
         cli = Client.objects.get(id=cli_id)
-
         engs = Engagement.objects.filter(CliName_id=cli_id)
+        
+        # calculation fot the engagements card (bars)
+        engsTable = []
+        singleEng = {}
+        for eng in engs:
+            precent = eng.daysLeftPrecentage()
+            if(precent != "Nope"):
+                singleEng['engid'] = eng.id
+                singleEng['engName'] = eng.EngName
+                singleEng['precent'] = precent
+                engsTable.append(singleEng.copy())
+        engsTable = sorted(engsTable, key=lambda i: i['precent'])
 
         context = {'cli': cli,
-                   'engs': engs}
+                   'engs': engs,
+                   'engagementsBars':engsTable}
     except Client.DoesNotExist:
         return not_found(request)
 
@@ -228,7 +331,8 @@ def engagement(request, eng_id):
             new_comment.save()
             # Send notification to the users those involved in the engagement
             thread = Thread(target = notifyNewComment, args= (new_comment, request))
-            thread.start()     
+            thread.start()
+            return HttpResponseRedirect("/engagement/"+str(engagement.id))
     try:
         comment_form = CommentForm()
         comments = Comment.objects.filter(eng_id=engagement.id)
@@ -281,13 +385,21 @@ def EmployeesCal(request):
             emp = Employee.objects.get(id=empID)
             engagements = engagements | emp.Engagements.all()
         engagements = engagements.distinct()  # Remove Doublicate
-    emps = Employee.objects.all().exclude(is_active=False).order_by('first_name')
+    emps = Employee.objects.exclude(is_active=False).order_by('first_name')
     return render(request, 'CalendarinhoApp/EmployeesCalendar.html', {'employees': emps, 'leaves': leaves, 'engagements': engagements, 'selectedEmps': selectedEmps})
 
 
 @login_required
+def LeavesCal(request):
+    allEmps = Employee.objects.all()
+    leaves = {}
+    for emp in allEmps:
+        leaves.update({emp.first_name + " " + emp.last_name: emp.getAllLeaves()})
+    return render(request, 'CalendarinhoApp/LeavesCalendar.html', {'leaves':leaves})
+
+@login_required
 def overlap(request):
-    emps = Employee.objects.exclude(is_active=False).order_by('first_name')
+    emps = Employee.objects.order_by('first_name').exclude(is_active=False)
     avalibleEmps = {"emp": [],
                     "id": []}
     sdate = request.POST.get("Start_Date")
@@ -307,8 +419,8 @@ def overlap(request):
     else:
         return render(request, "CalendarinhoApp/EasterEgg.html", {})
 
-
-def overlapPrecentage():
+@login_required
+def overlapPrecentage(request):
     emps = Employee.objects.exclude(is_active=False)
     count = 0
     todayDate = datetime.date.today()
@@ -362,10 +474,10 @@ def exportCSV(request, empID=None, slug=None):
                 empName.replace(" ", "-")+".csv")  # Name of the file
             # Header
             writer.writerow(['Name', 'Client', 'Service Type',
-                             'Start Date', 'End Date'])
+                             'Start Date', 'End Date','JiraURL'])
             for eng in query_set:
                 output.append([eng.EngName, eng.CliName,
-                               eng.ServiceType, eng.StartDate, eng.EndDate])
+                               eng.ServiceType, eng.StartDate, eng.EndDate, eng.JiraURL])
             # CSV Data
             writer.writerows(output)
             return response
@@ -438,6 +550,8 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
+                'StartDate': engagement.StartDate,
+                'EndDate': engagement.EndDate,
                 'protocol': 'https' if request.is_secure() else 'http',
                 'domain' : get_current_site(request).domain,
             }
@@ -455,8 +569,6 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
-                'engagement_strDate':engagement.StartDate,
-                'engagement_endDate':engagement.EndDate,
                 'protocol': 'https' if request.is_secure() else 'http',
                 'domain' : get_current_site(request).domain,
             }
@@ -487,12 +599,42 @@ def notifyNewComment(comment, request):
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
                 'user':user,
+                'commentbody':comment.body,
                 'protocol': 'https' if request.is_secure() else 'http',
                 'domain' : get_current_site(request).domain,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/engagement_comment_email.html', context)
         email = EmailMessage('New comment on your engagement', email_body, to=[employee.email])
+        email.content_subtype = "html"
+        emails.append(email)
+    try:
+        connection = mail.get_connection()
+        connection.send_messages(emails)
+    except ConnectionRefusedError as e:
+        logger.error("Failed to send emails: \n" + str(e))
+
+
+def notifyNewReportUpload(report, request):
+    emails = []
+    employees= report.eng.Employees.all()
+    for employee in employees :
+        if request.user == employee:
+            continue
+        context = {
+                    'first_name': request.user.first_name,
+                    'message': 'New report uploaded on your engagement by ' + request.user.first_name + ' ' + request.user.last_name + '.',
+                    'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                        args=[report.eng.id])),
+                    'engagement_name': report.eng.EngName,
+                    'reportType': report.reportType,
+                    'user':request.user,
+                    'protocol': 'https' if request.is_secure() else 'http',
+                    'domain' : get_current_site(request).domain,
+                }
+        email_body = loader.render_to_string(
+                'CalendarinhoApp/emails/engagement_comment_uploadReport.html', context)
+        email = EmailMessage('New report uploaded on your engagement', email_body, to=[employee.email])
         email.content_subtype = "html"
         emails.append(email)
     try:
@@ -515,7 +657,7 @@ def notifyAfterPasswordReset(user, request=None, domain=None, protocol=None):
 
     context = {
                 'username': user.username,
-                'protocol': 'http', #CHANGE IT IN PRODUCTION
+                'protocol': 'https', #CHANGE IT IN PRODUCTION
                 'domain' : get_current_site(request).domain if request else domain,
             }
     email_body = loader.render_to_string(
@@ -649,6 +791,7 @@ def forgetpasswordEnd(request):
     else:
         return HttpResponseRedirect("/login/")
 
+
 @login_required
 def counterEmpSvc(request):
     #Only Managers and Superusers are allowed
@@ -769,39 +912,83 @@ def toggleTheme(request):
         response.set_cookie("theme","Dark",max_age=year_inSeconds)
     return response
 
+@login_required
+def uploadReport(request, eng_id):
+        context = {}
+        eng = Engagement.objects.get(id=eng_id)
+        form = uploadReportForm()
+        listReports = Reports.objects.filter(eng=eng)
+        context['engagement'] = eng
+        context['form'] = form
+        context['list'] = listReports
 
-def ResourceAssignment(request):
-        #Only Managers and Superusers are allowed
-    if(not request.user.is_superuser and not request.user.user_type == 'M'):
-        return not_found(request)
-    else:
-        form = ResourceManagment()
-        if (request.method == 'GET'):
-            return render(request,"CalendarinhoApp/ResourceAssignment.html",{"form":form})
-        
+        if request.method == 'POST':
+                form = uploadReportForm(request.POST, request.FILES)
+                if form.is_valid():
+                    Report = Reports(eng=eng, user=request.user,reportType=request.POST["reportType"],note=request.POST["note"], file=request.FILES['file'])
+                    Report.save()
+                    thread = Thread(target = notifyNewReportUpload, args= (Report, request))
+                    thread.start()   
+                    
+                    context['reference']=Report.reference
+                    context['note'] = Report.note
+                    return render(request,'CalendarinhoApp/UploadReports.html',context)
+                else:
+                    context['error'] = "Only .gpg files are allowed"
+                    return render(request,'CalendarinhoApp/UploadReports.html',context)
         else:
-            form = ResourceManagment(data=request.POST)
-            countList = {}
-            # Check if emp has the skill
-            emps = Employee.objects.exclude(is_active=False).order_by('first_name').filter(SkilledEmployees=request.POST.get("servList"))
+            return render(request,'CalendarinhoApp/UploadReports.html',context)
 
-            # Check if emp is avalible
-            sdate = request.POST.get("start_date")
-            edate = request.POST.get("end_date")
-            empsAvail = []
-            for emp in emps:
-                if (not emp.overlapCheck(sdate,edate)):
-                    empsAvail.append(emp)
-            # Count eng with the same service
-            for emp in empsAvail:
 
-                countList[emp] = emp.countSrv(request.POST.get("servList"))
-            # Order by less count
-            sortedArray = sorted(countList.items(), key=lambda x: x[1])
-            countList = {}
-            for obj in sortedArray:
-                key, val = obj
-                countList[key] = val
+@login_required
+def downloadReport(request, refUUID=None):
+    report = Reports.objects.get(reference=refUUID)
+    if(report != None): #Check if UUID is correct
+        response = HttpResponse(report.file, content_type='application/pgp-encrypted')
+        filename=report.file.name
+        response['Content-Disposition'] = 'attachment; filename=%s' % (filename) #Filename
+        return response
+    else:
+        return not_found(request)
 
-            
-            return render(request,"CalendarinhoApp/ResourceAssignment.html",{"countList":countList,"form":form})
+
+@login_required
+def deleteReport(request, refUUID=None):
+    report = Reports.objects.get(reference=refUUID)
+    if(report != None): #Check if UUID is correct
+        if(request.user.is_superuser or request.user==report.user):
+            eng_id = report.eng.id
+            report.delete()
+            return redirect("/engagement/"+str(eng_id)+"/Reports/")
+        else:
+            return not_found(request)
+    else:
+        return not_found(request)
+
+@login_required
+def projectManager(request, projmgr_id):
+    projmgr = ProjectManager.objects.get(id=projmgr_id)
+    return render(request,"CalendarinhoApp/ProjectManager.html",{"projmgr":projmgr})
+
+@login_required
+def EpmTable(request):
+    Engs = Engagement.objects.filter(StartDate__gt=str(datetime.date(2022, 1, 1)))
+    rowNotAdded = []
+    rowAdded = []
+    for eng in Engs:
+        row = {}
+        if(not eng.EpmAdded):
+            row["EngID"] = eng.id
+            row["EngName"] = eng.EngName
+            row["StartDate"] = eng.StartDate
+            row["EndDate"] = eng.EndDate
+            row["Members"] = eng.Employees.all()
+            rowNotAdded.append(row)
+        else:
+            row["EngID"] = eng.id
+            row["EngName"] = eng.EngName
+            row["StartDate"] = eng.StartDate
+            row["EndDate"] = eng.EndDate
+            row["Members"] = eng.Employees.all()
+            rowAdded.append(row)
+    return render(request,"CalendarinhoApp/AddedToEPM.html",{"rowNotAdded":rowNotAdded,"rowAdded":rowAdded})

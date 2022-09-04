@@ -1,7 +1,10 @@
 from django import forms
 from crispy_forms.helper import FormHelper
+from crispy_forms.layout import Layout, MultiField, ButtonHolder, Submit, Div
 import datetime
-from .models import Comment,Service
+
+from django.forms import widgets
+from .models import Comment,Service,Reports
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 
@@ -15,8 +18,8 @@ class EmployeeOverlapForm(forms.Form):
         'type': 'date'
     }))
 
-class ResourceManagment(forms.Form):
-    start_date = forms.DateField(input_formats=['%Y-%m-%d'], initial=datetime.date.today, widget=forms.TextInput(attrs={
+class countEngDays(forms.Form):
+    start_date = forms.DateField(input_formats=['%Y-%m-%d'], initial=datetime.date(2020,1,1), widget=forms.TextInput(attrs={
         'type': 'date',
         'class': 'form-control'
     }))
@@ -24,19 +27,6 @@ class ResourceManagment(forms.Form):
         'type': 'date',
         'class': 'form-control'
     }))
-    servList = forms.ChoiceField(label='Service',widget=forms.Select(attrs={'class': 'form-control'}))
-
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['servList'].choices= [(serv.id, serv.serviceName) for serv in Service.objects.all()]
-
-    def clean(self):
-        cleaned_data = super().clean()
-        start_date = cleaned_data.get("start_date")
-        end_date = cleaned_data.get("end_date")
-        if end_date < start_date:
-            raise forms.ValidationError("End date should be greater than start date.")
 
 class Login_Form(forms.Form):
     username = forms.CharField(label='Username', max_length=100)
@@ -48,7 +38,7 @@ class CommentForm(forms.ModelForm):
         model = Comment
         fields = ('body',)
         widgets = {
-            'body': forms.Textarea(attrs={'style': 'height: 5em;'}),
+            'body': forms.Textarea(attrs={'style': 'height: 15em;'}),
         }
 
 class passwordforgetInitForm(forms.Form):
@@ -62,3 +52,37 @@ class passwordforgetEndForm(forms.Form):
         data = self.cleaned_data['new_Password']
         password_validation.validate_password(data)
 
+class uploadReportForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    'file',
+                    css_class="col"
+                ),
+                Div(
+                    'reportType',
+                    css_class="col"
+                ),Div(
+                    'note',
+                    css_class="col"
+                ),
+                css_class="row"
+            ),
+            ButtonHolder(
+                Submit('submit', 'Upload', css_class='button')
+            )
+        )
+    class Meta:
+        model = Reports
+        fields = ("file", "note","reportType",)
+        widgets = {
+            'file': forms.FileInput(attrs={'class':'col', 'required':'required'}),
+            'reportType': forms.Select(attrs={'class':'col', 'required':'required'}),
+            'note': forms.TextInput(attrs={'class':'col', 'accept': '.gpg'}),
+        }
+        

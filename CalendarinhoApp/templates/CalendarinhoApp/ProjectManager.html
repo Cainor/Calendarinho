@@ -1,0 +1,78 @@
+{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% load static %}
+
+
+
+{% block head_block %}
+{% endblock %}
+{% block body_block %}
+
+<div class="container-fluid">
+    <div class="row">
+        <h1 class="h3 mb-2 text-title-color col-sm">{{projmgr.name}}</h1>
+        <input class="btn btn-primary btn-md" style="margin-bottom: 35px; margin-right: 10px;" type="button" value="Back" onclick="history.back()"></input>
+    </div>
+    <div class="row">
+    <!-- Upcoming Engagement Card-->
+        <div class="col">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Email</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h4 align="center">{{projmgr.email}}</h4>
+                </div>
+            </div>
+        </div>
+            <!-- Upcoming Engagement Card-->
+        <div class="col">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Phone</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <h4 align="center">{{projmgr.phone}}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <div class="row">
+                <h6 class="m-0 font-weight-bold text-primary col">Engagements</h6>
+                <div class="col-6"></div>
+            </div>
+        </div>
+    <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                        </tr>
+                    </thead>
+                    <tfoot>
+                        <tr>
+                            <th>ID</th>
+                            <th>Client</th>
+                        </tr>
+                    </tfoot>
+                    <tbody>
+                        {% for eng in projmgr.engs.all %}
+                        <tr>
+                            <td><a href="/engagement/{{eng.id}}">{{eng}}</a></td>
+                            <td><a href="/client/{{eng.CliName.id}}">{{eng.CliName}}</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,7 +1,9 @@
+from logging import fatal
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import datetime
 from collections import namedtuple
+import numpy as np
 
 class EmailField(models.CharField):
     def __init__(self, *args, **kwargs):
@@ -22,7 +24,7 @@ class CustomUser(AbstractUser):
     # add additional fields in here
 
     Manager = 'M'
-    Employee = 'E'    
+    Employee = 'E'
     USER_TYPE_CHOICES = [
         (Manager, 'Manager'),
         (Employee, 'Employee'),
@@ -33,21 +35,11 @@ class CustomUser(AbstractUser):
         null=True,
     )
 
-    USER_LEVEL_CHOICES = [
-        ('1', 'Analyst'),
-        ('2', 'Consultant'),
-        ('3', 'Senior Consultant'),
-        ('4', 'Managing Consultant'),
-    ]
-    user_level = models.CharField(
-        max_length = 1 ,
-        choices=USER_LEVEL_CHOICES,
-        null=True,
-    )
-
     is_active = models.BooleanField(default=True)
     email = EmailField(max_length=50, unique=True)
     username = CharField(max_length=100, unique=True)
+
+    date_quit = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.first_name + " " + self.last_name
@@ -62,7 +54,7 @@ class CustomUser(AbstractUser):
         for i in all_leaves:
             event_sub_arr = {}
             event_sub_arr['empName'] = self.first_name + " " + self.last_name 
-            event_sub_arr['title'] = i.Note + " -- " + i.LeaveType
+            event_sub_arr['title'] = i.Note + " - " + i.LeaveType
             start_date = datetime.datetime.strptime(
                 str(i.StartDate), "%Y-%m-%d").strftime("%Y-%m-%d")
             end_date = datetime.datetime.strptime(
@@ -176,13 +168,26 @@ class CustomUser(AbstractUser):
         
         result = all_engagements.filter(ServiceType = service_id).count()
         return result
-    
-    def levelToText(self):
-        if(self.user_level == '1'):
-            return "Analyst"
-        elif(self.user_level == '2'):
-            return "Consultant"
-        elif(self.user_level == '3'):
-            return "Senior Consultant"
-        elif(self.user_level == '4'):
-            return "Managing Consultant"
+
+    # function to calculate the number of days in each engagement
+    def countEngDays(self, startDate, endDate):
+        startDate = datetime.datetime.strptime(str(startDate), "%Y-%m-%d").date()
+        endDate = datetime.datetime.strptime(str(endDate), "%Y-%m-%d").date()
+        engs = self.Engagements.all().filter(EndDate__gte=startDate).filter(StartDate__lte=endDate)
+        noDays = 0
+        for eng in engs:
+            actStart = None
+            actEnd = None
+            if eng.StartDate < startDate:
+                actStart = startDate
+            else:
+                actStart = eng.StartDate
+            if eng.EndDate < endDate:
+                actEnd = eng.EndDate
+            else:
+                actEnd = endDate
+
+            countDays = np.busday_count(actStart, actEnd+ datetime.timedelta(days=1), weekmask='Mon Tue Wed Thu Sun')
+            noDays += countDays
+
+        return noDays

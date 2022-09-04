@@ -3,10 +3,9 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from .models import CustomUser
 from CalendarinhoApp.views import notifyAfterPasswordReset
-from django.conf import settings
 
 class CustomUserCreationForm(UserCreationForm):
-    skillset = forms.ModelMultipleChoiceField(label='Skills', queryset=Service.objects.all(), required=False, help_text='Skillset')
+    skillset = forms.ModelMultipleChoiceField(label='Skills', queryset=Service.objects.all(), required=False, help_text='HERE, PUT IT HERE')
 
 
     class Meta:
@@ -14,7 +13,7 @@ class CustomUserCreationForm(UserCreationForm):
         fields = ('username', 'email')
 
 class CustomUserChangeForm(UserChangeForm):
-    skillset = forms.ModelMultipleChoiceField(label='Skills', queryset=Service.objects.all(), required=False, help_text='Skillset')
+    skillset = forms.ModelMultipleChoiceField(label='Skills', queryset=Service.objects.all(), required=False, help_text='HERE, PUT IT HERE')
 
     class Meta:
         model = CustomUser
@@ -28,5 +27,5 @@ class MySetPasswordForm(SetPasswordForm):
         super().save(commit=True)
         password_after = getattr(self.user, "password")
         if password_before != password_after:
-            notifyAfterPasswordReset(self.user,domain="CHANGE IT", protocol="https")
+            notifyAfterPasswordReset(self.user,domain="Calendarinho.example.com", protocol="https")
 

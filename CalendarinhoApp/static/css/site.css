@@ -1,43 +1,42 @@
 .bg-gradient-primary {
-    background: rgb(0, 64, 40) !important;
-    background: linear-gradient(0deg, rgba(0, 64, 40, 1) 0%, rgba(0, 83, 52, 1) 100%) !important;
+    background: linear-gradient(0deg, #001a40 0%, rgb(0, 54, 83) 100%) !important;
 }
 
 .bg-primary {
-    background: #A49775 !important;
+    background: #9e6394 !important;
 }
 
 .border-primary {
-    border-color: #A49775 !important;
+    border-color: #9e6394 !important;
 }
 
 .btn-primary {
-    background: rgb(0, 64, 40) !important;
+    background: #001a40 !important;
     border: 0px !important;
 }
 
 .m-0.font-weight-bold.text-primary {
-    color: #A49775 !important;
+    color: #9e6394 !important;
 }
 
 .dropdown-header {
-    background-color: #A49775 !important;
+    background-color: #9e6394 !important;
     border: 0px !important;
 }
 
 .dropdown-item:hover {
-    background-color: #A49775 !important;
+    background-color: #9e6394 !important;
     color: white !important;
 }
 
 a.d-none.d-sm-inline-block.btn.btn-sm.btn-primary.shadow-sm {
-    background-color: #A49775 !important;
+    background-color: #001a40 !important;
 }
 
 ul.pagination li.paginate_button.page-item.active a.page-link {
-    background-color: #004028 !important;
+    background-color: #9e6394 !important;
     color: white !important;
-    border-color: #42778D !important;
+    border-color: #b874ac !important;
 }
 
 .pagination a {
@@ -45,9 +44,9 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
 }
 
 .pagination a:hover:not(.active) {
-    background-color: #F2F2E9 !important;
-    border-color: #A49775;
-    color: #42778D !important;
+    background-color: #f2e9f1 !important;
+    border-color: #9e6394;
+    color: #8d4242 !important;
 }
 
 .text-title-color {
@@ -56,6 +55,11 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
 
 :root {
     --primaryColor: rgb(66, 119, 141);
-    --chartColor: #A49775;
+    --chartColor: #9e6394;
     --gridlines: #b6b6b6;
+}
+
+.grayCenterText{
+    color:rgb(189, 189, 189);
+    text-align:center;
 }
