@@ -2,22 +2,7 @@ from CalendarinhoApp.models import Service
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
 from .models import CustomUser
-from CalendarinhoApp.views import notifyAfterPasswordReset
-
-class CustomUserCreationForm(UserCreationForm):
-    skillset = forms.ModelMultipleChoiceField(label='Skills', queryset=Service.objects.all(), required=False, help_text='HERE, PUT IT HERE')
-
-
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'email')
-
-class CustomUserChangeForm(UserChangeForm):
-    skillset = forms.ModelMultipleChoiceField(label='Skills', queryset=Service.objects.all(), required=False, help_text='HERE, PUT IT HERE')
-
-    class Meta:
-        model = CustomUser
-        fields = ('username', 'email', 'skillset')
+from CalendarinhoApp.authentication import notifyAfterPasswordReset
 
 class MySetPasswordForm(SetPasswordForm):
     def save(self, commit=True):

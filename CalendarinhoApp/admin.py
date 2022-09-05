@@ -3,9 +3,10 @@ from django.core.exceptions import ValidationError
 from threading import Thread
 
 from .models import Employee, Engagement, Leave, Client, Service, Comment, ProjectManager
-from .views import notifyEngagedEmployees, notifyManagersNewEngagement, notifyManagersNewLeave
+from .employee import notifyManagersNewLeave
+from .engagement import notifyEngagedEmployees, notifyManagersNewEngagement
 
-from autocomplete.forms import EngagementForm, LeaveForm, ServiceForm
+from autocomplete.forms import EngagementForm, LeaveForm
 admin.site.register(Employee)
 admin.site.enable_nav_sidebar = False
 
@@ -85,7 +86,6 @@ admin.site.register(Leave, LeaveAdmin)
 class ServiceAdmin(admin.ModelAdmin):
     list_display = ('serviceName', 'serviceShort')
     search_fields = ('serviceName', 'serviceShort')
-    form = ServiceForm
 
 admin.site.register(Service, ServiceAdmin)
 
@@ -93,7 +93,7 @@ admin.site.register(Service, ServiceAdmin)
 class CommentAdmin(admin.ModelAdmin):
     list_display = ('user', 'body', 'eng', 'created_on')
     list_filter = ['created_on']
-    readonly_fields = ('user',)
+    readonly_fields = ('user','body','eng',)
     search_fields = ('user__username', 'body')
 
 

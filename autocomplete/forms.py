@@ -1,11 +1,10 @@
 from dal import autocomplete
 from django import forms
-from CalendarinhoApp.models import Employee, Engagement, Leave, Service
-from users.models import CustomUser
+from CalendarinhoApp.models import Engagement, Leave, Service
 
 
 
-class EngagementForm(forms.ModelForm):
+class EngagementForm(forms.ModelForm): #Engagement form for admin page
 
     class Meta:
         model = Engagement
@@ -24,25 +23,13 @@ class EngagementForm(forms.ModelForm):
                 'data-minimum-input-length': 1,
             },)
         }
-    def clean(self):
+    def clean(self): #Validation
         cleaned_data = super().clean()
         if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
             raise forms.ValidationError("Dates are incorrect")
 
 
-class ServiceForm(forms.ModelForm):
-    class Meta:
-        model = Service
-        fields = ('__all__')
-        widgets = {
-            'skilledEmp': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete',
-            attrs={
-                'data-minimum-input-length': 2,
-                },)
-        }
-
-
-class LeaveForm(forms.ModelForm):
+class LeaveForm(forms.ModelForm): #Leave form for admin page
     class Meta:
         model = Leave
         fields = ('Note','LeaveType','StartDate','EndDate')
@@ -52,12 +39,12 @@ class LeaveForm(forms.ModelForm):
                 'data-minimum-input-length': 2,
                 },)
         }
-    def clean(self):
+    def clean(self): #Validation
         cleaned_data = super().clean()
         if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
             raise forms.ValidationError("Dates are incorrect")
 
-class EmployeeCounter(autocomplete.FutureModelForm):
+class EmployeeCounter(autocomplete.FutureModelForm): #URL: /counterTable
     class Meta:
         model = Engagement
         fields = ('Employees', 'ServiceType',)

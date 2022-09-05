@@ -5,9 +5,8 @@ from django.contrib.auth.admin import UserAdmin
 from django.utils.translation import gettext, gettext_lazy as _
 from threading import Thread
 
-from .forms import CustomUserCreationForm, CustomUserChangeForm
 from .models import CustomUser
-from CalendarinhoApp.views import reset_password
+from CalendarinhoApp.authentication import reset_password
 from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.models import User
 from django.conf import settings
@@ -15,15 +14,13 @@ from django.conf import settings
 
 
 class CustomUserAdmin(UserAdmin):
-    add_form = CustomUserCreationForm
-    form = CustomUserChangeForm
     model = CustomUser
     list_display = ['username', 'first_name', 'last_name', 'user_type', 'is_active']
 
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {
-         'fields': ('first_name', 'last_name', 'email', 'user_type', 'user_level','skillset')}),
+         'fields': ('first_name', 'last_name', 'email', 'user_type')}),
         (_('Permissions'), {
             'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions'),
         }),
@@ -39,13 +36,6 @@ class CustomUserAdmin(UserAdmin):
 
     def save_model(self, request, obj, form, change):
         """Save new user and send a notification to the user to reset his password."""
-        if obj.id:
-            # Here we save the skillset
-            obj.SkilledEmployees.clear()
-            for skill in form.cleaned_data['skillset']:
-                obj.SkilledEmployees.add(skill)
-            obj.save()
-
         super().save_model(request, obj, form, change)
         if not change:
             email = request.POST.getlist('email')
@@ -60,8 +50,6 @@ class CustomUserAdmin(UserAdmin):
 
     # Load the current skills in the field
     def get_form(self, request, obj=None, **kwargs):
-        if obj:
-            self.form.base_fields['skillset'].initial = obj.SkilledEmployees.all()
         return super(CustomUserAdmin, self).get_form(request, obj)
 
 admin.site.unregister(CustomUser)

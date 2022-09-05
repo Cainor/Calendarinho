@@ -1,5 +1,5 @@
 .bg-gradient-primary {
-    background: linear-gradient(0deg, #022f04 0%, rgb(0, 0, 0) 100%) !important;
+    background: linear-gradient(0deg, rgb(0, 26, 64) 0%, rgb(0, 0, 0) 50%) !important;
 }
 
 .navbar {
@@ -15,7 +15,7 @@
 }
 
 .btn-primary {
-    background: #022f04 !important;
+    background: #9e6394 !important;
     border: 0px !important;
 }
 
@@ -26,11 +26,11 @@
 .dropdown-menu {
     background-color: #414140 !important;
     color: #f0f0f0 !important;
-    border-color: #A49775 !important;
+    border-color: #001a40 !important;
 }
 
 .dropdown-header {
-    background-color: #A49775 !important;
+    background-color: #001a40 !important;
     border: 0px !important;
 }
 
@@ -39,12 +39,12 @@
 }
 
 .dropdown-item:hover {
-    background-color: #A49775 !important;
+    background-color: #001a40 !important;
     color: white !important;
 }
 
 a.d-none.d-sm-inline-block.btn.btn-sm.btn-primary.shadow-sm {
-    background-color: #A49775 !important;
+    background-color: #001a40 !important;
     color: #f0f0f0 !important;
 }
 
@@ -60,7 +60,7 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
 
 .pagination a:hover:not(.active) {
     background-color: #F2F2E9 !important;
-    border-color: #A49775;
+    border-color: #001a40;
     color: #42778D !important;
 }
 
@@ -70,12 +70,12 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
 
 .card {
     background-color: #414140 !important;
-    border: 1px solid #a49775 !important;
+    border: 1px solid #001a40 !important;
 }
 
 .card-header {
     background-color: #4e4e4e !important;
-    border-bottom: 1px solid #a49775 !important;
+    border-bottom: 1px solid #001a40 !important;
 }
 
 .card-body {
@@ -87,25 +87,25 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
 }
 
 .container-fluid a:link {
-    color: rgb(63, 204, 63);
+    color: rgb(129, 178, 251);
     background-color: transparent;
     text-decoration: none;
 }
 
 a:visited {
-    color: rgb(71, 236, 71);
+    color: rgb(129, 178, 251);
     background-color: transparent;
     text-decoration: none;
 }
 
 .container-fluid a:hover {
-    color: rgb(71, 236, 71) !important;
+    color: rgb(180, 210, 255) !important;
     background-color: transparent;
     text-decoration: none !important;
 }
 
 a:active {
-    color: yellow;
+    color: rgb(0, 174, 255);
     background-color: transparent;
     text-decoration: none;
 }
@@ -134,7 +134,7 @@ input {
 
 :root {
     --primaryColor: rgb(66, 119, 141);
-    --chartColor: #A49775;
+    --chartColor: #001a40;
     --gridlines: #f0f0f0;
 }
 
@@ -161,4 +161,13 @@ canvas#myChart {
 
 canvas#myChart2 {
     background-color: #292929;
+}
+
+.grayCenterText {
+    color:gray;
+    text-align:center;
+}
+
+.select2-container--default .select2-selection--multiple .select2-selection__choice{
+    background-color:#121212 !important;
 }
