@@ -75,10 +75,14 @@ python manage.py createsuperuser
 
 ## Images of the application:
 
-![alt text](https://i.imgur.com/pWgx73v.png)
+![alt text](https://imgur.com/Ah7wPAS.png)
 
-![alt text](https://i.imgur.com/BPab30R.png)
+![alt text](https://imgur.com/a6tJoQM.png)
 
-![alt text](https://i.imgur.com/7fGmb6H.png)
+![alt text](https://imgur.com/1Pe0oBo.png)
 
-![alt text](https://i.imgur.com/yOpu0oB.png)
+![alt text](https://imgur.com/8wwEDlQ.png)
+
+![alt text](https://imgur.com/R8CTRyg.png)
+
+![alt text](https://imgur.com/qb0yj3Z.png)
