@@ -173,8 +173,8 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
                 'engagement_name': engagement.EngName,
                 'StartDate': engagement.StartDate,
                 'EndDate': engagement.EndDate,
-                'protocol': 'https' if request.is_secure() else 'http',
-                'domain' : get_current_site(request).domain,
+                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                'domain' : settings.DOMAIN,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/employee_engagement_email.html', context)
@@ -190,8 +190,8 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
                 'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
-                'protocol': 'https' if request.is_secure() else 'http',
-                'domain' : get_current_site(request).domain,
+                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                'domain' : settings.DOMAIN,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/employee_engagement_email.html', context)
@@ -221,8 +221,8 @@ def notifyNewComment(comment, request):
                 'engagement_name': engagement.EngName,
                 'user':user,
                 'commentbody':comment.body,
-                'protocol': 'https' if request.is_secure() else 'http',
-                'domain' : get_current_site(request).domain,
+                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                'domain' : settings.DOMAIN,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/engagement_comment_email.html', context)
@@ -250,8 +250,8 @@ def notifyNewReportUpload(report, request):
                     'engagement_name': report.eng.EngName,
                     'reportType': report.reportType,
                     'user':request.user,
-                    'protocol': 'https' if request.is_secure() else 'http',
-                    'domain' : get_current_site(request).domain,
+                    'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                    'domain' : settings.DOMAIN,
                 }
         email_body = loader.render_to_string(
                 'CalendarinhoApp/emails/engagement_comment_uploadReport.html', context)
@@ -277,8 +277,8 @@ def notifyManagersNewEngagement(user, engagement, request):
                     args=[engagement.id])),
                 'engagement_name': engagement.EngName,
                 'user':user,
-                'protocol': 'https' if request.is_secure() else 'http',
-                'domain' : get_current_site(request).domain,                
+                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                'domain' : settings.DOMAIN,                
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/manager_new_engagement_email.html', context)

@@ -53,14 +53,14 @@ def logout_view(request):
     logout(request)
     return HttpResponseRedirect(reverse('CalendarinhoApp:login'))
 
-def reset_password(email, from_email, domain,
+def reset_password(email, from_email,
         template='CalendarinhoApp/emails/new_user_password_reset_email.html'):
     """
     Reset the password for an (active) user with given E-Mail address
     """
     form = PasswordResetForm({'email': email})
     if form.is_valid():
-        return form.save(from_email=from_email, html_email_template_name=template,email_template_name=template, domain_override=domain, use_https=False)
+        return form.save(from_email=from_email, html_email_template_name=template,email_template_name=template, domain_override=settings.DOMAIN, use_https=settings.USE_HTTPS)
 
 
 def forgetPasswordInit(request):
@@ -97,7 +97,7 @@ def forgetpasswordEnd(request):
                 fromDatabase.delete()
 
 
-                notifyAfterPasswordReset(emp, request=request)
+                notifyAfterPasswordReset(emp)
 
                 messages.success(request, "Password Changed Successfully!")
                 Login_form = Login_Form()
@@ -115,13 +115,13 @@ def forgetpasswordEnd(request):
     else:
         return HttpResponseRedirect("/login/")
 
-def notifyAfterPasswordReset(user, request=None, domain=None, protocol=None):
+def notifyAfterPasswordReset(user):
     """Send email to the user after password reset."""
 
     context = {
                 'username': user.username,
-                'protocol': 'https', #CHANGE IT IN PRODUCTION
-                'domain' : get_current_site(request).domain if request else domain,
+                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                'domain' : settings.DOMAIN,
             }
     email_body = loader.render_to_string(
             'CalendarinhoApp/emails/password_reset_complete_email.html', context)

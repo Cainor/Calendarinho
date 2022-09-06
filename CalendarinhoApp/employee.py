@@ -169,8 +169,8 @@ def notifyManagersNewLeave(user, leave , request):
                 'Employee': leave.emp.first_name + ' ' + leave.emp.last_name,
                 'profile_url': request.build_absolute_uri(reverse('CalendarinhoApp:profile',
                     args=[leave.emp.id])),
-                'protocol': 'https' if request.is_secure() else 'http',
-                'domain' : get_current_site(request).domain,
+                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                'domain' : settings.DOMAIN,
             }
         email_body = loader.render_to_string(
             'CalendarinhoApp/emails/manager_new_leave_email.html', context)

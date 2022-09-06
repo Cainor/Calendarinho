@@ -1,6 +1,7 @@
 ### I know, the code in not orgnized, I'll fix it.
-- [x] Split ```CalendarinhoApp/views.py``` to multiple files
-- [ ] Hardecoded settings to be put in settings.py file for easier reachability.
+- [x] Split ```CalendarinhoApp/views.py``` to multiple files.
+- [x] Hardecoded settings to be put in settings.py file for easier reachability.
+- [ ] Use better CSS styling practices.
 
 ![alt text](https://imgur.com/I0fWYqU.png)
 

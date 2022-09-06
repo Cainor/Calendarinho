@@ -1,13 +1,13 @@
 """
 Django settings for Calendarinho project.
 
-Based on by 'django-admin startproject' using Django 2.1.2.
+Based on by 'django-admin startproject' using Django 4.1.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/2.1/topics/settings/
+https://docs.djangoproject.com/en/4.1/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/2.1/ref/settings/
+https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 
 import os
@@ -17,15 +17,61 @@ import posixpath
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECURITY WARNING: Change the secret key and keep the one used in production secret!
 SECRET_KEY = '76b9c5ce-9148-4575-82ef-240dd53d24b0'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+#Change to True if you setup SSL certificate (Recommended)
+USE_HTTPS = False 
+
+# Domain name to be accessed by users
+DOMAIN = "localhost"
+
+# Cost of a working day that was utilized
+COST_PER_DAY = 1000
+
+# Weekly working days
+WORKING_DAYS = "Mon Tue Wed Thu Sun"
+
+if DEBUG:
+    ALLOWED_HOSTS = ["*"]
+else:
+    ALLOWED_HOSTS = [DOMAIN]
+
+# MySQL Database:
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'Calendarinho',
+#         'USER': 'Calendarinhouser',
+#         'PASSWORD': 'Calendarinhopassword',
+#         'HOST': 'localhost',
+#         'PORT': '',
+#     }
+# }
+
+# sqlite3 Database:
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
+#Email Settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+
 
 # Application references
 # https://docs.djangoproject.com/en/2.1/ref/settings/#std:setting-INSTALLED_APPS
@@ -82,28 +128,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'Calendarinho.wsgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'Calendarinho',
-#         'USER': 'Calendarinhouser',
-#         'PASSWORD': 'Calendarinhopassword',
-#         'HOST': 'localhost',
-#         'PORT': '',
-#     }
-# }
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
-}
-DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
 
 # Password validation
-# https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
+# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -120,7 +148,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # Internationalization
-# https://docs.djangoproject.com/en/2.1/topics/i18n/
+# https://docs.djangoproject.com/en/4.1/topics/i18n/
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
@@ -131,14 +159,6 @@ USE_TZ = False
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, "static")
-
-#Email Settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
 
 #File Upload

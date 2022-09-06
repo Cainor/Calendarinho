@@ -39,14 +39,8 @@ class CustomUserAdmin(UserAdmin):
         super().save_model(request, obj, form, change)
         if not change:
             email = request.POST.getlist('email')
-
-            # Get site domain 
-            current_site = get_current_site(request)
-            site_name = current_site.name
-            domain = current_site.domain
-            thread = Thread(target = reset_password, args= (email[0], settings.EMAIL_HOST_USER,request))
+            thread = Thread(target = reset_password, args= (email[0], request))
             thread.start()
-            # reset_password(email=email[0], from_email='CalendarinhoMZ@gmail.com' , domain=domain)
 
     # Load the current skills in the field
     def get_form(self, request, obj=None, **kwargs):

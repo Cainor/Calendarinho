@@ -1,9 +1,10 @@
-from logging import fatal
+from django.conf import settings
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 import datetime
 from collections import namedtuple
 import numpy as np
+
 
 class EmailField(models.CharField):
     def __init__(self, *args, **kwargs):
@@ -187,7 +188,7 @@ class CustomUser(AbstractUser):
             else:
                 actEnd = endDate
 
-            countDays = np.busday_count(actStart, actEnd+ datetime.timedelta(days=1), weekmask='Mon Tue Wed Thu Sun')
+            countDays = np.busday_count(actStart, actEnd+ datetime.timedelta(days=1), weekmask=settings.WORKING_DAYS)
             noDays += countDays
 
         return noDays

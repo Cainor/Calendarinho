@@ -135,7 +135,7 @@ def managerDashboard(request):
             allEmpDaysCost = []
             for emp in emps:
                 noDays = emp.countEngDays(sDate, eDate)
-                cost = noDays * 100 #Estimated Cost Per Day (Needs updating)
+                cost = noDays * settings.COST_PER_DAY #Estimated Cost Per Day (Needs updating)
                 allEmpDaysCost.append(cost)
             allEmpDaysCost = sum(allEmpDaysCost)
 

@@ -33,8 +33,8 @@ def send_email(recipient_email, subject, otp, request):
     recipient_list = [recipient_email,]
     context = {
                 'otp': otp,
-                'protocol': 'https' if request.is_secure() else 'http',
-                'domain' : get_current_site(request).domain,
+                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                'domain' : settings.DOMAIN,
             }
     email_body = loader.render_to_string(
             'CalendarinhoApp/emails/otp_message.html', context)

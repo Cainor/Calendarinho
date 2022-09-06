@@ -1,8 +1,7 @@
-from CalendarinhoApp.models import Service
-from django import forms
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, SetPasswordForm
-from .models import CustomUser
+from django.contrib.auth.forms import SetPasswordForm
 from CalendarinhoApp.authentication import notifyAfterPasswordReset
+from django.conf import settings
+
 
 class MySetPasswordForm(SetPasswordForm):
     def save(self, commit=True):
@@ -12,5 +11,5 @@ class MySetPasswordForm(SetPasswordForm):
         super().save(commit=True)
         password_after = getattr(self.user, "password")
         if password_before != password_after:
-            notifyAfterPasswordReset(self.user,domain="Calendarinho.example.com", protocol="https")
+            notifyAfterPasswordReset(self.user,domain=settings.DOMAIN, protocol="https" if settings.USE_HTTPS == True else "http")
 
