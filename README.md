@@ -1,6 +1,6 @@
 ### I know, the code in not orgnized, I'll fix it.
 - [x] Split ```CalendarinhoApp/views.py``` to multiple files
-- [ ] Hardecoded settings to be collected from settings.py for easier reachability.
+- [ ] Hardecoded settings to be put in settings.py file for easier reachability.
 
 ![alt text](https://imgur.com/I0fWYqU.png)
 
