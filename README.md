@@ -2,6 +2,7 @@
 - [x] Split ```CalendarinhoApp/views.py``` to multiple files.
 - [x] Hardecoded settings to be put in settings.py file for easier reachability.
 - [ ] Use better CSS styling practices.
+----------
 
 ![alt text](https://imgur.com/I0fWYqU.png)
 
@@ -13,29 +14,28 @@ A web application to easily manage large team of consultants. It has some functi
 
 ## Installation Guide
 1. You must have Python 3 installed.
-2. Install the requirements libraries.
+2. Install the requirements libraries:
 ```
 python -m pip install -r requirements
 ```
-3. Set up the database connection and user (Unless you will use the defualt sqlite settings).
+3. Go through the ```Calendarinho/settings.py``` and set your settings, specially the Database:
 ```python
 (In the Calendarinho/settings.py file)
 
-# Database
-# https://docs.djangoproject.com/en/2.1/ref/settings/#databases
-# MySQL settings:
+# MySQL Database:
+# https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
 #         'NAME': 'Calendarinho',
-#         'USER': 'USERNAME',
-#         'PASSWORD': 'PASSWORD',
+#         'USER': 'Calendarinhouser',
+#         'PASSWORD': 'Calendarinhopassword',
 #         'HOST': 'localhost',
 #         'PORT': '',
 #     }
 # }
 
-# Local database settings (Default) 
+# sqlite3 Database:
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -56,19 +56,22 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 ```
 
-4. Run: "makemigrations".
+4. Run: "makemigrations":
 ```
 python manage.py makemigrations users
 python manage.py makemigrations CalendarinhoApp
 python manage.py makemigrations
 ```
-5. Run: "migrate".
+5. Run: "migrate":
 ```
 python manage.py migrate users
 python manage.py migrate CalendarinhoApp
 python manage.py migrate
 ```
-
+6. Create the admin user:
+```
+python manage.py createsuperuser
+```
 
 ## Images of the application:
 
