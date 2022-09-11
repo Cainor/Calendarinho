@@ -65,6 +65,8 @@ DATABASES = {
 DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 #Email Settings
+# For development reasons, you can swith to dump email to console using:
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
