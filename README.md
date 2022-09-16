@@ -1,4 +1,6 @@
-![alt text](https://imgur.com/I0fWYqU.png)
+<p align="center">
+  <img src="https://imgur.com/I0fWYqU.png">
+</p>
 
 # Caledarinho
 The Mother of ALL Calendars.
