@@ -82,3 +82,7 @@ python manage.py createsuperuser
 ![alt text](https://imgur.com/R8CTRyg.png)
 
 ![alt text](https://imgur.com/qb0yj3Z.png)
+
+
+## Things to do:
+- [ ] Before adding item, do frontend check for fields.
