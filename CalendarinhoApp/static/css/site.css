@@ -54,7 +54,7 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
 }
 
 :root {
-    --primaryColor: rgb(66, 119, 141);
+    --primaryColor: #42778d;
     --chartColor: #9e6394;
     --gridlines: #b6b6b6;
 }

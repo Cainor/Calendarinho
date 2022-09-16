@@ -1,4 +1,5 @@
 
+from threading import Thread
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render
 from django.template import loader
@@ -136,8 +137,14 @@ def overlapPrecentage(request):
 def LeaveCreate(request):
     if request.method == 'POST':
         form = LeaveForm(request.POST)
+        
         if form.is_valid():
-            form.save()
+            obj = form.save(commit=False)
+            obj.emp = request.user
+            obj.save()
+            # Send notifications to the managers after a new leave is added.
+            thread = Thread(target = notifyManagersNewLeave, args= (request.user, obj, request))
+            thread.start()  
             result = {"status": True}
             return JsonResponse(result)
     

@@ -53,7 +53,7 @@ class Leave(models.Model):
 
     def __str__(self):
         return str(self.LeaveType) + " - " + str(self.Note)
-
+    
 
 
 class OTP(models.Model):
