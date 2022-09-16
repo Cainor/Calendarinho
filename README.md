@@ -2,6 +2,8 @@
 - [x] Split ```CalendarinhoApp/views.py``` to multiple files.
 - [x] Hardecoded settings to be put in settings.py file for easier reachability.
 - [ ] Use better CSS styling practices.
+- [ ] Fix users having to access admin page to add new entry (Leave, Engagement .. etc).
+- [ ] Instead of running threads, explore Asyncio library.
 ----------
 
 ![alt text](https://imgur.com/I0fWYqU.png)
