@@ -5,6 +5,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from .models import Employee, Engagement, Comment, Reports
 from .forms import *
 from django.urls import reverse
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.core.mail import EmailMessage
@@ -16,6 +17,19 @@ logger = logging.getLogger(__name__)
 
 from threading import Thread
 from .views import not_found
+
+
+@login_required
+def EngagementCreate(request):
+    if request.method == 'POST':
+        form = EngagementForm(request.POST)
+        if form.is_valid():
+            form.save()
+            result = {"status": True}
+            return JsonResponse(result)
+    
+    result = {"status": False}
+    return JsonResponse(result, status=500)
 
 
 @login_required

@@ -1,0 +1,41 @@
+{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+
+{% block head_block %}
+
+{% endblock %}
+
+{% block body_block %} 
+<div class="container-fluid">
+  <div class="row">
+    <h1 class="h3 mb-2 text-title-color col-sm">Add Leave</h1>
+  </div>
+  <div class="row">
+  <!-- File Upload Card-->
+        <div class="col">
+            <div class="card shadow mb-4">
+                <!-- Card Header - Dropdown -->
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Add Leave Item</h6>
+                </div>
+                <!-- Card Body -->
+                <div class="card-body">
+                    <form action="" method="post" novalidate>
+                        {% csrf_token %}
+                        {{ form.media }}
+                        {{ form|crispy }}
+                        <input type="submit" value="Submit">
+                    </form>
+                    <input type="submit" value="Submit" onclick="AddLeave('dadwda')">
+                </div>
+            </div>
+        </div>
+  </div>
+</div>
+
+
+
+
+{% endblock %}

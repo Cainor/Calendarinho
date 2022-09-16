@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 {% load static %}
+{% load crispy_forms_tags %}
+
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
 
 <head>
@@ -22,6 +24,11 @@
 
     <!-- Custom styles for this template-->
     <link href="{% static 'css/sb-admin-2.min.css' %}" rel="stylesheet">
+
+    <!-- Autocomplete Plugin -->
+    <link href="{% static 'admin/css/vendor/select2/select2.css' %}" rel="stylesheet">
+    <link href="{% static 'admin/css/autocomplete.css' %}" rel="stylesheet">
+    <link href="{% static 'autocomplete_light/select2.css' %}" rel="stylesheet">
     {% block head_block %}{% endblock %}
 
 
@@ -33,12 +40,23 @@
     <!-- Bootstrap core JavaScript-->
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>
+
 
     <!-- Core plugin JavaScript-->
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
 
     <!-- Custom scripts for all pages-->
     <script src="{% static 'js/sb-admin-2.min.js' %}"></script>
+    <script src="{% static 'admin/js/vendor/select2/select2.full.js' %}"></script>
+    <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
+    <script src="{% static 'autocomplete_light/select2.js' %}"></script>
+    <script src="{% static 'autocomplete_light/i18n/en.js' %}"></script>
+        
+    
+    
+    
+
     <!-- Page Wrapper -->
     <div id="wrapper">
 
@@ -111,13 +129,23 @@
                     <i class="fas fa-fw fa-plus"></i>
                     <span>Add New Item</span>
                 </a>
+                <link rel="stylesheet" href="{% static 'css/fnon.min.css' %}" />
+                <script src="{% static 'js/fnon.min.js' %}"></script>
+
+                <script>
+                var leave_form = `<form action="/Leave/add" id="leave_add" method="POST"> {{ leave_form|crispy }} {% csrf_token %}</form>`
+                var engagement_form = `<form action="/Engagement/add" id="engagement_add" method="POST"> {{ engagement_form|crispy }} {% csrf_token %}</form>`
+                var client_form = `<form action="/client/add" id="client_add" method="POST"> {{ client_form|crispy }} {% csrf_token %}</form>`
+                
+                </script>
+                <script src="{% static 'js/base-add.js' %}"></script>
+
                 <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Events</h6>
-                        <a class="collapse-item" href="/admin/users/customuser/add/">Add Employee</a>
-                        <a class="collapse-item" href="/admin/CalendarinhoApp/client/add/">Add Client</a>
-                        <a class="collapse-item" href="/admin/CalendarinhoApp/engagement/add/">Add Engagement</a>
-                        <a class="collapse-item" href="/admin/CalendarinhoApp/leave/add/">Add Leave</a>
+                        <a class="collapse-item" href="#" onclick="AddClient()">Add Client</a>
+                        <a class="collapse-item" href="#" onclick="AddEngagement()">Add Engagement</a>
+                        <a class="collapse-item" href="#" onclick="AddLeave()">Add Leave</a>
                     </div>
                 </div>
             </li>

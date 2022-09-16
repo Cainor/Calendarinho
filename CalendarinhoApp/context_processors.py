@@ -1,5 +1,6 @@
 from .models import Engagement
 import datetime
+from .forms import LeaveForm, EngagementForm, ClientForm
 
 
 def alertUpcomingEngagements(request):
@@ -21,3 +22,18 @@ def alertUpcomingEngagements(request):
         'alertEngagements': alertEngagements
     }
     return context
+
+def leave_form(request):
+    return {
+        'leave_form' : LeaveForm()
+    }
+
+def engagement_form(request):
+    return {
+        'engagement_form' : EngagementForm()
+    }
+
+def client_form(request):
+    return {
+        'client_form' : ClientForm()
+    }

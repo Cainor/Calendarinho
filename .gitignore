@@ -608,3 +608,5 @@ sqlite3.db
 UtilizationChartIput.txt
 
 migrations/
+
+upload/

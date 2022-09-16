@@ -2,8 +2,6 @@ from dal import autocomplete
 from django import forms
 from CalendarinhoApp.models import Engagement, Leave, Service
 
-
-
 class EngagementForm(forms.ModelForm): #Engagement form for admin page
 
     class Meta:
@@ -33,12 +31,7 @@ class LeaveForm(forms.ModelForm): #Leave form for admin page
     class Meta:
         model = Leave
         fields = ('Note','LeaveType','StartDate','EndDate')
-        widgets = {
-            'emp': autocomplete.ModelSelect2(url='autocomplete:employee-autocomplete',
-            attrs={
-                'data-minimum-input-length': 2,
-                },)
-        }
+
     def clean(self): #Validation
         cleaned_data = super().clean()
         if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):

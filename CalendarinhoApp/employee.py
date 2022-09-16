@@ -1,3 +1,4 @@
+
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render
 from django.template import loader
@@ -12,6 +13,7 @@ from django.core.mail import EmailMessage
 import logging
 from django.conf import settings
 from datetime import timedelta
+from .forms import LeaveForm
 
 # Get an instance of a logger
 logger = logging.getLogger(__name__)
@@ -130,6 +132,17 @@ def overlapPrecentage(request):
     except ZeroDivisionError:
         return "100%"
 
+@login_required
+def LeaveCreate(request):
+    if request.method == 'POST':
+        form = LeaveForm(request.POST)
+        if form.is_valid():
+            form.save()
+            result = {"status": True}
+            return JsonResponse(result)
+    
+    result = {"status": False}
+    return JsonResponse(result, status=500)
 
 @login_required
 def LeavesCal(request):

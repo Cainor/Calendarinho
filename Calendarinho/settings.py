@@ -66,13 +66,13 @@ DEFAULT_AUTO_FIELD='django.db.models.AutoField'
 
 #Email Settings
 # For development reasons, you can swith to dump email to console using:
-# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
+# EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
 
 
 # Application references
@@ -123,6 +123,9 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'CalendarinhoApp.context_processors.alertUpcomingEngagements',
+                'CalendarinhoApp.context_processors.leave_form',
+                'CalendarinhoApp.context_processors.engagement_form',
+                'CalendarinhoApp.context_processors.client_form',
             ],
         },
     },

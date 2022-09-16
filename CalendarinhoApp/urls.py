@@ -24,9 +24,11 @@ urlpatterns = [
     path('profile/<int:emp_id>/', employee.profile, name='profile'),
     path('engagement/<int:eng_id>/', engagement.engagement, name='engagement'),
     path('projectManager/<int:projmgr_id>/', employee.projectManager, name='projectManager'),
+    path('Engagement/add', engagement.EngagementCreate, name='EngagementCreate'),
     path('EngagementsCalendar/', engagement.EngagementsCal, name='EngagementsCal'),
     path('EmployeesCalendar/', employee.EmployeesCal, name='EmployeesCal'),
     path('EmployeesCalendar/overlap/', employee.overlap, name='Overlap'),
+    path('Leaves/add', employee.LeaveCreate, name='LeaveCreate'),
     path('LeavesCalendar/', employee.LeavesCal, name='LeavesCal'),
     path('exportcsv/<int:empID>', views.exportCSV, name='exportCSV'),
     path('exportcsv/<slug:slug>', views.exportCSV, name='exportCSV'),
@@ -39,6 +41,8 @@ urlpatterns = [
     path('login', authentication.loginForm, name='login'),
     re_path(r'^login\/(?P<next>.*)$', view=authentication.loginForm, name='login'),
     path('logout', authentication.logout_view, name='logout'),
+
+    path('client/add', client.ClientCreate, name='ClientCreate'),
     path('client/<int:cli_id>/', client.client, name='client'),
     path('ClientsTable', client.ClientsTable, name='ClientsTable'),
     

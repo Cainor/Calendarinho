@@ -2,9 +2,9 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, MultiField, ButtonHolder, Submit, Div
 import datetime
-
+from dal import autocomplete
 from django.forms import widgets
-from .models import Comment,Service,Reports
+from .models import Comment,Service,Reports,Leave,Engagement,Client
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 
@@ -86,3 +86,50 @@ class uploadReportForm(forms.ModelForm):
             'note': forms.TextInput(attrs={'class':'col', 'accept': '.gpg'}),
         }
         
+class DateInput(forms.DateInput):
+    input_type = 'date'
+
+class LeaveForm(forms.ModelForm): #Leave form for main page
+    class Meta:
+        model = Leave
+        fields = ('Note','LeaveType','StartDate','EndDate')
+        widgets = {
+            'StartDate': DateInput(),
+            'EndDate': DateInput(),
+        }
+    
+    def clean(self): #Validation
+        cleaned_data = super().clean()
+        if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
+            raise forms.ValidationError("Dates are incorrect")
+
+class EngagementForm(forms.ModelForm): #Engagement form for admin page
+
+    class Meta:
+        model = Engagement
+        fields = ('EngName','CliName', 'Employees','projectManager','ServiceType','StartDate', 'EndDate', 'Scope')
+        widgets = {
+            'Employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete',
+            attrs={
+                'data-minimum-input-length': 2,
+                },),
+            'CliName': autocomplete.ModelSelect2(url='autocomplete:client-autocomplete',
+            attrs={
+                'data-minimum-input-length': 2,
+                },),
+            'projectManager':autocomplete.ModelSelect2(url='autocomplete:projectmanager-autocomplete',
+            attrs={
+                'data-minimum-input-length': 1,
+            },),
+            'StartDate': DateInput(),
+            'EndDate': DateInput(),
+        }
+    def clean(self): #Validation
+        cleaned_data = super().clean()
+        if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
+            raise forms.ValidationError("Dates are incorrect")
+
+class ClientForm(forms.ModelForm): #Leave form for main page
+    class Meta:
+        model = Client
+        fields = '__all__'

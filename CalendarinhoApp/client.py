@@ -3,6 +3,7 @@ from .models import Engagement, Client
 from .forms import *
 from django.contrib.auth.decorators import login_required
 import logging
+from django.http import JsonResponse
 from django.conf import settings
 
 # Get an instance of a logger
@@ -52,5 +53,17 @@ def ClientsTable(request):
         'table': table
     }
     return render(request, "CalendarinhoApp/ClientsTable.html", context)
+
+@login_required
+def ClientCreate(request):
+    if request.method == 'POST':
+        form = ClientForm(request.POST)
+        if form.is_valid():
+            form.save()
+            result = {"status": True}
+            return JsonResponse(result)
+    
+    result = {"status": False}
+    return JsonResponse(result, status=500)
 
 from .views import not_found
