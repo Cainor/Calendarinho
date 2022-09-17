@@ -168,6 +168,12 @@ canvas#myChart2 {
     text-align:center;
 }
 
+label.error{
+    font-size: 1rem !important;
+    color: #c50000 !important;
+}
+
+
 .select2-container--default .select2-selection--multiple .select2-selection__choice{
     background-color:#121212 !important;
 }

@@ -1,3 +1,12 @@
+jQuery.validator.setDefaults({
+    success: "valid",
+    showErrors: function(errorMap, errorList) {
+            this.defaultShowErrors();
+            $('input').removeClass('error');
+            $('select').removeClass('error');
+          },
+  });
+
 function AddLeave(){
     // Display by providing setting object
     Fnon.Dialogue.Danger({
@@ -10,7 +19,12 @@ function AddLeave(){
                 success: AjaxSucceeded,
                 error: AjaxFailed
             };
-            $('#leave_add').ajaxSubmit(options)
+            if ($('#leave_add').valid()){
+                $('#leave_add').ajaxSubmit(options);
+            }
+            else{return false}
+            
+            
         }
     });
     function AjaxSucceeded(result) {
@@ -45,7 +59,10 @@ function AddEngagement(){
                 success: AjaxSucceeded,
                 error: AjaxFailed
             };
-            $('#engagement_add').ajaxSubmit(options)
+            if ($('#engagement_add').valid()){
+                $('#engagement_add').ajaxSubmit(options);
+            }
+            else{return false}
         }
     });
     function AjaxSucceeded(result) {
@@ -80,7 +97,10 @@ function AddClient(){
                 success: AjaxSucceeded,
                 error: AjaxFailed
             };
-            $('#client_add').ajaxSubmit(options)
+            if ($('#client_add').valid()){
+                $('#client_add').ajaxSubmit(options);
+            }
+            else{return false}
         }
     });
     function AjaxSucceeded(result) {

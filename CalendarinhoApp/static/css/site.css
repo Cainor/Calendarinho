@@ -64,6 +64,11 @@ ul.pagination li.paginate_button.page-item.active a.page-link {
     text-align:center;
 }
 
+label.error{
+    font-size: 1rem !important;
+    color: #c50000 !important;
+}
+
 .f__m__h{
     background: var(--primaryColor) !important;
 }
