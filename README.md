@@ -85,4 +85,4 @@ python manage.py createsuperuser
 
 
 ## Things to do:
-- [ ] Before adding item, do frontend check for fields.
+- [x] Before adding item, do frontend check for fields.
