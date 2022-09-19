@@ -44,7 +44,7 @@
 }
 
 a.d-none.d-sm-inline-block.btn.btn-sm.btn-primary.shadow-sm {
-    background-color: #001a40 !important;
+    background-color: var(--chartColor) !important;
     color: #f0f0f0 !important;
 }
 
@@ -133,7 +133,7 @@ input {
 }
 
 :root {
-    --primaryColor: rgb(66, 119, 141);
+    --primaryColor: #42778d;
     --chartColor: #9e6394;
     --gridlines: #b6b6b6;
 }
