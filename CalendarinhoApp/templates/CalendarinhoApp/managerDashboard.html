@@ -273,43 +273,6 @@
             </div>
         </div>
     </div>
-        <!--start table-->
-        <div class="card shadow mb-4">
-            <div class="card-header py-3">
-                <div class="row">
-                    <h6 class="m-0 font-weight-bold text-primary col">Current MC's Projects</h6>
-                    <div class="col-6"></div>
-    
-                </div>
-    
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                {% for i in managerEngs%}
-                                <th>{{i}}</th>
-                                {% endfor %}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% load my_tags %}
-                            {% for i in range%}
-                                <tr>
-                                    
-                                        {% for key,val in managerEngs.items%}
-                                        <td><a href="/engagement/{{val|return_id:i}}">{{val|return_engName:i}}</a></td>
-                                        {% endfor %}
-                                </tr>
-                                {% endfor %}
-
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-        <!--end table-->
 </div>
 
 {% endblock %}
