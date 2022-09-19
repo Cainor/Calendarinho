@@ -299,7 +299,6 @@
                                     Alerts Center
                                 </h6>
                                 {% for item in alertEngagements %}
-
                                 <a class="dropdown-item d-flex align-items-center" href="/engagement/{{item.eng.id}}">
                                     <div class="mr-3">
                                         <div class="icon-circle bg-primary">
@@ -307,6 +306,7 @@
                                         </div>
                                     </div>
                                     <div>
+                                    <div class="small text-gray-500">{{item.eng.StartDate}}</div>
                                         <span class="font-weight-bold">Upcoming engagement with {{item.eng.CliName}}, {{item.days}} days left.</span>
                                     </div>
                                 </a>
