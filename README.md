@@ -86,3 +86,4 @@ python manage.py createsuperuser
 
 ## Things to do:
 - [x] Before adding item, do frontend check for fields.
+- [ ] Add the ability to update or cancel leaves without the need for admin
