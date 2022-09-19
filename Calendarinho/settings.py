@@ -37,6 +37,9 @@ COST_PER_DAY = 1000
 # Weekly working days
 WORKING_DAYS = "Mon Tue Wed Thu Sun"
 
+# Alert users before number of days of engagement start date
+ALERT_ENG_DAYS = 7
+
 if DEBUG:
     ALLOWED_HOSTS = ["*"]
 else:

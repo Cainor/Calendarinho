@@ -1,7 +1,7 @@
 from .models import Engagement
 import datetime
 from .forms import LeaveForm, EngagementForm, ClientForm
-
+from django.conf import settings
 
 def alertUpcomingEngagements(request):
     todayDatetime = datetime.date.today()
@@ -12,7 +12,8 @@ def alertUpcomingEngagements(request):
     endWithDays = {}
     for eng in engs:
         numDaysLeft = eng.daysLeftToStartEngagement()
-        if (numDaysLeft.days <= 7):
+        #Alert engaged users befor starting 
+        if (numDaysLeft.days <= settings.ALERT_ENG_DAYS and eng.Employees.filter(id=request.user.id)):
             endWithDays['eng'] = eng
 
             endWithDays['days'] = numDaysLeft.days
