@@ -36,10 +36,8 @@ def loginForm(request, next=''):
                 login(request, user)
                 next_url = request.POST.get('next', '')
                 if (next_url and url_has_allowed_host_and_scheme(next_url, settings.ALLOWED_HOSTS)):
-                    print("Good People")
                     return HttpResponseRedirect(next_url)
                 else:
-                    print("fucking bad shit")
                     return HttpResponseRedirect(reverse('CalendarinhoApp:Dashboard'))
             else:
                 messages.error(request, "Invalid login details given")
