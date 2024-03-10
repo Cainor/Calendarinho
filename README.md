@@ -64,7 +64,12 @@ python manage.py migrate users
 python manage.py migrate CalendarinhoApp
 python manage.py migrate
 ```
-6. Create the admin user:
+6. Run: "collectstatic"
+```
+python manage.py collectstatic
+```
+
+7. Create the admin user:
 ```
 python manage.py createsuperuser
 ```
