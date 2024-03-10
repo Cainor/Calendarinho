@@ -8,7 +8,7 @@ from .engagement import notifyEngagedEmployees, notifyManagersNewEngagement
 
 from autocomplete.forms import EngagementForm, LeaveForm
 admin.site.register(Employee)
-admin.site.enable_nav_sidebar = False
+admin.site.enable_nav_sidebar = True
 
 
 class ClientAdmin(admin.ModelAdmin):

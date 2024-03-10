@@ -1,5 +1,5 @@
 .bg-gradient-primary {
-    background: linear-gradient(0deg, rgb(0, 26, 64) 0%, rgb(0, 0, 0) 50%) !important;
+    background: linear-gradient(0deg, var(--primaryColor) 0%, rgb(0, 28, 43) 100%) !important;
 }
 
 .navbar {
@@ -44,7 +44,7 @@
 }
 
 a.d-none.d-sm-inline-block.btn.btn-sm.btn-primary.shadow-sm {
-    background-color: #001a40 !important;
+    background-color: var(--chartColor) !important;
     color: #f0f0f0 !important;
 }
 
@@ -133,9 +133,9 @@ input {
 }
 
 :root {
-    --primaryColor: rgb(66, 119, 141);
-    --chartColor: #001a40;
-    --gridlines: #f0f0f0;
+    --primaryColor: #42778d;
+    --chartColor: #9e6394;
+    --gridlines: #b6b6b6;
 }
 
 .select2-container--default .select2-selection--multiple {
@@ -168,6 +168,41 @@ canvas#myChart2 {
     text-align:center;
 }
 
+label.error{
+    font-size: 1rem !important;
+    color: #c50000 !important;
+}
+
+
 .select2-container--default .select2-selection--multiple .select2-selection__choice{
     background-color:#121212 !important;
+}
+
+.f__m__h{
+    background: var(--primaryColor) !important;
+}
+
+div.f__m__f > button:nth-child(2){
+    background: var(--primaryColor) !important;
+}
+
+.f__cm{
+    --fnon-scroll-color: var(--primaryColor) !important;
+    z-index: 2 !important;
+}
+
+#page-top > span .select2-container{
+    z-index: 3;
+}
+
+#div_id_Employees > div > span > span.selection > span > ul > li.select2-selection__choice{
+    margin-top: 0px !important;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered{
+    color: #fff !important;
+}
+
+.select2-container--default .select2-selection--single{
+    height: 40px !important;
 }

@@ -10,15 +10,15 @@ class EngagementForm(forms.ModelForm): #Engagement form for admin page
         widgets = {
             'Employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete',
             attrs={
-                'data-minimum-input-length': 2,
+                'data-minimum-input-length': 0,
                 },),
             'CliName': autocomplete.ModelSelect2(url='autocomplete:client-autocomplete',
             attrs={
-                'data-minimum-input-length': 2,
+                'data-minimum-input-length': 0,
                 },),
             'projectManager':autocomplete.ModelSelect2(url='autocomplete:projectmanager-autocomplete',
             attrs={
-                'data-minimum-input-length': 1,
+                'data-minimum-input-length': 0,
             },)
         }
     def clean(self): #Validation
@@ -42,12 +42,12 @@ class EmployeeCounter(autocomplete.FutureModelForm): #URL: /counterTable
         model = Engagement
         fields = ('Employees', 'ServiceType',)
         widgets = {
-            'Employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete', attrs={'class':' ml-1 mr-2'}),
-            'ServiceType': autocomplete.ModelSelect2Multiple(url='autocomplete:service-autocomplete', attrs={'class':' ml-1 mr-2'}),
+            'Employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete', attrs={'class':' ml-1 mr-2', 'data-placeholder':'All Users'}),
+            'ServiceType': autocomplete.ModelSelect2Multiple(url='autocomplete:service-autocomplete', attrs={'class':' ml-1 mr-2', 'data-placeholder':'All Services'}),
         }
     def __init__(self, *args, **kwargs):
         # first call parent's constructor
-        super(EmployeeCounter, self).__init__(*args, **kwargs)
+        super(EmployeeCounter, self).__init__(*args, **kwargs)  
         # there's a `fields` property now
         self.fields['ServiceType'].required = False
 

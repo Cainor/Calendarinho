@@ -25,8 +25,10 @@
             <form action="/managerDashboard" method="POST">
                 <div style="display: flex; flex-direction: row; justify-content: space-between; gap: 6px; font-weight: bold; font-size: 19px; font-variant-position: sub; white-space: nowrap;">
                     {{form}}
+                    <div style="display: flex;justify-content: flex-end;flex-direction: column;">
                     {% csrf_token %}
-                    <input type="submit" value="Update" class="btn-primary btn-sm" style="padding-right:15px; padding-left: 15px; padding-top: 2px; padding-bottom: 3px;">
+                    <input type="submit" value="Update" class="btn-primary btn-sm form-control" style="padding-right:15px; padding-left: 15px; padding-top: 2px; padding-bottom: 3px; margin-bottom: 2px;">
+                    </div>
                 </div>
             </form>
         </div>

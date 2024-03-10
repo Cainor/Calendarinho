@@ -10,22 +10,25 @@
 
 {% block body_block %} 
 <!-- Page level plugins -->
-<script src="{% static 'js/demo/datatables-demo.js' %}"></script>
 <script src="{% static 'vendor/datatables/jquery.dataTables.min.js' %}"></script>
 <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
 <script src="{% static 'js/sorttable.js' %}"></script>
+<script src="{% static 'js/demo/datatables-demo.js' %}"></script>
+
 
 <div class="container-fluid">
     <h1 class="h3 mb-2 text-title-color col-sm">Service Involvement</h1>
-    <div class="row d-flex justify-content-center" style="margin-top:100px">
-        <form action="/counterTable" method="POST">
+    <form action="/counterTable" method="POST">
+        <div class="row d-flex justify-content-center" style="">
             {{form}}
+            <div>
             {% csrf_token %}
             <input type="submit" value="Filter" class="btn-primary btn-sm" style="padding-right:25px;padding-left: 25px;padding-top: 6px;padding-bottom: 8px;">
+            </div>
             <br>
-            <lable class="d-flex justify-content-center mt-2">Empty field means "Any"</lable>
-        </form>
-    </div>
+            {% comment %} <lable class="d-flex justify-content-center mt-2">Empty field means "Any"</lable> {% endcomment %}
+        </div>
+    </form>
 
     <div class="card shadow mb-4 mt-4">
         <div class="card-header py-3">
@@ -69,6 +72,5 @@
         </div>
     </div>
 </div>
-<script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 {{form.media}}
 {% endblock %}
