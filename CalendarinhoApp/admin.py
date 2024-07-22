@@ -37,17 +37,13 @@ class EngagementAdmin(admin.ModelAdmin):
         # clientCode = ClientObj.CliCode.strip()
         # obj.EngName = ""+str(M)+str(Y)+"-"+clientCode+"-"+ClientObj.CliShort+"-"+obj.ServiceType.serviceShort
 
-        super().save_model(request, obj, form, change)
+        # Get employees before saving    
+        empsBefore = list(obj.Employees.all().values_list('id', flat=True)) if change else []
 
-        # Send notifications to the related employees.
-        empsBefore=None
-        if change:
-            empsBefore = obj.Employees.all()
-            if empsBefore.count() < 1:
-                empsBefore = None
-        empsAfter=None
-        if request.POST.getlist('Employees'):
-            empsAfter=Employee.objects.filter(id__in=request.POST.getlist('Employees'))
+        super().save_model(request, obj, form, change)
+        
+        # Get employees after saving
+        empsAfter = request.POST.getlist('Employees')
         
         thread = Thread(target = notifyEngagedEmployees, args= (empsBefore, empsAfter, obj, request))
         thread.start()
