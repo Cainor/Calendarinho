@@ -3,12 +3,28 @@ from .models import Employee,OTP
 from django.core.mail import EmailMessage
 from django.template import loader
 from django.contrib.sites.shortcuts import get_current_site
-
 import logging
-
 from random import randint
+import ssl
+from django.core.mail.backends.smtp import EmailBackend as SMTPBackend
+from django.utils.functional import cached_property
 
 logger = logging.getLogger(__name__)
+
+
+class EmailBackend(SMTPBackend):
+    @cached_property
+    def ssl_context(self):
+        if self.ssl_certfile or self.ssl_keyfile:
+            ssl_context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
+            ssl_context.load_cert_chain(self.ssl_certfile, self.ssl_keyfile)
+            return ssl_context
+        else:
+            ssl_context = ssl.create_default_context()
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+            return ssl_context
+
 
 def send_forget_password_OTP(request):
     req_email = request.POST.get('email')
