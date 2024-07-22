@@ -155,152 +155,167 @@ def deleteReport(request, refUUID=None):
     else:
         return not_found(request)
 
+
 def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
     """Send emails to employees when he added or removed from engagement."""
 
-    #Check the users added to the engagement
-    addedEmps = []
-    if empsAfter is None:
-        addedEmps = []
-    elif empsBefore is None :
-        addedEmps = empsAfter
-    else:
-        addedEmps=empsAfter.exclude(id__in=empsBefore)
+    # Convert empsAfter to a set of integers
+    empsAfter = set(map(int, empsAfter))
+    empsBefore = set(empsBefore)
 
-    #Check the users removed from the engagement
-    removedEmps = []
-    if empsBefore is None:
-        removedEmps= []
-    elif empsAfter is None :
-        removedEmps = empsBefore
-    else:
-        removedEmps=empsBefore.exclude(id__in=empsAfter)
+    # Check the users added to the engagement
+    addedEmps = Employee.objects.filter(id__in=empsAfter - empsBefore)
 
-    emails = []
+
+    # Check the users removed from the engagement
+    removedEmps = Employee.objects.filter(id__in=empsBefore - empsAfter)
+
+    
     #Send email to the added users
-    for addedEmp in addedEmps :
-        context = {
-                'first_name': addedEmp.first_name,
-                'message': str(request.user) + ' has assigned you to a new engagement',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
-                    args=[engagement.id])),
-                'engagement_name': engagement.EngName,
-                'StartDate': engagement.StartDate,
-                'EndDate': engagement.EndDate,
-                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
-                'domain' : settings.DOMAIN,
-            }
-        email_body = loader.render_to_string(
-            'CalendarinhoApp/emails/employee_engagement_email.html', context)
-        email = EmailMessage('You have been engaged', email_body, to=[addedEmp.email])
-        email.content_subtype = "html"
-        emails.append(email)
-
-    #Send email to the removed users
-    for removedEmp in removedEmps :
-        context = {
-                'first_name': removedEmp.first_name,
-                'message': str(request.user) + ' has removed you from an engagement ',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
-                    args=[engagement.id])),
-                'engagement_name': engagement.EngName,
-                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
-                'domain' : settings.DOMAIN,
-            }
-        email_body = loader.render_to_string(
-            'CalendarinhoApp/emails/employee_engagement_email.html', context)
-        email = EmailMessage('You have been unengaged', email_body, to=[removedEmp.email])
-        email.content_subtype = "html"
-        emails.append(email)
     try:
-        connection = mail.get_connection()
-        connection.send_messages(emails)
+        with mail.get_connection() as connection:
+            for addedEmp in addedEmps :
+                context = {
+                        'first_name': addedEmp.first_name,
+                        'message': str(request.user) + ' has assigned you to a new engagement',
+                        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                            args=[engagement.id])),
+                        'engagement_name': engagement.EngName,
+                        'StartDate': engagement.StartDate,
+                        'EndDate': engagement.EndDate,
+                        'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                        'domain' : settings.DOMAIN,
+                    }
+                email_body = loader.render_to_string(
+                    'CalendarinhoApp/emails/employee_engagement_email.html', context)
+                email = EmailMessage('You have been engaged', email_body, to=[addedEmp.email], connection=connection)
+                email.content_subtype = "html"
+                email.send()
+
+            #Send email to the removed users
+            for removedEmp in removedEmps :
+                context = {
+                        'first_name': removedEmp.first_name,
+                        'message': str(request.user) + ' has removed you from an engagement ',
+                        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                            args=[engagement.id])),
+                        'engagement_name': engagement.EngName,
+                        'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                        'domain' : settings.DOMAIN,
+                    }
+                email_body = loader.render_to_string(
+                    'CalendarinhoApp/emails/employee_engagement_removed_email.html', context)
+                email = EmailMessage('You have been unengaged', email_body, to=[removedEmp.email], connection=connection)
+                email.content_subtype = "html"
+                email.send()
+
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
 def notifyNewComment(comment, request):
     user = comment.user
     engagement = comment.eng
-    employees= engagement.Employees.all()
-    emails = []
-    for employee in employees :
-        # check if the comment is by the employee him or herself
-        if user == employee:
-            continue
-        context = {
-                'first_name': employee.first_name,
-                'message': 'New comment on your engagement by ' + user.first_name + ' ' + user.last_name + '.',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
-                    args=[engagement.id])),
-                'engagement_name': engagement.EngName,
-                'user':user,
-                'commentbody':comment.body,
-                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
-                'domain' : settings.DOMAIN,
-            }
-        email_body = loader.render_to_string(
-            'CalendarinhoApp/emails/engagement_comment_email.html', context)
-        email = EmailMessage('New comment on your engagement', email_body, to=[employee.email])
-        email.content_subtype = "html"
-        emails.append(email)
+    employees= engagement.Employees.exclude(id=user.id)
+    context = {
+        'message': f'New comment on your engagement by {user.get_full_name()}.',
+        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+        'engagement_name': engagement.EngName,
+        'user': user,
+        'commentbody': comment.body,
+        'protocol': 'https' if settings.USE_HTTPS else 'http',
+        'domain': settings.DOMAIN,
+    }
     try:
-        connection = mail.get_connection()
-        connection.send_messages(emails)
+        with get_connection() as connection:
+            for employee in employees :
+                context = {
+                        'first_name': employee.first_name,
+                        'message': 'New comment on your engagement by ' + user.first_name + ' ' + user.last_name + '.',
+                        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
+                            args=[engagement.id])),
+                        'engagement_name': engagement.EngName,
+                        'user':user,
+                        'commentbody':comment.body,
+                        'protocol': 'https' if settings.USE_HTTPS == True else 'http',
+                        'domain' : settings.DOMAIN,
+                    }
+                email_body = loader.render_to_string(
+                    'CalendarinhoApp/emails/engagement_comment_email.html', context)
+                email = EmailMessage('New comment on your engagement', email_body, to=[employee.email], connection=connection)
+                email.content_subtype = "html"
+                email.send()
     except ConnectionRefusedError as e:
         logger.error("Failed to send emails: \n" + str(e))
 
 
 def notifyNewReportUpload(report, request):
-    emails = []
-    employees= report.eng.Employees.all()
-    for employee in employees :
-        if request.user == employee:
-            continue
-        context = {
-                    'first_name': request.user.first_name,
-                    'message': 'New report uploaded on your engagement by ' + request.user.first_name + ' ' + request.user.last_name + '.',
-                    'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
-                        args=[report.eng.id])),
-                    'engagement_name': report.eng.EngName,
-                    'reportType': report.reportType,
-                    'user':request.user,
-                    'protocol': 'https' if settings.USE_HTTPS == True else 'http',
-                    'domain' : settings.DOMAIN,
-                }
-        email_body = loader.render_to_string(
-                'CalendarinhoApp/emails/engagement_comment_uploadReport.html', context)
-        email = EmailMessage('New report uploaded on your engagement', email_body, to=[employee.email])
-        email.content_subtype = "html"
-        emails.append(email)
+    uploader = request.user
+    engagement = report.eng
+    employees = engagement.Employees.exclude(id=uploader.id)
+
+    context = {
+        'first_name': uploader.first_name,
+        'message': f'New report uploaded on your engagement by {uploader.get_full_name()}.',
+        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+        'engagement_name': engagement.EngName,
+        'reportType': report.reportType,
+        'user': uploader,
+        'protocol': 'https' if settings.USE_HTTPS else 'http',
+        'domain': settings.DOMAIN,
+    }
+
     try:
-        connection = mail.get_connection()
-        connection.send_messages(emails)
+        with get_connection() as connection:
+            for employee in employees:
+                email_body = render_to_string(
+                    'CalendarinhoApp/emails/engagement_comment_uploadReport.html', 
+                    {**context, 'recipient_first_name': employee.first_name}
+                )
+                email = EmailMessage(
+                    'New report uploaded on your engagement',
+                    email_body,
+                    to=[employee.email],
+                    connection=connection
+                )
+                email.content_subtype = "html"
+                email.send()
+            
     except ConnectionRefusedError as e:
-        logger.error("Failed to send emails: \n" + str(e))
+        logger.error(f"Failed to send emails: {e}")
 
 def notifyManagersNewEngagement(user, engagement, request):
     """Send notifications to the managers after a new engagement is added."""
     
     managers = Employee.getManagers()
-    emails = []
-    for manager in managers :
-        context = {
-                'first_name': manager.first_name,
-                'message': 'New engagement added by ' + user.first_name + ' ' + user.last_name + '.',
-                'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
-                    args=[engagement.id])),
-                'engagement_name': engagement.EngName,
-                'user':user,
-                'protocol': 'https' if settings.USE_HTTPS == True else 'http',
-                'domain' : settings.DOMAIN,                
-            }
-        email_body = loader.render_to_string(
-            'CalendarinhoApp/emails/manager_new_engagement_email.html', context)
-        email = EmailMessage('New engagement added', email_body, to=[manager.email])
-        email.content_subtype = "html"
-        emails.append(email)
+
+    base_context = {
+        'message': f'New engagement added by {user.get_full_name()}.',
+        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+        'engagement_name': engagement.EngName,
+        'user': user,
+        'protocol': 'https' if settings.USE_HTTPS else 'http',
+        'domain': settings.DOMAIN,
+    }
+
     try:
-        connection = mail.get_connection()
-        connection.send_messages(emails)
+        with get_connection() as connection:
+            for manager in managers:
+                context = {**base_context, 'first_name': manager.first_name}
+                
+                email_body = render_to_string(
+                    'CalendarinhoApp/emails/manager_new_engagement_email.html', 
+                    context
+                )
+                
+                email = EmailMessage(
+                    'New engagement added',
+                    email_body,
+                    to=[manager.email],
+                    connection=connection
+                )
+                email.content_subtype = "html"
+                
+                email.send()  # Send each email individually
+
     except ConnectionRefusedError as e:
-        logger.error("Failed to send emails: \n" + str(e))
+        logger.error(f"Failed to send emails: {e}")
