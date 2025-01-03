@@ -28,7 +28,8 @@ docker-compose -f docker-compose.test.yml build
 docker-compose -f docker-compose.test.yml up -d
 ```
 
-3. Go to http://localhost:8000 and login with the credentials:
+3. Wait for 2 min for the database to be ready.
+4. Go to http://localhost:8000 and login with the credentials:
 
 ```
 admin

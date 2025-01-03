@@ -3,7 +3,7 @@ version: '3.8'
 services:
   web:
     build: .
-    command: bash -c "./init-test.sh"
+    command: bash ./init-test.sh
     volumes:
       - .:/app
       - static_volume:/app/staticfiles

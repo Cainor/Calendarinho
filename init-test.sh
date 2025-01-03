@@ -1,5 +1,5 @@
 #!/bin/bash
-# wait-for-db.sh
+# init-test.sh
 
 # Wait for MySQL to be ready
 echo "Waiting for MySQL to be ready..."
