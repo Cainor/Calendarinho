@@ -55,7 +55,7 @@
     "karma-rollup-preprocessor": "^7.0.0",
     "merge-stream": "^1.0.1",
     "pixelmatch": "^4.0.2",
-    "rollup": "^1.0.0",
+    "rollup": "^2.79.2",
     "rollup-plugin-commonjs": "^10.0.0",
     "rollup-plugin-istanbul": "^2.0.1",
     "rollup-plugin-node-resolve": "^5.0.0",
