@@ -4,3 +4,4 @@ PyMySQL==1.1.1
 django_crispy_forms==2.1
 crispy-bootstrap4
 numpy
+cryptography

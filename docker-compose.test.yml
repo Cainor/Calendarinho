@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: bash -c "./init-test.sh"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+    ports:
+      - "8000:8000"
+    environment:
+      - DJANGO_SETTINGS_MODULE=Calendarinho.settings.test
+      - DJANGO_SECRET_KEY=test-secret-key
+      - DB_NAME=calendarinho_test
+      - DB_USER=test_user
+      - DB_PASSWORD=test_password
+      - DB_HOST=db
+    depends_on:
+      - db
+
+  db:
+    image: mysql:8.0.40
+    volumes:
+      - mysql_test_data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=calendarinho_test
+      - MYSQL_USER=test_user
+      - MYSQL_PASSWORD=test_password
+      - MYSQL_ROOT_PASSWORD=test_root_password
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  mysql_test_data:
+  static_volume:
+  media_volume:
