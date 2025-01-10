@@ -57,4 +57,3 @@ exec gunicorn Calendarinho.wsgi:application \
     --error-logfile - \
     --capture-output \
     --enable-stdio-inheritance \
-    --log-level debug

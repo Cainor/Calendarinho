@@ -16,25 +16,61 @@ A web application to easily manage large team of consultants. It has some functi
 
 1. Clone the repository:
 
-```
+```bash
 git clone https://github.com/Cainor/Calendarinho.git
 cd Calendarinho
 ```
 
 2. Build and Start the Docker image:
 
-```
-docker-compose -f docker-compose.test.yml build
-docker-compose -f docker-compose.test.yml up -d
+```bash
+docker-compose -f docker-compose.test.yml up -d --build
 ```
 
-3. Wait for 2 min for the database to be ready.
+3. Wait for 1 min for the database to be ready.
 4. Go to http://localhost:8000 and login with the credentials:
 
 ```
 admin
 admin
 ```
+
+### Docker (Production Environment)
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/Cainor/Calendarinho.git
+cd Calendarinho
+```
+
+2. Create a copy of the `.env.example` file and rename it to `.env.prod`:
+
+```bash
+cp .env.example .env.prod
+```
+
+3. Edit the `.env.prod` file and set the environment variables with your settings.
+4. Add your SSL certificate to ssl folder. Must be called "certificate.crt"
+
+```
+ssl/certificate.crt
+```
+
+4. If you don't have a SSL certificate, you can generate one with the following command:
+
+```bash
+bash generate-cert.sh
+```
+
+5. Build and Start the Docker image:
+
+```bash
+docker-compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+```
+
+6. Wait for 1 min for the database to be ready.
+7. Go to http://localhost and login with the credentials you set in the `.env.prod` file.
 
 ### Manual
 
