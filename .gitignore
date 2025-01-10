@@ -611,4 +611,5 @@ UtilizationChartIput.txt
 migrations/
 
 upload/
-ssl/*
+ssl/*.crt
+ssl/*.key
