@@ -4,11 +4,11 @@
 
 # Caledarinho
 
-The Mother of ALL Calendars.
+The Mother of All Calendars. A web application to easily manage large team of services providers.
 
 ## About
 
-A web application to easily manage large team of consultants. It has some functionalities that helps managements in the assignment and following up tasks.
+Enough with crowded shared calendars, we need a better way to manage our team's tasks and services. This is where Calendarinho comes in. With Calendarinho, you can easily have an eagle view of your team's calendars and tasks, and manage them all in one place.
 
 ## Installation Guide
 
