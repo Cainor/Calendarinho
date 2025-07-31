@@ -92,10 +92,7 @@
 
             <!-- Nav Item - New Engagement -->
             <li class="nav-item">
-                <a class="nav-link" href="#" data-action="show-engagement-form">
-                    <i class="fas fa-fw fa-plus-circle"></i>
-                    <span>New Engagement</span>
-                </a>
+                
             </li>
 
             <!-- Nav Item - Pages Collapse Menu -->
@@ -154,7 +151,7 @@
                     <div class="bg-white py-2 collapse-inner rounded">
                         <h6 class="collapse-header">Events</h6>
                         <a class="collapse-item" href="#" onclick="AddClient()">Add Client</a>
-                        <a class="collapse-item" href="#" onclick="AddEngagement()">Add Engagement</a>
+                        <a class="collapse-item" href="#" data-action="show-engagement-form">New Engagement</a>
                         <a class="collapse-item" href="#" onclick="AddLeave()">Add Leave</a>
                     </div>
                 </div>
@@ -531,14 +528,36 @@
             .fnon-dialog-content {
                 min-width: 800px;
             }
+            
+            /* Client add button styles */
+            .plus-add-btn {
+                padding: 0.5rem 0.5rem;
+                font-size: 0.875rem;
+                border-radius: 0.25rem;
+            }
+            
+            /* Ensure proper alignment with select2 */
+            .select2-container + .btn {
+                margin-left: 5px;
+            }
+            
+            /* Ensure proper z-index for nested modals */
+            .fnon-dialog {
+                z-index: 1050 !important;
+            }
+            
+            /* Ensure Select2 dropdowns appear above modals */
+            .select2-dropdown {
+                z-index: 1070 !important;
+            }
+            
+            /* Fix for Select2 in nested modals */
+            .fnon-dialog .select2-container {
+                z-index: 1080 !important;
+            }
         </style>
 
-        <!-- Hidden form template for Fnon -->
-        <div id="engagement-form-template" style="display: none;">
-            <div class="engagement-form">
-                {% crispy engagement_form %}
-            </div>
-        </div>
+
         
         <script>
             // Initialize Fnon dialog
@@ -554,26 +573,133 @@
 
                 // Function to show engagement form
                 window.showEngagementForm = function() {
-                    Fnon.Dialog.html({
+                    Fnon.Dialogue.Danger({
                         title: 'Create New Engagement',
-                        html: document.getElementById('engagement-form-template').innerHTML,
-                        width: '800px',
-                        closeButton: true,
+                        message: engagement_form,
+                        callback: (closer, html) => {
+                            var options = {
+                                dataType: "json",
+                                cache: false,
+                                success: AjaxSucceeded,
+                                error: AjaxFailed
+                            };
+                            if ($('#engagement_add').valid()) {
+                                $('#engagement_add').ajaxSubmit(options);
+                            }
+                            else { return false }
+                        },
                         afterShow: function() {
-                            // Reinitialize select2 and other plugins
-                            $('.select2').select2({
-                                width: '100%',
-                                dropdownParent: $('.fnon-dialog-content')
-                            });
+                            // Add the client add button next to the client field
+                            var clientField = $('#engagement_add .form-group:has(select[name="client"])');
+                            if (clientField.length) {
+                                // Create the button
+                                var addButton = $('<button type="button" class="btn btn-success btn-sm plus-add-btn" onclick="AddClientFromEngagement()"><i class="fas fa-plus"></i></button>');
+                                
+                                // Make the form group a flex container
+                                clientField.css({
+                                    'display': 'flex',
+                                    'align-items': 'flex-start',
+                                    'gap': '10px',
+                                    'width': '100%',
+                                    'justify-content': 'space-between'
+                                });
+                                
+                                // Find the select element container
+                                var selectContainer = clientField.find('.select2-container');
+                                if (selectContainer.length) {
+                                    // If Select2 is initialized, adjust its width and add button
+                                    selectContainer.css('flex', '1');
+                                    clientField.append(addButton);
+                                } else {
+                                    // If no Select2, adjust select width and add button
+                                    var clientSelect = clientField.find('select[name="client"]');
+                                    if (clientSelect.length) {
+                                        clientSelect.css('flex', '1');
+                                        clientField.append(addButton);
+                                    }
+                                }
+                                
+                            }
                         }
                     });
+                    
+                    function AjaxSucceeded(result) {
+                        Fnon.Hint.Success('Successful Operation', {
+                            callback: function () {
+                            },
+                            title: 'Calendarinho',
+                            position: 'center-top',
+                            animation: 'slide-top',
+                        });
+                    }
+                    function AjaxFailed(result) {
+                        Fnon.Hint.Danger('Failed Operation', {
+                            callback: function () {
+                            },
+                            title: 'Calendarinho',
+                            position: 'center-top',
+                            animation: 'slide-top',
+                        });
+                    }
+                };
+
+                // Function to add client from engagement form
+                window.AddClientFromEngagement = function() {
+                    // Use the existing AddClient function but modify it for this context
+                    Fnon.Dialogue.Danger({
+                        title: 'Add New Client',
+                        message: client_form,
+                        callback: (closer, html) => {
+                            var options = {
+                                dataType: "json",
+                                cache: false,
+                                success: ClientAjaxSucceeded,
+                                error: ClientAjaxFailed
+                            };
+                            if ($('#client_add').valid()) {
+                                $('#client_add').ajaxSubmit(options);
+                            }
+                            else { return false }
+                        }
+                    });
+                    
+                    function ClientAjaxSucceeded(result) {
+                        Fnon.Hint.Success('Client Added Successfully', {
+                            callback: function () {
+                                // Refresh the client dropdown in the engagement form
+                                if (result.id && result.name) {
+                                    var clientSelect = $('#engagement_add select[name="client"]');
+                                    if (clientSelect.length) {
+                                        // Add the new client to the dropdown
+                                        var newOption = new Option(result.name, result.id, true, true);
+                                        clientSelect.append(newOption).trigger('change');
+                                    }
+                                }
+                            },
+                            title: 'Calendarinho',
+                            position: 'center-top',
+                            animation: 'slide-top',
+                        });
+                    }
+                    function ClientAjaxFailed(result) {
+                        Fnon.Hint.Danger('Failed to Add Client', {
+                            callback: function () {
+                            },
+                            title: 'Calendarinho',
+                            position: 'center-top',
+                            animation: 'slide-top',
+                        });
+                    }
                 };
 
                 // Add click handler to sidebar button
-                document.querySelector('[data-action="show-engagement-form"]').addEventListener('click', function(e) {
-                    e.preventDefault();
-                    showEngagementForm();
-                });
+                var engagementButton = document.querySelector('[data-action="show-engagement-form"]');
+                if (engagementButton) {
+                    engagementButton.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showEngagementForm();
+                    });
+                }
             });
         </script>        <!-- Logout Modal
         <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
