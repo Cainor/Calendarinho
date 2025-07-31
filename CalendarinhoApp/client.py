@@ -20,7 +20,7 @@ def client(request, cli_id):
         engsTable = []
         singleEng = {}
         for eng in engs:
-            precent = eng.daysLeftPrecentage()
+            precent = eng.days_left_percentage()
             if(precent != "Nope"):
                 singleEng['engid'] = eng.id
                 singleEng['engName'] = eng.name
