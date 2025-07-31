@@ -1,6 +1,6 @@
 from .models import Employee, Engagement, Client
 import datetime
-from .forms import LeaveForm, EngagementForm, ClientForm
+from .forms import LeaveForm, EngagementForm, ClientForm, ServiceForm
 from django.conf import settings
 
 def alertUpcomingEngagements(request):
@@ -36,4 +36,9 @@ def engagement_form(request):
 def client_form(request):
     return {
         'client_form' : ClientForm()
+    }
+
+def service_form(request):
+    return {
+        'service_form' : ServiceForm()
     }

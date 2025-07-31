@@ -222,3 +222,18 @@ class ClientForm(forms.ModelForm): #Leave form for main page
     class Meta:
         model = Client
         fields = '__all__'
+
+class ServiceForm(forms.ModelForm): #Service form for main page
+    class Meta:
+        model = Service
+        fields = '__all__'
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter service name'
+            }),
+            'short_name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter short name'
+            })
+        }

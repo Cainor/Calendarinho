@@ -143,6 +143,7 @@
                 var leave_form = `<form action="/Leave/add" id="leave_add" method="POST"> {{ leave_form|crispy }} {% csrf_token %}</form>`
                 var engagement_form = `<form action="/Engagement/add" id="engagement_add" method="POST"> {{ engagement_form|crispy }} {% csrf_token %}</form>`
                 var client_form = `<form action="/client/add" id="client_add" method="POST"> {{ client_form|crispy }} {% csrf_token %}</form>`
+                var service_form = `<form action="/service/add" id="service_add" method="POST"> {{ service_form|crispy }} {% csrf_token %}</form>`
                 
                 </script>
                 <script src="{% static 'js/base-add.js' %}"></script>
@@ -529,11 +530,15 @@
                 min-width: 800px;
             }
             
-            /* Client add button styles */
-            .plus-add-btn {
+            /* Add button styles for client and service */
+            .plus-add-btn,
+            .service-add-btn {
                 padding: 0.5rem 0.5rem;
                 font-size: 0.875rem;
                 border-radius: 0.25rem;
+                flex-shrink: 0;
+                height: calc(1.5em + 0.75rem + 2px);
+                min-width: 38px;
             }
             
             /* Ensure proper alignment with select2 */
@@ -554,6 +559,16 @@
             /* Fix for Select2 in nested modals */
             .fnon-dialog .select2-container {
                 z-index: 1080 !important;
+            }
+            
+            /* Service type field width */
+            #engagement_add select[name="service_type"] {
+                min-width: 320px !important;
+            }
+            
+            /* Service type field container width */
+            #engagement_add .form-group:has(select[name="service_type"]) {
+                min-width: 320px !important;
             }
         </style>
 
@@ -619,6 +634,38 @@
                                     }
                                 }
                                 
+                                // Style the button
+                                addButton.css({
+                                    'flex-shrink': '0',
+                                });
+                            }
+                            
+                            // Add the service add button next to the service field
+                            var serviceField = $('#engagement_add .form-group:has(select[name="service_type"])');
+                            if (serviceField.length) {
+                                // Create the button
+                                var serviceAddButton = $('<button type="button" class="btn btn-success btn-sm plus-add-btn" onclick="AddServiceFromEngagement()"><i class="fas fa-plus"></i></button>');
+                                
+                                // Make the form group a flex container
+                                serviceField.css({
+                                    'display': 'flex',
+                                    'align-items': 'flex-start',
+                                    'gap': '10px',
+                                    'width': '100%',
+                                    'justify-content': 'space-between'
+                                });
+                                
+                                // Find the select element
+                                var serviceSelect = serviceField.find('select[name="service_type"]');
+                                if (serviceSelect.length) {
+                                    serviceSelect.css('flex', '1');
+                                    serviceField.append(serviceAddButton);
+                                }
+                                
+                                // Style the button
+                                serviceAddButton.css({
+                                    'flex-shrink': '0',
+                                });
                             }
                         }
                     });
@@ -692,13 +739,61 @@
                     }
                 };
 
+                // Function to add service from engagement form
+                window.AddServiceFromEngagement = function() {
+                    Fnon.Dialogue.Danger({
+                        title: 'Add New Service',
+                        message: service_form,
+                        callback: (closer, html) => {
+                            var options = {
+                                dataType: "json",
+                                cache: false,
+                                success: ServiceAjaxSucceeded,
+                                error: ServiceAjaxFailed
+                            };
+                            if ($('#service_add').valid()) {
+                                $('#service_add').ajaxSubmit(options);
+                            }
+                            else { return false }
+                        }
+                    });
+                    
+                    function ServiceAjaxSucceeded(result) {
+                        Fnon.Hint.Success('Service Added Successfully', {
+                            callback: function () {
+                                // Refresh the service dropdown in the engagement form
+                                if (result.id && result.name) {
+                                    var serviceSelect = $('#engagement_add select[name="service_type"]');
+                                    if (serviceSelect.length) {
+                                        // Add the new service to the dropdown
+                                        var newOption = new Option(result.name, result.id, true, true);
+                                        serviceSelect.append(newOption).trigger('change');
+                                    }
+                                }
+                            },
+                            title: 'Calendarinho',
+                            position: 'center-top',
+                            animation: 'slide-top',
+                        });
+                    }
+                    function ServiceAjaxFailed(result) {
+                        Fnon.Hint.Danger('Failed to Add Service', {
+                            callback: function () {
+                            },
+                            title: 'Calendarinho',
+                            position: 'center-top',
+                            animation: 'slide-top',
+                        });
+                    }
+                };
+
                 // Add click handler to sidebar button
                 var engagementButton = document.querySelector('[data-action="show-engagement-form"]');
                 if (engagementButton) {
                     engagementButton.addEventListener('click', function(e) {
-                        e.preventDefault();
-                        showEngagementForm();
-                    });
+                    e.preventDefault();
+                    showEngagementForm();
+                });
                 }
             });
         </script>        <!-- Logout Modal

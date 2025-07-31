@@ -5,6 +5,7 @@ from . import authentication
 from . import engagement
 from . import employee
 from . import client
+from . import service
 from django.urls import re_path
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
@@ -45,6 +46,8 @@ urlpatterns = [
     path('client/add', client.ClientCreate, name='ClientCreate'),
     path('client/<int:cli_id>/', client.client, name='client'),
     path('ClientsTable', client.ClientsTable, name='ClientsTable'),
+    
+    path('service/add', service.ServiceCreate, name='ServiceCreate'),
     
     path('DeleteComment/<int:commentID>',
          engagement.deleteMyComment, name='deleteMyComment'),
