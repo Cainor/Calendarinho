@@ -24,29 +24,35 @@
                     <h4 align="center">None</h4>
                     <h6 align="center">-</h6>
                     {% else %}
-                    <h4 align="center"><a href="/engagement/{{upcoming.engagement.id}}" style="text-decoration: none">{{upcoming.engagement.EngName}}</a></h4>
-                    <h6 align="center">{{upcoming.engagement.StartDate}} - {{upcoming.engagement.EndDate}}</h6>
+                    <h4 align="center"><a href="/engagement/{{upcoming.engagement.id}}" style="text-decoration: none">{{upcoming.engagement.name}}</a></h4>
+                    <h6 align="center">{{upcoming.engagement.start_date}} - {{upcoming.engagement.end_date}}</h6>
                     {%endif%}
                 </div>
             </div>
         </div>
 
-        <!-- Upcoming Vacation Card -->
+        <!-- Upcoming Vacation/Work From Home Card -->
         <div class="col-xl-4 col-lg-7">
             <div class="card shadow mb-4">
                 <!-- Card Header - Dropdown -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Vacation</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Upcoming Vacation/Work From Home</h6>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    {% if upcoming.vacation == None  %}
-                    <h4 align="center">None</h4>
-                    <h6 align="center">-</h6>
+                    {% if upcoming.vacation == None and upcoming.work_from_home == None %}
+                        <h4 align="center">None</h4>
+                        <h6 align="center">-</h6>
                     {% else %}
-                    <h4 align="center">{{upcoming.vacation.Note}}</h4>
-                    <h6 align="center">{{upcoming.vacation.StartDate}} - {{upcoming.vacation.EndDate}}</h6>
-                    {%endif%}
+                        {% if upcoming.vacation %}
+                            <h4 align="center">Vacation: {{upcoming.vacation.note}}</h4>
+                            <h6 align="center">{{upcoming.vacation.start_date}} - {{upcoming.vacation.end_date}}</h6>
+                        {% endif %}
+                        {% if upcoming.work_from_home %}
+                            <h4 align="center">Work From Home: {{upcoming.work_from_home.note}}</h4>
+                            <h6 align="center">{{upcoming.work_from_home.start_date}} - {{upcoming.work_from_home.end_date}}</h6>
+                        {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -65,8 +71,8 @@
                     <h4 align="center">None</h4>
                     <h6 align="center">-</h6>
                     {% else %}
-                    <h4 align="center">{{upcoming.training.Note}}</h4>
-                    <h6 align="center">{{upcoming.training.StartDate}} - {{upcoming.training.EndDate}}</h6>
+                    <h4 align="center">{{upcoming.training.note}}</h4>
+                    <h6 align="center">{{upcoming.training.start_date}} - {{upcoming.training.end_date}}</h6>
                     {%endif%}
                 </div>
             </div>
@@ -108,9 +114,9 @@
                     }, {% endfor %} 
                     {%for i in engs %} {
 
-                        title: "{{ i.name}} -- {{i.serviceType}}",
-                        start: '{{ i.startDate}}',
-                        end: '{{ i.endDate}}',
+                        title: "{{ i.name}} -- {{i.service_type}}",
+                        start: '{{ i.start_date}}',
+                        end: '{{ i.end_date}}',
                         backgroundColor: '{{i.color}}',
                         url: '/engagement/{{ i.engID }}',
                         borderColor: 'white'
@@ -169,6 +175,10 @@
             background-color: #2980B9;
         }
 
+        .legend .WorkFromHome {
+            background-color: #f39c12;
+        }
+
         .legend .Engagement {
             background-color: #BD4932;
         }
@@ -180,8 +190,8 @@
             <ul class="legend" style="padding-top:10px">
                 <li><span class="Vacation"></span>Vacation</li>
                 <li><span class="Training"></span>Training</li>
+                <li><span class="WorkFromHome"></span>Work from Home</li>
                 <li><span class="Engagement"></span>Engagement</li>
-
             </ul>
         </div>
     </div>
@@ -223,9 +233,9 @@
                         <tr>
                             <td><a href="/engagement/{{row.engID}}">{{row.name}}</a></td>
                             <td>{{row.clientName}}</td>
-                            <td>{{row.serviceType}}</td>
-                            <td>{{row.startDate}}</td>
-                            <td>{{row.endDate}}</td>
+                            <td>{{row.service_type}}</td>
+                            <td>{{row.start_date}}</td>
+                            <td>{{row.end_date}}</td>
 
                         </tr>
                         {% endfor %}

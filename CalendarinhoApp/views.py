@@ -10,92 +10,54 @@ from django.conf import settings
 from datetime import timedelta, date
 import calendar
 
-# Get an instance of a logger
 logger = logging.getLogger(__name__)
-
 from autocomplete.forms import EmployeeCounter
-
-
 from .employee import overlapPrecentage
-
-# utilizationFilePath =  os.path.join(os.path.dirname(os.path.dirname(__file__)),"UtilizationChartIput.txt")
 
 def not_found(request, exception=None):
     response = render(request, 'CalendarinhoApp/404.html', {})
     response.status_code = 404
     return response
 
-
 @login_required
 def Dashboard(request):
-
-    # calculateUtilizationToFile(2020)
-    # calculation for utilization chart
-    # try:
-    #     f = open(utilizationFilePath, "r")
-    #     utilizationList = []
-    #     for line in f:
-    #         utilizationList.append(int(line))
-    # except Exception as e:
-    #     logger.error("Failed to calculate utilization: \n" + str(e))
-
-
     emps = Employee.objects.exclude(is_active=False)
-
-    # calculation for pie chart
-    state = {}
-    state['avalible'] = 0
-    state['engaged'] = 0
-    state['training'] = 0
-    state['vacation'] = 0
+    state = {'avalible': 0, 'engaged': 0, 'training': 0, 'vacation': 0}
     for emp in emps:
         empstat = emp.currentStatus()[0]
-        if (empstat == 'Available'):
+        if empstat == 'Available':
             state['avalible'] += 1
-        elif (empstat == 'Engaged'):
+        elif empstat == 'Engaged':
             state['engaged'] += 1
-        elif (empstat == 'Training'):
+        elif empstat == 'Training':
             state['training'] += 1
-        elif (empstat == 'Vacation'):
+        elif empstat == 'Vacation':
             state['vacation'] += 1
-
-    # calculation fot the engagements card (bars)
     engs = Engagement.objects.all()
     engsTable = []
     cliTable = {}
     singleEng = {}
     for eng in engs:
-        precent = eng.daysLeftPrecentage()
-        if(precent != "Nope"):
+        precent = eng.days_left_percentage()
+        print(precent)
+        if precent != "Nope":
             singleEng['engid'] = eng.id
-            singleEng['engName'] = eng.EngName
+            singleEng['engName'] = eng.name
             singleEng['precent'] = precent
             engsTable.append(singleEng.copy())
-            cliTable[eng.CliName] = eng.CliName.countCurrentEng()
+            cliTable[eng.client] = eng.client.count_current_engagements()
     engsTable = sorted(engsTable, key=lambda i: i['precent'])
-
-    # Sort for the new toggled view:
-    cliTable = {k: v for k, v in sorted(cliTable.items(), key=lambda item: item[1],reverse=True)}
-
-    # Statistics
+    cliTable = {k: v for k, v in sorted(cliTable.items(), key=lambda item: item[1], reverse=True)}
     statistics = {}
-    # Number of engagement that has EndDate greater than or equal today.
-    statistics['upcomingEngagements'] = Engagement.objects.filter(
-        StartDate__gt=str(datetime.date.today())).count()
-    statistics['ongoingEngagements'] = Engagement.objects.filter(StartDate__lte=str(datetime.date.today())).filter(
-        EndDate__gte=str(datetime.date.today())).count()  # Number of engagement that has EndDate greater than or equal today.
-    # Precentage of available employees
+    today = datetime.date.today()
+    statistics['upcomingEngagements'] = Engagement.objects.filter(start_date__gt=today).count()
+    statistics['ongoingEngagements'] = Engagement.objects.filter(start_date__lte=today, end_date__gte=today).count()
     statistics['availabilityPercentage'] = overlapPrecentage(request)
-    statistics['numberOfEmployees'] = emps.count()  # Number of Employees
+    statistics['numberOfEmployees'] = emps.count()
     statistics['pieChartStatus'] = state
     statistics['engagementsBars'] = engsTable
     statistics['cliBars'] = cliTable
-    # if utilizationList:
-        # statistics['2020UtilizationChart'] = utilizationList
-    context = {
-        'statistics': statistics
-    }
-    # Add the form for Avalibality Calculation
+    context = {'statistics': statistics}
     form = EmployeeOverlapForm()
     context.update({"form": form})
     return render(request, "CalendarinhoApp/Dashboard.html", context)
@@ -199,7 +161,7 @@ def exportCSV(request, empID=None, slug=None):
         # Header
         writer.writerow(['Client Name', 'Acronym', 'Client Code'])
         for cli in query_set:
-            output.append([cli.CliName, cli.CliShort, cli.CliCode])
+            output.append([cli.name, cli.acronym, cli.code])
         # CSV Data
         writer.writerows(output)
         return response
@@ -211,15 +173,15 @@ def exportCSV(request, empID=None, slug=None):
         writer.writerow(['Name', 'Client', 'Service Type',
                          'Start Date', 'End Date'])
         for eng in query_set:
-            output.append([eng.EngName, eng.CliName,
-                           eng.ServiceType, eng.StartDate, eng.EndDate])
+            output.append([eng.name, eng.client,
+                           eng.service_type, eng.start_date, eng.end_date])
         # CSV Data
         writer.writerows(output)
         return response
     elif (empID != None):  # Return all engagements for a single employee
         try:
             emp = Employee.objects.filter(id=empID).first()
-            query_set = Engagement.objects.filter(Employees=empID)
+            query_set = Engagement.objects.filter(employees=empID)
             empName = emp.first_name + '-' + emp.last_name
             response['Content-Disposition'] = u'attachment; filename="{0}"'.format(
                 empName.replace(" ", "-")+".csv")  # Name of the file
@@ -227,8 +189,8 @@ def exportCSV(request, empID=None, slug=None):
             writer.writerow(['Name', 'Client', 'Service Type',
                              'Start Date', 'End Date','JiraURL'])
             for eng in query_set:
-                output.append([eng.EngName, eng.CliName,
-                               eng.ServiceType, eng.StartDate, eng.EndDate, eng.JiraURL])
+                output.append([eng.name, eng.client,
+                               eng.service_type, eng.start_date, eng.end_date, getattr(eng, 'JiraURL', '')])
             # CSV Data
             writer.writerows(output)
             return response
@@ -258,21 +220,21 @@ def counterEmpSvc(request):
         else:
             countList = {}
             
-            if(not request.POST.get("Employees")):
+            if(not request.POST.get("employees")):
                 for emp in Employee.objects.all().order_by('first_name'):
                     countList.update({emp:''})
             else:
-                empInputList = request.POST.getlist("Employees")
+                empInputList = request.POST.getlist("employees")
                 for empID in empInputList:
                     emp = Employee.objects.get(id=empID)
                     countList.update({emp:''})
             
             serviceList = []
-            if(not request.POST.get("ServiceType")):
+            if(not request.POST.get("service_type")):
                 for serv in Service.objects.all():
                     serviceList.append(serv)
             else:
-                servInputList = request.POST.getlist("ServiceType")
+                servInputList = request.POST.getlist("service_type")
                 for serv in servInputList:
                     serviceList.append(Service.objects.get(id=serv))
             

@@ -4,7 +4,7 @@ from crispy_forms.layout import Layout, MultiField, ButtonHolder, Submit, Div
 import datetime
 from dal import autocomplete
 from django.forms import widgets
-from .models import Comment,Service,Reports,Leave,Engagement,Client
+from .models import Comment, Service, Report, Leave, Engagement, Client
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
 
@@ -57,20 +57,11 @@ class uploadReportForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
-
         self.helper.layout = Layout(
             Div(
-                Div(
-                    'file',
-                    css_class="col"
-                ),
-                Div(
-                    'reportType',
-                    css_class="col"
-                ),Div(
-                    'note',
-                    css_class="col"
-                ),
+                Div('file', css_class="col"),
+                Div('report_type', css_class="col"),
+                Div('note', css_class="col"),
                 css_class="row"
             ),
             ButtonHolder(
@@ -78,11 +69,11 @@ class uploadReportForm(forms.ModelForm):
             )
         )
     class Meta:
-        model = Reports
-        fields = ("file", "note","reportType",)
+        model = Report
+        fields = ("file", "note", "report_type",)
         widgets = {
             'file': forms.FileInput(attrs={'class':'col', 'required':'required'}),
-            'reportType': forms.Select(attrs={'class':'col', 'required':'required'}),
+            'report_type': forms.Select(attrs={'class':'col', 'required':'required'}),
             'note': forms.TextInput(attrs={'class':'col', 'accept': '.gpg'}),
         }
         
@@ -92,42 +83,140 @@ class DateInput(forms.DateInput):
 class LeaveForm(forms.ModelForm): #Leave form for main page
     class Meta:
         model = Leave
-        fields = ('Note','LeaveType','StartDate','EndDate')
+        fields = ('note','leave_type','start_date','end_date')
         widgets = {
-            'StartDate': DateInput(),
-            'EndDate': DateInput(),
+            'start_date': DateInput(),
+            'end_date': DateInput(),
         }
+    leave_type = forms.ChoiceField(choices=Leave.LEAVE_TYPES)
     
     def clean(self): #Validation
         cleaned_data = super().clean()
-        if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
+        if cleaned_data.get("start_date") > cleaned_data.get("end_date"):
             raise forms.ValidationError("Dates are incorrect")
 
-class EngagementForm(forms.ModelForm): #Engagement form for admin page
+class EngagementForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.form_method = 'post'
+        self.helper.form_class = 'engagement-form'
+        self.helper.layout = Layout(
+            Div(
+                Div(
+                    'name',
+                    css_class='form-group'
+                ),
+                css_class='mb-4'
+            ),
+            Div(
+                Div(
+                    'client',
+                    css_class=' col-md-6'
+                ),
+                Div(
+                    'project_manager',
+                    css_class=' col-md-6'
+                ),
+                css_class='row'
+            ),
+            Div(
+                Div(
+                    'employees',
+                    css_class='form-group'
+                ),
+                css_class='mb-4'
+            ),
+            Div(
+                Div(
+                    'service_type',
+                    css_class='form-group col-md-4'
+                ),
+                Div(
+                    'start_date',
+                    css_class='form-group col-md-4'
+                ),
+                Div(
+                    'end_date',
+                    css_class='form-group col-md-4'
+                ),
+                css_class='row mb-4'
+            ),
+            Div(
+                Div(
+                    'scope',
+                    css_class='form-group'
+                ),
+                css_class='mb-4'
+            ),
+            Div(
+                Submit('submit', 'Create Engagement', css_class='btn btn-primary px-4'),
+                css_class='text-left'
+            )
+        )
 
     class Meta:
         model = Engagement
-        fields = ('EngName','CliName', 'Employees','projectManager','ServiceType','StartDate', 'EndDate', 'Scope')
+        fields = ('name', 'client', 'employees', 'project_manager', 'service_type', 'start_date', 'end_date', 'scope')
         widgets = {
-            'Employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete',
-            attrs={
-                'data-minimum-input-length': 0,
-                },),
-            'CliName': autocomplete.ModelSelect2(url='autocomplete:client-autocomplete',
-            attrs={
-                'data-minimum-input-length': 0,
-                },),
-            'projectManager':autocomplete.ModelSelect2(url='autocomplete:projectmanager-autocomplete',
-            attrs={
-                'data-minimum-input-length': 0,
-            },),
-            'StartDate': DateInput(),
-            'EndDate': DateInput(),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter engagement name'
+            }),
+            'employees': autocomplete.ModelSelect2Multiple(
+                url='autocomplete:employee-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 0,
+                    'class': 'form-control',
+                    'data-placeholder': 'Select employees'
+                }
+            ),
+            'client': autocomplete.ModelSelect2(
+                url='autocomplete:client-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 0,
+                    'class': 'form-control',
+                    'data-placeholder': 'Select client',
+                    'required': True
+                }
+            ),
+            'project_manager': autocomplete.ModelSelect2(
+                url='autocomplete:projectmanager-autocomplete',
+                attrs={
+                    'data-minimum-input-length': 0,
+                    'class': 'form-control',
+                    'data-placeholder': 'Select project manager'
+                }
+            ),
+            'service_type': forms.Select(attrs={
+                'class': 'form-control',
+                'placeholder': '--------'
+            }),
+            'start_date': DateInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'mm/dd/yyyy'
+            }),
+            'end_date': DateInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'mm/dd/yyyy'
+            }),
+            'scope': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter engagement scope',
+                'help_text': 'Enter one domain/IP per line'
+            })
         }
-    def clean(self): #Validation
+
+    def clean(self):
         cleaned_data = super().clean()
-        if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
-            raise forms.ValidationError("Dates are incorrect")
+        start_date = cleaned_data.get("start_date")
+        end_date = cleaned_data.get("end_date")
+        
+        if start_date and end_date and start_date > end_date:
+            raise forms.ValidationError("End date must be after start date")
+        
+        return cleaned_data
 
 class ClientForm(forms.ModelForm): #Leave form for main page
     class Meta:

@@ -29,6 +29,7 @@
     <link href="{% static 'admin/css/vendor/select2/select2.css' %}" rel="stylesheet">
     <link href="{% static 'admin/css/autocomplete.css' %}" rel="stylesheet">
     <link href="{% static 'autocomplete_light/select2.css' %}" rel="stylesheet">
+    <link href="{% static 'css/fnon.min.css' %}" rel="stylesheet">
     {% block head_block %}{% endblock %}
 
 
@@ -42,8 +43,7 @@
     <script src="{% static 'vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js" integrity="sha512-rstIgDs0xPgmG6RX1Aba4KV5cWJbAMcvRCVmglpam9SoHZiUCyQVDdH2LPlxoHtrv17XWblE/V/PP+Tr04hbtA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    
-
+    <script src="{% static 'js/fnon.min.js' %}"></script>
 
     <!-- Core plugin JavaScript-->
     <script src="{% static 'vendor/jquery-easing/jquery.easing.min.js' %}"></script>
@@ -89,6 +89,14 @@
             <div class="sidebar-heading">
                 Management
             </div>
+
+            <!-- Nav Item - New Engagement -->
+            <li class="nav-item">
+                <a class="nav-link" href="#" data-action="show-engagement-form">
+                    <i class="fas fa-fw fa-plus-circle"></i>
+                    <span>New Engagement</span>
+                </a>
+            </li>
 
             <!-- Nav Item - Pages Collapse Menu -->
             <!--<li class="nav-item">
@@ -464,7 +472,110 @@
             <i class="fas fa-angle-up"></i>
         </a>
 
-        <!-- Logout Modal
+        <!-- Add custom styles -->
+        <style>
+            .engagement-form label {
+                font-weight: normal;
+                color: #666;
+                margin-bottom: 0.3rem;
+            }
+            .engagement-form .form-control {
+                border-radius: 4px;
+                border: 1px solid #ced4da;
+                padding: 0.5rem 0.75rem;
+            }
+            .engagement-form .help-text {
+                color: #666;
+                font-size: 0.875rem;
+                margin-top: 0.25rem;
+            }
+            .engagement-form .select2-container .select2-selection--single,
+            .engagement-form .select2-container .select2-selection--multiple {
+                height: calc(1.5em + 1rem);
+                border: 1px solid #ced4da;
+                border-radius: 4px;
+            }
+            .engagement-form .select2-container .select2-selection--single .select2-selection__rendered {
+                line-height: calc(1.5em + 1rem);
+                padding-left: 0.75rem;
+            }
+            .engagement-form .select2-container .select2-selection--single .select2-selection__arrow {
+                height: calc(1.5em + 1rem);
+            }
+            .engagement-form .form-group {
+                margin-bottom: 1.5rem;
+            }
+            .btn-primary {
+                background-color: #4e73df;
+                border-color: #4e73df;
+                padding: 0.5rem 1.5rem;
+                font-weight: 500;
+                border-radius: 4px;
+            }
+            .btn-primary:hover {
+                background-color: #2e59d9;
+                border-color: #2e59d9;
+            }
+            
+            /* Fnon custom styles */
+            .fnon-dialog {
+                border-radius: 8px !important;
+            }
+            .fnon-dialog-header {
+                border-bottom: none !important;
+                padding: 1.5rem !important;
+            }
+            .fnon-dialog-body {
+                padding: 0 1.5rem 1.5rem 1.5rem !important;
+            }
+            .fnon-dialog-content {
+                min-width: 800px;
+            }
+        </style>
+
+        <!-- Hidden form template for Fnon -->
+        <div id="engagement-form-template" style="display: none;">
+            <div class="engagement-form">
+                {% crispy engagement_form %}
+            </div>
+        </div>
+        
+        <script>
+            // Initialize Fnon dialog
+            document.addEventListener('DOMContentLoaded', function() {
+                // Make sure Fnon CSS is loaded
+                if (!document.querySelector('link[href*="fnon.min.css"]')) {
+                    var link = document.createElement('link');
+                    link.rel = 'stylesheet';
+                    link.type = 'text/css';
+                    link.href = "{% static 'css/fnon.min.css' %}";
+                    document.head.appendChild(link);
+                }
+
+                // Function to show engagement form
+                window.showEngagementForm = function() {
+                    Fnon.Dialog.html({
+                        title: 'Create New Engagement',
+                        html: document.getElementById('engagement-form-template').innerHTML,
+                        width: '800px',
+                        closeButton: true,
+                        afterShow: function() {
+                            // Reinitialize select2 and other plugins
+                            $('.select2').select2({
+                                width: '100%',
+                                dropdownParent: $('.fnon-dialog-content')
+                            });
+                        }
+                    });
+                };
+
+                // Add click handler to sidebar button
+                document.querySelector('[data-action="show-engagement-form"]').addEventListener('click', function(e) {
+                    e.preventDefault();
+                    showEngagementForm();
+                });
+            });
+        </script>        <!-- Logout Modal
         <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
             aria-hidden="true">
             <div class="modal-dialog" role="document">

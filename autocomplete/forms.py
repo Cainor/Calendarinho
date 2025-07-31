@@ -6,49 +6,49 @@ class EngagementForm(forms.ModelForm): #Engagement form for admin page
 
     class Meta:
         model = Engagement
-        fields = ('EngName','CliName', 'Employees','projectManager','ServiceType','StartDate', 'EndDate', 'Scope')
+        fields = ('name', 'client', 'employees', 'project_manager', 'service_type', 'start_date', 'end_date', 'scope')
         widgets = {
-            'Employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete',
+            'employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete',
             attrs={
                 'data-minimum-input-length': 0,
                 },),
-            'CliName': autocomplete.ModelSelect2(url='autocomplete:client-autocomplete',
+            'client': autocomplete.ModelSelect2(url='autocomplete:client-autocomplete',
             attrs={
                 'data-minimum-input-length': 0,
                 },),
-            'projectManager':autocomplete.ModelSelect2(url='autocomplete:projectmanager-autocomplete',
+            'project_manager':autocomplete.ModelSelect2(url='autocomplete:projectmanager-autocomplete',
             attrs={
                 'data-minimum-input-length': 0,
             },)
         }
     def clean(self): #Validation
         cleaned_data = super().clean()
-        if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
+        if cleaned_data.get("start_date") and cleaned_data.get("end_date") and cleaned_data.get("start_date") > cleaned_data.get("end_date"):
             raise forms.ValidationError("Dates are incorrect")
 
 
 class LeaveForm(forms.ModelForm): #Leave form for admin page
     class Meta:
         model = Leave
-        fields = ('Note','LeaveType','StartDate','EndDate')
+        fields = ('note', 'leave_type', 'start_date', 'end_date')
 
     def clean(self): #Validation
         cleaned_data = super().clean()
-        if cleaned_data.get("StartDate") > cleaned_data.get("EndDate"):
+        if cleaned_data.get("start_date") and cleaned_data.get("end_date") and cleaned_data.get("start_date") > cleaned_data.get("end_date"):
             raise forms.ValidationError("Dates are incorrect")
 
 class EmployeeCounter(autocomplete.FutureModelForm): #URL: /counterTable
     class Meta:
         model = Engagement
-        fields = ('Employees', 'ServiceType',)
+        fields = ('employees', 'service_type',)
         widgets = {
-            'Employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete', attrs={'class':' ml-1 mr-2', 'data-placeholder':'All Users'}),
-            'ServiceType': autocomplete.ModelSelect2Multiple(url='autocomplete:service-autocomplete', attrs={'class':' ml-1 mr-2', 'data-placeholder':'All Services'}),
+            'employees': autocomplete.ModelSelect2Multiple(url='autocomplete:employee-autocomplete', attrs={'class':' ml-1 mr-2', 'data-placeholder':'All Users'}),
+            'service_type': autocomplete.ModelSelect2Multiple(url='autocomplete:service-autocomplete', attrs={'class':' ml-1 mr-2', 'data-placeholder':'All Services'}),
         }
     def __init__(self, *args, **kwargs):
         # first call parent's constructor
         super(EmployeeCounter, self).__init__(*args, **kwargs)  
         # there's a `fields` property now
-        self.fields['ServiceType'].required = False
+        self.fields['service_type'].required = False
 
         

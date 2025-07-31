@@ -11,7 +11,7 @@
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
-        <h1 class="h3 mb-2 text-title-color col-sm">{{eng.EngName}} - <a href="/projectManager/{{eng.projectManager.id}}">{{eng.projectManager}}</a> </h1>
+        <h1 class="h3 mb-2 text-title-color col-sm">{{eng.name}} - <a href="/projectManager/{{eng.project_manager.id}}">{{eng.project_manager}}</a> </h1>
         {% if 'jira.sitco.sa' in eng.JiraURL|lower %}
         <a href="{{eng.JiraURL}}" target="_blank">
             <input class="btn btn-info btn-md" style="margin-bottom: 35px; margin-right: 10px; background-color: #0d47a1;" type="button" value="Jira"></input>
@@ -34,7 +34,7 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 align="center"><a href="/client/{{eng.CliName.id}}">{{eng.CliName}}</a></h4>
+                    <h4 align="center"><a href="/client/{{eng.client.id}}">{{eng.client}}</a></h4>
                 </div>
             </div>
         </div>
@@ -48,7 +48,7 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 align="center">{{eng.StartDate}} - {{eng.EndDate}}</h4>
+                    <h4 align="center">{{eng.start_date}} - {{eng.end_date}}</h4>
                 </div>
             </div>
         </div>
@@ -63,7 +63,7 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 align="center">{{eng.ServiceType}}</h4>
+                    <h4 align="center">{{eng.service_type}}</h4>
                 </div>
             </div>
         </div>
@@ -86,7 +86,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for emp in eng.Employees.all %}
+                                {% for emp in eng.employees.all %}
                                 <tr>
                                     <td><a href="/profile/{{emp.id}}">{{emp.first_name}} {{emp.last_name}}</a></td>
 

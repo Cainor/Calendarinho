@@ -24,10 +24,24 @@
     </div>
     <p class="mb-4">List of all engagements with all details.</p>
 
-    <!-- DataTales Example -->
+    <!-- Filters -->
     <div class="card shadow mb-4">
-        <div class="card-header py-3">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Engagements Table</h6>
+            <form id="engagements-filter-form" class="form-inline">
+                <label class="mr-2 font-weight-bold text-secondary" for="dateFilter">Date:</label>
+                <select class="form-control mr-3" id="dateFilter" name="dateFilter">
+                    <option value="all">All</option>
+                    <option value="future">Future</option>
+                    <option value="ongoing">Ongoing</option>
+                    <option value="past">Past</option>
+                </select>
+                <label class="mr-2 font-weight-bold text-secondary" for="clientFilter">Client:</label>
+                <input type="text" class="form-control mr-3" id="clientFilter" name="clientFilter" placeholder="Client name">
+                <label class="mr-2 font-weight-bold text-secondary" for="serviceFilter">Service:</label>
+                <input type="text" class="form-control mr-3" id="serviceFilter" name="serviceFilter" placeholder="Service type">
+                <button type="submit" class="btn btn-primary btn-sm">Apply</button>
+            </form>
         </div>
         <div class="card-body">
             <div class="table-responsive">
@@ -52,18 +66,16 @@
 
                         </tr>
                     </tfoot>
-                    <tbody>
+                    <tbody id="engagements-table-body">
                         {% for row in table %}
-                        <tr>
+                        <tr data-start="{{row.startDate|date:'Y-m-d'}}" data-end="{{row.endDate|date:'Y-m-d'}}" data-client="{{row.clientName}}" data-service="{{row.serviceType}}">
                             <td><a href="/engagement/{{row.engID}}">{{row.name}}</a></td>
-                            <td><a href="/client/{{row.clientName.id}}">{{row.clientName}}</a></td>
+                            <td>{{row.clientName}}</td>
                             <td>{{row.serviceType}}</td>
                             <td>{{row.startDate | date:"Y-m-d"}}</td>
                             <td>{{row.endDate | date:"Y-m-d"}}</td>
-
                         </tr>
                         {% endfor %}
-
                     </tbody>
                 </table>
             </div>
@@ -75,4 +87,51 @@
 
 <!-- End of Main Content -->
 
+<script>
+    // Helper to parse date string
+    function parseDate(str) {
+        var parts = str.split('-');
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        // Set filter from URL param if present
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('filter') === 'future') {
+            document.getElementById('dateFilter').value = 'future';
+        }
+        document.getElementById('engagements-filter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const dateFilter = document.getElementById('dateFilter').value;
+            const clientFilter = document.getElementById('clientFilter').value.toLowerCase();
+            const serviceFilter = document.getElementById('serviceFilter').value.toLowerCase();
+            const today = new Date();
+            document.querySelectorAll('#engagements-table-body tr').forEach(function(row) {
+                const start = parseDate(row.getAttribute('data-start'));
+                const end = parseDate(row.getAttribute('data-end'));
+                const client = row.getAttribute('data-client').toLowerCase();
+                const service = row.getAttribute('data-service').toLowerCase();
+                let show = true;
+                if (dateFilter === 'future') {
+                    show = start > today;
+                } else if (dateFilter === 'ongoing') {
+                    show = start <= today && end >= today;
+                } else if (dateFilter === 'past') {
+                    show = end < today;
+                }
+                if (clientFilter && !client.includes(clientFilter)) show = false;
+                if (serviceFilter && !service.includes(serviceFilter)) show = false;
+                row.style.display = show ? '' : 'none';
+            });
+        });
+        // Auto-apply filter if set from URL
+        if (urlParams.get('filter') === 'future') {
+            document.getElementById('engagements-filter-form').dispatchEvent(new Event('submit'));
+        }
+    });
+</script>
+<style>
+    #engagements-filter-form .form-control { min-width: 120px; }
+    #engagements-filter-form label { font-size: 0.95em; }
+    #engagements-filter-form button { font-size: 0.95em; }
+</style>
 {% endblock %}

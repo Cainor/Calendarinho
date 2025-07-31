@@ -1,6 +1,7 @@
 from statistics import mode
 from typing import Tuple
 from django.db import models
+from django.utils import timezone
 import datetime, uuid
 from collections import namedtuple
 from users.models import CustomUser as Employee
@@ -9,105 +10,101 @@ from django.core.exceptions import ValidationError
 
 
 class Client(models.Model):
-    CliName = models.CharField(max_length=200, verbose_name="Client Name")
-    CliShort = models.CharField(max_length=10, verbose_name="Acronym")
-    CliCode = models.CharField(max_length=4, default='9999')
+    name = models.CharField(max_length=200, verbose_name="Client Name")
+    acronym = models.CharField(max_length=10, verbose_name="Acronym")
+    code = models.CharField(max_length=4, default='9999')
 
     class Meta:
-        ordering = ['CliName']
+        ordering = ['name']
+        verbose_name = "Client"
+        verbose_name_plural = "Clients"
 
     def __str__(self):
-        return str(self.CliName)
+        return str(self.name)
 
-    def countCurrentEng(self):
-        OngoingCount = self.Engagements.filter(StartDate__lte=str(datetime.date.today())).filter(EndDate__gte=str(datetime.date.today())).count()
-        return int(OngoingCount)
+    def count_current_engagements(self):
+        today = timezone.now().date()
+        return self.engagements.filter(start_date__lte=today, end_date__gte=today).count()
     
-    def countWorkingEmp(self):
-        OngoingEng = self.Engagements.filter(StartDate__lte=str(datetime.date.today())).filter(EndDate__gte=str(datetime.date.today()))
-        count = 0
-        for eng in OngoingEng:
-            count += eng.workingEmp()
-        return count
+    def count_working_employees(self):
+        today = timezone.now().date()
+        ongoing_engagements = self.engagements.filter(start_date__lte=today, end_date__gte=today)
+        return sum(eng.working_employees() for eng in ongoing_engagements)
 
 
 
 class Service(models.Model):
-    serviceName = models.CharField(max_length=200, verbose_name="Service Name")
-    serviceShort = models.CharField(
-        max_length=10, verbose_name="Service Shortname")
+    name = models.CharField(max_length=200, verbose_name="Service Name")
+    short_name = models.CharField(max_length=10, verbose_name="Service Shortname")
 
     def __str__(self):
-        return str(self.serviceName)
+        return str(self.name)
 
 
 
 class Leave(models.Model):
-    emp = models.ForeignKey(Employee, verbose_name="Employee Name",on_delete=models.CASCADE)
-    Note = models.CharField(max_length=200)
-    StartDate = models.DateField('Start Date')
-    EndDate = models.DateField('End Date')
-    Types = (("Training", "Training"), ("Vacation", "Vacation"))
-    LeaveType = models.CharField(
-        max_length=8, choices=Types, default="Vacation", verbose_name="Leave Type")
+    LEAVE_TYPES = (("Training", "Training"), ("Vacation", "Vacation"), ("Work from Home", "Work from Home"))
+    employee = models.ForeignKey(Employee, verbose_name="Employee Name", on_delete=models.CASCADE)
+    note = models.CharField(max_length=200)
+    start_date = models.DateField('Start Date')
+    end_date = models.DateField('End Date')
+    leave_type = models.CharField(max_length=20, choices=LEAVE_TYPES, default="Vacation", verbose_name="Leave Type")
 
     def __str__(self):
-        return str(self.LeaveType) + " - " + str(self.Note)
+        return f"{self.leave_type} - {self.note}"
     
 
 
 class OTP(models.Model):
-    OTP = models.CharField(max_length=6, default='999999')
-    Email = models.CharField(max_length=50)
-    Timestamp = models.DateTimeField(auto_now_add=True)
-    Tries = models.CharField(max_length=1, default='0')
+    code = models.CharField(max_length=6, default='999999')
+    email = models.EmailField(max_length=50)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    tries = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return str(self.OTP)
+        return str(self.code)
 
     def now_diff(self):
-        delta = datetime.datetime.now() - self.Timestamp
+        delta = timezone.now() - self.timestamp
         return delta.total_seconds()
 
     
 class ProjectManager(models.Model):
     name = models.CharField(max_length=200, blank=True)
     phone = models.CharField(max_length=15, blank=True)
-    email = models.CharField(max_length=200, blank=True)
+    email = models.EmailField(max_length=200, blank=True)
 
     def __str__(self):
         return str(self.name)
 
 class Engagement(models.Model):
-    EngName = models.CharField(max_length=200, verbose_name="Engagement Name",
+    name = models.CharField(max_length=200, verbose_name="Engagement Name",
                                help_text="Developer Suggestion: Make sure to have a naming convention so you can automate this later")
-    CliName = models.ForeignKey(
-        Client, on_delete=models.PROTECT, verbose_name="Client Name", related_name="Engagements")
-    Employees = models.ManyToManyField(
-        Employee, blank=True, related_name="Engagements")
-    ServiceType = models.ForeignKey(
+    client = models.ForeignKey(
+        Client, on_delete=models.PROTECT, verbose_name="Client Name", related_name="engagements")
+    employees = models.ManyToManyField(
+        Employee, blank=True, related_name="engagements")
+    service_type = models.ForeignKey(
         Service, on_delete=models.PROTECT, verbose_name="Service Type")
-    StartDate = models.DateField('Start Date')
-    EndDate = models.DateField('End Date')
-    Scope = models.TextField(blank=True, verbose_name="Scope", help_text="Enter one domain/IP per line")
-    projectManager = models.ForeignKey(
-        ProjectManager, on_delete=models.PROTECT, related_name='engs', verbose_name="Project Manager", null=True, blank=True)
+    start_date = models.DateField('Start Date')
+    end_date = models.DateField('End Date')
+    scope = models.TextField(blank=True, verbose_name="Scope", help_text="Enter one domain/IP per line")
+    project_manager = models.ForeignKey(
+        ProjectManager, on_delete=models.PROTECT, related_name='engagements', verbose_name="Project Manager", null=True, blank=True)
 
-    def getAllEngs():
+    @classmethod
+    def get_all_engagements(cls):
         event_arr = []
-        all_events = Engagement.objects.all()
-        colors = ["#990000", "#994C00", "#666600",
-                  "#336600", "#006600", "#006633",
-                  "#006666", "#003366", "#000066",
-                  "#330066", "#660066", "#660033",
-                  "#202020"]
+        all_events = cls.objects.all()
+        colors = [
+            "#990000", "#994C00", "#666600", "#336600", "#006600", "#006633",
+            "#006666", "#003366", "#000066", "#330066", "#660066", "#660033", "#202020"
+        ]
         for i in all_events:
             event_sub_arr = {}
-            event_sub_arr['title'] = i.EngName + " -- " + str(i.ServiceType)
-            start_date = datetime.datetime.strptime(
-                str(i.StartDate), "%Y-%m-%d").strftime("%Y-%m-%d")
-            end_date = datetime.datetime.strptime(
-                str(i.EndDate + datetime.timedelta(days=1)), "%Y-%m-%d").strftime("%Y-%m-%d")
+            event_sub_arr['title'] = f"{i.name} -- {i.service_type}"
+            start_date = i.start_date.strftime("%Y-%m-%d")
+            end_date = (i.end_date + datetime.timedelta(days=1)).strftime("%Y-%m-%d")
             event_sub_arr['start'] = start_date
             event_sub_arr['end'] = end_date
             event_sub_arr['id'] = i.id
@@ -116,45 +113,36 @@ class Engagement(models.Model):
         return event_arr
 
     def __str__(self):
-        return str(self.EngName) + " - " + str(self.ServiceType)
+        return f"{self.name} - {self.service_type}"
 
-    def daysLeftPrecentage(self):
-        todayDatetiem = datetime.date.today()
-        todayDate = datetime.date(
-            todayDatetiem.year, todayDatetiem.month, todayDatetiem.day)
-        if (todayDate >= self.StartDate and todayDate <= self.EndDate):
-            daysLeft = todayDate - self.EndDate
-            totalDays = self.EndDate - self.StartDate
+    def days_left_percentage(self):
+        today = timezone.now().date()
+        if self.start_date <= today <= self.end_date:
+            days_left = (self.end_date - today).days
+            total_days = (self.end_date - self.start_date).days
             try:
-                precent = (daysLeft / totalDays) * 100
-                return int("{:2.0f}".format(precent+100))
+                percent = ((today - self.start_date).days / total_days) * 100
+                return int(round(percent))
             except ZeroDivisionError:
-                # If the engagement is only 1 day, this will be triggered.
                 return 99
-
-        # Return False if the engagement didn't start or has finished.
         return "Nope"
 
-    def daysLeftToStartEngagement(self):
-        todayDatetime = datetime.date.today()
-        todayDate = datetime.date(
-            todayDatetime.year, todayDatetime.month, todayDatetime.day)
-        if (todayDate < self.StartDate):
-            daysLeft = todayDate - self.StartDate
-            # The -1 is to get positive numbers.
-            return daysLeft * -1
-        return"Nope"
+    def days_left_to_start(self):
+        today = timezone.now().date()
+        if today < self.start_date:
+            days_left = (self.start_date - today).days
+            return days_left
+        return "Nope"
     
-    def workingEmp(self):
-        return self.Employees.count()
+    def working_employees(self):
+        return self.employees.count()
 
 
 class Comment(models.Model):
-    eng = models.ForeignKey(
+    engagement = models.ForeignKey(
         Engagement, on_delete=models.CASCADE, related_name='comments')
-    # Can't delete user that has comment
     user = models.ForeignKey(
-        Employee, on_delete=models.PROTECT, related_name='user_id')
+        Employee, on_delete=models.PROTECT, related_name='comments')
     body = models.TextField()
     created_on = models.DateTimeField(auto_now_add=True)
 
@@ -162,36 +150,28 @@ class Comment(models.Model):
         ordering = ['created_on']
 
     def __str__(self):
-        return 'Comment {} by {}'.format(self.body, self.user)
+        return f'Comment {self.body} by {self.user}'
 
-class Reports(models.Model):
+class Report(models.Model):
+    REPORT_TYPES = (("Draft", "Draft"), ("Final", "Final"), ("Verification", "Verification"))
 
-    #Change filename to the name of the engagement
-    def setFilename(instance,filename):
+    def set_filename(instance, filename):
         path = "Reports/"
         name, extension = splitext(filename)
-        return path + instance.eng.EngName + extension
+        return f"{path}{instance.engagement.name}{extension}"
 
-    #Check file extension.    
     def validate_file_extension(value):
         if not value.name.endswith('.gpg'):
             raise ValidationError(u'Extension must be gpg')
-            
 
-    eng = models.ForeignKey(Engagement, on_delete=models.CASCADE)
+    engagement = models.ForeignKey(Engagement, on_delete=models.CASCADE)
     user = models.ForeignKey(Employee, on_delete=models.CASCADE)
-
-    # To activate validation for uploaded files:
-    # file = models.FileField(upload_to=setFilename, validators=[validate_file_extension])
-    file = models.FileField(upload_to=setFilename)
-    
+    file = models.FileField(upload_to=set_filename, validators=[validate_file_extension])
     reference = models.CharField(max_length=36, default=uuid.uuid4)
-    Types = (("Draft", "Draft"), ("Final", "Final"), ("Verification","Verification"))
-    reportType = models.CharField(
-        max_length=15, choices=Types, default="Draft", verbose_name="Report Type")
+    report_type = models.CharField(max_length=15, choices=REPORT_TYPES, default="Draft", verbose_name="Report Type")
     note = models.CharField(max_length=60, null=True, blank=True)
-    Timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
 
     def delete(self, *args, **kwargs):
         self.file.delete()
-        super().delete(*args, **kwargs)  # Call the "real" save() method.
+        super().delete(*args, **kwargs)

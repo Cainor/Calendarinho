@@ -85,12 +85,12 @@ def forgetpasswordEnd(request):
         emp_mail = request.POST.get("emp_mail")
         form = passwordforgetEndForm(request.POST)
 
-        fromDatabase = OTP.objects.filter(Email=emp_mail).first()
+        fromDatabase = OTP.objects.filter(email=emp_mail).first()
         if(not fromDatabase):
             messages.error(request, "Something is Wrong!")
             return render(request,"CalendarinhoApp/forgetpasswordOTP.html",{"form":form,"emp_mail":emp_mail})
 
-        if(fromDatabase.OTP == request.POST.get("OTP") and int(fromDatabase.Tries) <= 5 and fromDatabase.now_diff() < 300):
+        if(fromDatabase.code == request.POST.get("OTP") and int(fromDatabase.tries) <= 5 and fromDatabase.now_diff() < 300):
             if form.is_valid():
                 emp = Employee.objects.filter(email=emp_mail).first()
                 emp.set_password(request.POST.get("new_Password"))
@@ -110,7 +110,7 @@ def forgetpasswordEnd(request):
             messages.error(request, "Something went wrong!")
 
             #Increase number of tries:
-            fromDatabase.Tries = str(int(fromDatabase.Tries)+1)
+            fromDatabase.tries = str(int(fromDatabase.tries)+1)
 
             fromDatabase.save()
             return render(request,"CalendarinhoApp/forgetpasswordOTP.html",{"form":form,"emp_mail":emp_mail})

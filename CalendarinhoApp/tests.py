@@ -7,6 +7,7 @@ Replace this with more appropriate tests for your application.
 
 import django
 from django.test import TestCase
+from .models import Engagement, Comment, Service, Report, Leave, Client
 
 # TODO: Configure your database in settings.py and sync before running tests.
 

@@ -41,20 +41,21 @@
 
         <!-- Earnings (Monthly) Card Example -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-success shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Upcoming engagements
+            <a href="/EngagementsTable?filter=future" style="text-decoration: none;">
+                <div class="card border-left-success shadow h-100 py-2 upcoming-card-hover" style="cursor:pointer; transition: box-shadow 0.2s;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Upcoming engagements</div>
+                                <div class="h5 mb-0 font-weight-bold text-title-color">{{statistics.upcomingEngagements}}</div>
                             </div>
-                            <div class="h5 mb-0 font-weight-bold text-title-color">{{statistics.upcomingEngagements}}</div>
-                        </div>
-                        <div class="col-auto">
-                            <i class="fas fa-handshake fa-2x text-gray-300"></i>
+                            <div class="col-auto">
+                                <i class="fas fa-handshake fa-2x text-gray-300"></i>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <!-- Earnings (Monthly) Card Example -->
@@ -156,32 +157,11 @@
             </div>
             <div class="card-body" id="ToggleBarsView">
                 {% for eng in statistics.engagementsBars%}
-                {% if eng.precent < 25 %}
                 <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
                 <div class="progress mb-4">
-                    <div class="progress-bar bg-warning" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar {% if eng.precent < 25 %}bg-warning{% elif eng.precent < 50 %}{% elif eng.precent < 75 %}bg-info{% elif eng.precent <= 100 %}bg-success{% endif %}" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                {% endif %}
-                {% if eng.precent < 50 and eng.precent >= 25 %}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
-                {% if eng.precent < 75 and eng.precent >= 50 %}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-info" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
-                {% if eng.precent <= 100 and eng.precent >= 75 %}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-success" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
                 {% endfor %}
-
             </div>
         </div>
     </div>
@@ -299,30 +279,10 @@
 currentType = 1;
 function ToggleBarsButton(){
     Type1 =  `  {% for eng in statistics.engagementsBars%}
-                {% if eng.precent < 10 %}
                 <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
                 <div class="progress mb-4">
-                    <div class="progress-bar bg-warning" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                    <div class="progress-bar {% if eng.precent < 25 %}bg-warning{% elif eng.precent < 50 %}{% elif eng.precent < 75 %}bg-info{% elif eng.precent <= 100 %}bg-success{% endif %}" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
                 </div>
-                {% endif %}
-                {% if eng.precent < 50 and eng.precent >= 25 %}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
-                {% if eng.precent < 75 and eng.precent >= 50 %}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-info" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
-                {% if eng.precent <= 100 and eng.precent >= 75 %}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar bg-success" role="" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endif %}
                 {% endfor %}`;
 
     Type2 = `   <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
@@ -331,19 +291,16 @@ function ToggleBarsButton(){
                             <th class="text-secondary">Name</th>
                             <th class="text-secondary">Ongoing Engagements</th>
                             <th class="text-secondary">Consultants Assigned</th>
-
                         </tr>
                     </thead>
                     <tbody>
                         {% for client,count in statistics.cliBars.items %}
                         <tr>
-                            <td class="small font-weight-bold"><a href="/client/{{client.id}}" style="text-decoration: inherit; color: inherit">{{client.CliName}}</a></td>
+                            <td class="small font-weight-bold"><a href="/client/{{client.id}}" style="text-decoration: inherit; color: inherit">{{client.name}}</a></td>
                             <td class="small font-weight-bold">{{count}}</td>
-                            <td class="small font-weight-bold">{{client.countWorkingEmp}}</td>
+                            <td class="small font-weight-bold">{{client.count_working_employees}}</td>
                         </tr>
                         {% endfor %}
-                        
-
                     </tbody>
                 </table>`
     
@@ -354,4 +311,14 @@ function ToggleBarsButton(){
 }
 </script>
 
+<style>
+    .upcoming-card-hover {
+        transition: box-shadow 0.2s, transform 0.2s;
+    }
+    .upcoming-card-hover:hover {
+        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15), 0 0.5rem 1rem rgba(40, 167, 69, 0.10);
+        transform: translateY(-2px) scale(1.02);
+        border-color: #28a745 !important;
+    }
+</style>
 {% endblock %}

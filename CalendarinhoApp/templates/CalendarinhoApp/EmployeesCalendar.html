@@ -43,9 +43,9 @@
                 {% endfor %}
 
                 {%for value in engagements %}{
-                    title: "{%for emp in value.Employees.all%}{% if emp in selectedEmps%} {{emp}},{%endif%}{%endfor%} :-\n {{value}}",
-                    start: '{{value.StartDate|date:"Y-m-d"}}',
-                    end: '{{value.EndDate|date:"Y-m-d"}}',
+                    title: "{%for emp in value.employees.all%}{% if emp in selectedEmps%} {{emp}},{%endif%}{%endfor%} :-\n {{value}}",
+                    start: '{{value.start_date|date:"Y-m-d"}}',
+                    end: '{{value.end_date|date:"Y-m-d"}}',
                     backgroundColor: '#BD4932',
                     url: '/engagement/{{value.id}}/',
                     borderColor: 'white',

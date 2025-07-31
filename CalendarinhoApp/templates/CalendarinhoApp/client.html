@@ -9,7 +9,7 @@
 
 {% block body_block %}
 <div class="container-fluid">
-    <h1 class="h3 mb-2 text-title-color">{{cli.CliName}}</h1>
+    <h1 class="h3 mb-2 text-title-color">{{cli.name}}</h1>
     <div class="row justify-content-center">
         <!-- Client Acronym Card-->
         <div class="col col">
@@ -20,7 +20,7 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 align="center">{{cli.CliShort}}</h4>
+                    <h4 align="center">{{cli.acronym}}</h4>
                 </div>
             </div>
         </div>
@@ -34,7 +34,7 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 align="center">{{cli.CliCode}}</h4>
+                    <h4 align="center">{{cli.code}}</h4>
                 </div>
             </div>
         </div>
@@ -47,37 +47,14 @@
         <div class="card-body">
             {% if engagementsBars%}
             {% for eng in engagementsBars%}
-            {% if eng.precent < 25 %}
             <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
             <div class="progress mb-4">
-                <div class="progress-bar bg-warning" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+                <div class="progress-bar {% if eng.precent < 25 %}bg-warning{% elif eng.precent < 50 %}{% elif eng.precent < 75 %}bg-info{% elif eng.precent <= 100 %}bg-success{% endif %}" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
             </div>
-            {% endif %}
-            {% if eng.precent < 50 and eng.precent >= 25 %}
-            <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-            <div class="progress mb-4">
-                <div class="progress-bar" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            {% endif %}
-            {% if eng.precent < 75 and eng.precent >= 50 %}
-            <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-            <div class="progress mb-4">
-                <div class="progress-bar bg-info" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            {% endif %}
-            {% if eng.precent <= 100 and eng.precent >= 75 %}
-            <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-            <div class="progress mb-4">
-                <div class="progress-bar bg-success" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-            {% endif %}
             {% endfor %}
             {% else %}
             <h2 class="grayCenterText"><i>No Ongoing Engagement<i></h2>
             {% endif %}
-            
-            
-
         </div>
     </div>
     <div class="card shadow mb-4">
@@ -104,14 +81,14 @@
                     <tbody>
                         {% for eng in engs %}
                         <tr>
-                            <td><a href="/engagement/{{eng.id}}">{{eng.EngName}}</a></td>
-                            {% if eng.projectManager %}
-                            <td><a href="/projectManager/{{eng.projectManager.id}}">{{eng.projectManager}}</a></td>
+                            <td><a href="/engagement/{{eng.id}}">{{eng.name}}</a></td>
+                            {% if eng.project_manager %}
+                            <td><a href="/projectManager/{{eng.project_manager.id}}">{{eng.project_manager}}</a></td>
                             {% else %}
-                            <td>{{eng.projectManager}}</td>
+                            <td>{{eng.project_manager}}</td>
                             {% endif %}
-                            <td>{{eng.StartDate}}</td>
-                            <td>{{eng.EndDate}}</td>
+                            <td>{{eng.start_date}}</td>
+                            <td>{{eng.end_date}}</td>
 
                         </tr>
                         {% endfor %}

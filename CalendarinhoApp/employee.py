@@ -1,4 +1,3 @@
-
 from threading import Thread
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render
@@ -23,20 +22,52 @@ logger = logging.getLogger(__name__)
 def EmployeesTable(request):
     emps = Employee.objects.exclude(is_active=False)
     table = []
-    row = {}
     for emp in emps:
+        row = {}
         empstat = emp.currentStatus()
-        row["empID"] = emp.id
-        row["name"] = emp.first_name + " " + emp.last_name
-        if (empstat[0] == "Available"):
+        row["id"] = emp.id
+        row["first_name"] = emp.first_name
+        row["last_name"] = emp.last_name
+        if empstat[0] == "Available":
             row["status"] = empstat[0]
         else:
-            row["status"] = empstat[0] + ": " + empstat[1]
-        row["endDate"] = empstat[2]
+            row["status"] = f"{empstat[0]}: {empstat[1]}"
+        row["end_date"] = empstat[2]
         empnextev = emp.nextEvent()
-        row["nextev"] = empnextev[0]
-        row["startDate"] = empnextev[1]
-        table.append(row.copy())
+        print(f"emp.nextEvent() for {emp.first_name} {emp.last_name}: {empnextev}")
+        if empnextev:
+            if isinstance(empnextev, (tuple, list)):
+                event = empnextev[0] if len(empnextev) > 0 else None
+                start_date = empnextev[1] if len(empnextev) > 1 else ""
+                if hasattr(event, 'leave_type'):
+                    leave = event
+                    if leave.leave_type == "Work from Home":
+                        nextev_desc = "Work from Home"
+                    else:
+                        nextev_desc = f"Leave: {leave.leave_type}"
+                    if hasattr(leave, 'note') and leave.note:
+                        nextev_desc += f" - {leave.note}"
+                    row["next_event"] = nextev_desc
+                    row["start_date"] = leave.start_date
+                elif hasattr(event, 'name'):
+                    row["next_event"] = str(event.name)
+                    row["start_date"] = start_date
+                elif isinstance(event, str):
+                    row["next_event"] = event
+                    row["start_date"] = start_date
+                elif event:
+                    row["next_event"] = str(event)
+                    row["start_date"] = start_date
+                else:
+                    row["next_event"] = "No upcoming event"
+                    row["start_date"] = ""
+            else:
+                row["next_event"] = str(empnextev)
+                row["start_date"] = ""
+        else:
+            row["next_event"] = "No upcoming event"
+            row["start_date"] = ""
+        table.append(row)
 
     context = {
         'table': table
@@ -50,12 +81,14 @@ def profile(request, emp_id):
     try:
         emp = Employee.objects.get(id=emp_id)
         upcoming = {}
-        upcoming["engagement"] = Engagement.objects.filter(Employees=emp_id).filter(
-            StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("StartDate").first()
-        upcoming["vacation"] = Leave.objects.filter(emp_id=emp_id).filter(StartDate__gt=datetime.datetime.now(
-        ).strftime("%Y-%m-%d")).filter(LeaveType="Vacation").order_by("StartDate").first()
-        upcoming["training"] = Leave.objects.filter(emp_id=emp_id).filter(StartDate__gt=datetime.datetime.now(
-        ).strftime("%Y-%m-%d")).filter(LeaveType="Training").order_by("StartDate").first()
+        upcoming["engagement"] = Engagement.objects.filter(employees=emp_id).filter(
+            start_date__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("start_date").first()
+        upcoming["vacation"] = Leave.objects.filter(employee_id=emp_id).filter(start_date__gt=datetime.datetime.now(
+        ).strftime("%Y-%m-%d")).filter(leave_type="Vacation").order_by("start_date").first()
+        upcoming["training"] = Leave.objects.filter(employee_id=emp_id).filter(start_date__gt=datetime.datetime.now(
+        ).strftime("%Y-%m-%d")).filter(leave_type="Training").order_by("start_date").first()
+        upcoming["work_from_home"] = Leave.objects.filter(employee_id=emp_id).filter(start_date__gt=datetime.datetime.now(
+        ).strftime("%Y-%m-%d")).filter(leave_type="Work from Home").order_by("start_date").first()
         leaves = emp.getAllLeaves()
         engagements = emp.getAllEngagements()
 
@@ -89,7 +122,7 @@ def EmployeesCal(request):
         # Engagements
         for empID in listemp:
             emp = Employee.objects.get(id=empID)
-            engagements = engagements | emp.Engagements.all()
+            engagements = engagements | emp.engagements.all()
         engagements = engagements.distinct()  # Remove Doublicate
     emps = Employee.objects.exclude(is_active=False).order_by('first_name')
     return render(request, 'CalendarinhoApp/EmployeesCalendar.html', {'employees': emps, 'leaves': leaves, 'engagements': engagements, 'selectedEmps': selectedEmps})
@@ -140,7 +173,7 @@ def LeaveCreate(request):
         
         if form.is_valid():
             obj = form.save(commit=False)
-            obj.emp = request.user
+            obj.employee = request.user
             obj.save()
             # Send notifications to the managers after a new leave is added.
             thread = Thread(target = notifyManagersNewLeave, args= (request.user, obj, request))
@@ -182,10 +215,10 @@ def notifyManagersNewLeave(user, leave , request):
                 'first_name': manager.first_name,
                 'message': 'New leave added by ' + addBy
                     + ' for ' + forEmployee,
-                'leave_type': leave.LeaveType,
-                'start_date': leave.StartDate,
-                'end_date': leave.EndDate,
-                'note': leave.Note,
+                'leave_type': leave.leave_type,
+                'start_date': leave.start_date,
+                'end_date': leave.end_date,
+                'note': leave.note,
                 'Employee': leave.emp.first_name + ' ' + leave.emp.last_name,
                 'profile_url': request.build_absolute_uri(reverse('CalendarinhoApp:profile',
                     args=[leave.emp.id])),

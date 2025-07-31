@@ -28,7 +28,7 @@ class ClientNameAutocomplete(autocomplete.Select2QuerySetView):
 
         if self.q:
             for term in self.q.split():
-                AllCli = AllCli.filter(Q(CliName__icontains = term) | Q(CliShort__icontains = term)).order_by("CliName")
+                AllCli = AllCli.filter(Q(name__icontains=term) | Q(acronym__icontains=term)).order_by("name")
         return AllCli
 
 class ServiceNameAutocomplete(autocomplete.Select2QuerySetView):

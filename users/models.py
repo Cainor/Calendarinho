@@ -53,60 +53,66 @@ class CustomUser(AbstractUser):
     def getAllLeaves(self):
         from CalendarinhoApp.models import Leave
         event_arr = []
-        all_leaves = Leave.objects.filter(emp_id=self.id)
-        colors = ["#2C3E50", "#2980B9"]
+        all_leaves = Leave.objects.filter(employee_id=self.id)
         for i in all_leaves:
             event_sub_arr = {}
             event_sub_arr['empName'] = self.first_name + " " + self.last_name 
-            event_sub_arr['title'] = i.Note + " - " + i.LeaveType
+            event_sub_arr['title'] = i.note + " - " + i.leave_type
             start_date = datetime.datetime.strptime(
-                str(i.StartDate), "%Y-%m-%d").strftime("%Y-%m-%d")
+                str(i.start_date), "%Y-%m-%d").strftime("%Y-%m-%d")
             end_date = datetime.datetime.strptime(
-                str(i.EndDate + datetime.timedelta(days=1)), "%Y-%m-%d").strftime("%Y-%m-%d")
+                str(i.end_date + datetime.timedelta(days=1)), "%Y-%m-%d").strftime("%Y-%m-%d")
             event_sub_arr['start'] = start_date
             event_sub_arr['end'] = end_date
             event_sub_arr['id'] = i.id
-            event_sub_arr['color'] = colors[0] if i.LeaveType == "Vacation" else colors[1]
+            if i.leave_type == "Vacation":
+                event_sub_arr['color'] = "#2C3E50"
+            elif i.leave_type == "Training":
+                event_sub_arr['color'] = "#2980B9"
+            elif i.leave_type == "Work from Home":
+                event_sub_arr['color'] = "#f39c12"
+            else:
+                event_sub_arr['color'] = "#2C3E50"
             event_arr.append(event_sub_arr)
         return event_arr
 
     def getAllEngagements(self):
         event_arr = []
-        all_engagements = self.Engagements.all().order_by('StartDate')
+        all_engagements = self.engagements.all().order_by('start_date')
         colors = ["#BD4932"]
         for i in all_engagements:
             event_sub_arr = {}
-            event_sub_arr['name'] = i.EngName
+            event_sub_arr['name'] = i.name
             start_date = datetime.datetime.strptime(
-                str(i.StartDate), "%Y-%m-%d").strftime("%Y-%m-%d")
+                str(i.start_date), "%Y-%m-%d").strftime("%Y-%m-%d")
             end_date = datetime.datetime.strptime(
-                str(i.EndDate  + datetime.timedelta(days=1)), "%Y-%m-%d").strftime("%Y-%m-%d")
-            event_sub_arr['startDate'] = start_date
-            event_sub_arr['endDate'] = end_date
+                str(i.end_date  + datetime.timedelta(days=1)), "%Y-%m-%d").strftime("%Y-%m-%d")
+            event_sub_arr['start_date'] = start_date
+            event_sub_arr['end_date'] = end_date
             event_sub_arr['engID'] = i.id
             event_sub_arr['color'] = colors[0]
-            event_sub_arr['serviceType'] = i.ServiceType
-            event_sub_arr['clientName'] = i.CliName
+            event_sub_arr['service_type'] = i.service_type
+            event_sub_arr['clientName'] = i.client
             event_arr.append(event_sub_arr)
         return event_arr
 
     # This method check if employee is availabile at a range of date
     def overlapCheck(self, StartDate, EndDate):
         from CalendarinhoApp.models import Leave, Engagement
-        engs = Engagement.objects.filter(Employees=self.id)
-        leaves = Leave.objects.filter(emp_id=self.id)
+        engs = Engagement.objects.filter(employees=self.id)
+        leaves = Leave.objects.filter(employee_id=self.id)
         Range = namedtuple('Range', ['start', 'end'])
         start_date1 = datetime.datetime.strptime(str(StartDate), "%Y-%m-%d")
         end_date1 = datetime.datetime.strptime(str(EndDate), "%Y-%m-%d")
         Range1 = Range(start=start_date1, end=end_date1)
         event_dates = {"start_date": [], "end_date": []}
         for eng in engs:
-            event_dates["start_date"].append(eng.StartDate)
-            event_dates["end_date"].append(eng.EndDate)
+            event_dates["start_date"].append(eng.start_date)
+            event_dates["end_date"].append(eng.end_date)
 
         for lev in leaves:
-            event_dates["start_date"].append(lev.StartDate)
-            event_dates["end_date"].append(lev.EndDate)
+            event_dates["start_date"].append(lev.start_date)
+            event_dates["end_date"].append(lev.end_date)
 
         for i in range(len(event_dates["start_date"])):
             start_date2 = datetime.datetime.strptime(
@@ -129,36 +135,38 @@ class CustomUser(AbstractUser):
     def currentStatus(self):
         from CalendarinhoApp.models import Leave, Engagement
         todayDate = datetime.datetime.now()
-        leaves = Leave.objects.filter(emp_id=self.id)
+        leaves = Leave.objects.filter(employee_id=self.id)
         for lev in leaves:
-            if (self.dateInRange(todayDate, lev.StartDate, lev.EndDate)):
-                return [lev.LeaveType, lev.__str__(), lev.EndDate]
+            if (self.dateInRange(todayDate, lev.start_date, lev.end_date)):
+                return [lev.leave_type, lev.__str__(), lev.end_date]
 
-        engs = Engagement.objects.filter(Employees=self.id)
+        engs = Engagement.objects.filter(employees=self.id)
         for eng in engs:
-            if (self.dateInRange(todayDate, eng.StartDate, eng.EndDate)):
-                return ["Engaged", eng.__str__(), eng.EndDate]
+            if (self.dateInRange(todayDate, eng.start_date, eng.end_date)):
+                return ["Engaged", eng.__str__(), eng.end_date]
 
         return ["Available", "", "-"]
 
     def nextEvent(self):
         from CalendarinhoApp.models import Leave, Engagement
-        eng = Engagement.objects.filter(Employees=self.id).filter(
-            StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("StartDate").first()
-        lev = Leave.objects.filter(emp_id=self.id).filter(
-            StartDate__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("StartDate").first()
+        eng = Engagement.objects.filter(employees=self.id).filter(
+            start_date__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("start_date").first()
+        lev = Leave.objects.filter(employee_id=self.id).filter(
+            start_date__gt=datetime.datetime.now().strftime("%Y-%m-%d")).order_by("start_date").first()
         try:
-            if(eng.StartDate > lev.StartDate):
-                return [lev.__str__(), lev.StartDate]
+            if eng and lev:
+                if(eng.start_date > lev.start_date):
+                    return [lev.__str__(), lev.start_date]
+                else:
+                    return [eng.__str__(), eng.start_date]
+            elif eng is None and lev is None:
+                return ["None", "-"]
+            elif eng is None:
+                return [lev.__str__(), lev.start_date]
             else:
-                return [eng.__str__(), eng.StartDate]
-        except:
-            if(eng == None and lev == None):
-                return["None", "-"]
-            elif(eng == None):
-                return [lev.__str__(), lev.StartDate]
-            else:
-                return [eng.__str__(), eng.StartDate]
+                return [eng.__str__(), eng.start_date]
+        except Exception:
+            return ["None", "-"]
 
     def getManagers():
         return CustomUser.objects.filter(user_type="M")
@@ -166,32 +174,21 @@ class CustomUser(AbstractUser):
     def getEmployees():
         return CustomUser.objects.filter(user_type="E")
         
-    def countSrv(self,service_id):
-        result = 0
-        all_engagements = self.Engagements.all()
-        
-        result = all_engagements.filter(ServiceType = service_id).count()
-        return result
+    def countSrv(self, service_id):
+        all_engagements = self.engagements.all()
+        return all_engagements.filter(service_type=service_id).count()
 
     # function to calculate the number of days in each engagement
-    def countEngDays(self, startDate, endDate):
-        startDate = datetime.datetime.strptime(str(startDate), "%Y-%m-%d").date()
-        endDate = datetime.datetime.strptime(str(endDate), "%Y-%m-%d").date()
-        engs = self.Engagements.all().filter(EndDate__gte=startDate).filter(StartDate__lte=endDate)
+    def countEngDays(self, start_date, end_date):
+        start_date = datetime.datetime.strptime(str(start_date), "%Y-%m-%d").date()
+        end_date = datetime.datetime.strptime(str(end_date), "%Y-%m-%d").date()
+        engs = self.engagements.all().filter(end_date__gte=start_date).filter(start_date__lte=end_date)
         noDays = 0
         for eng in engs:
-            actStart = None
-            actEnd = None
-            if eng.StartDate < startDate:
-                actStart = startDate
-            else:
-                actStart = eng.StartDate
-            if eng.EndDate < endDate:
-                actEnd = eng.EndDate
-            else:
-                actEnd = endDate
+            actStart = start_date if eng.start_date < start_date else eng.start_date
+            actEnd = eng.end_date if eng.end_date < end_date else end_date
 
-            countDays = np.busday_count(actStart, actEnd+ datetime.timedelta(days=1), weekmask=settings.WORKING_DAYS)
+            countDays = np.busday_count(actStart, actEnd + datetime.timedelta(days=1), weekmask=settings.WORKING_DAYS)
             noDays += countDays
 
         return noDays

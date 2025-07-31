@@ -63,10 +63,10 @@
                         </tr>
                     </tfoot>
                     <tbody>
-                        {% for eng in projmgr.engs.all %}
+                        {% for eng in projmgr.engagements.all %}
                         <tr>
                             <td><a href="/engagement/{{eng.id}}">{{eng}}</a></td>
-                            <td><a href="/client/{{eng.CliName.id}}">{{eng.CliName}}</a></td>
+                            <td><a href="/client/{{eng.client.id}}">{{eng.client}}</a></td>
                         </tr>
                         {% endfor %}
                     </tbody>

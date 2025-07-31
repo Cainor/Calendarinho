@@ -1,5 +1,5 @@
 from django.conf import settings
-from .models import Employee,OTP
+from .models import Employee, OTP
 from django.core.mail import EmailMessage
 from django.template import loader
 from django.contrib.sites.shortcuts import get_current_site
@@ -31,10 +31,10 @@ def send_forget_password_OTP(request):
     emp = Employee.objects.filter(email__iexact=req_email).first()
     if(emp):
         #Delete all previuse OTPs from the same email before creating a new one
-        OTP.objects.filter(Email__iexact=req_email).delete()
+        OTP.objects.filter(email__iexact=req_email).delete()
 
         randomOTP = str(randint(100000, 999999))
-        otpObj = OTP(OTP=randomOTP,Email=req_email)
+        otpObj = OTP(code=randomOTP,email=req_email)
         otpObj.save()
         send_email(emp.email,"Calendarinho OTP",randomOTP,request)
         

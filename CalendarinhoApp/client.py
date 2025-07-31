@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .models import Engagement, Client
 from .forms import *
 from django.contrib.auth.decorators import login_required
@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 def client(request, cli_id):
     try:
         cli = Client.objects.get(id=cli_id)
-        engs = Engagement.objects.filter(CliName_id=cli_id)
+        engs = Engagement.objects.filter(client_id=cli_id)
         
         # calculation fot the engagements card (bars)
         engsTable = []
@@ -23,7 +23,7 @@ def client(request, cli_id):
             precent = eng.daysLeftPrecentage()
             if(precent != "Nope"):
                 singleEng['engid'] = eng.id
-                singleEng['engName'] = eng.EngName
+                singleEng['engName'] = eng.name
                 singleEng['precent'] = precent
                 engsTable.append(singleEng.copy())
         engsTable = sorted(engsTable, key=lambda i: i['precent'])
@@ -44,9 +44,9 @@ def ClientsTable(request):
     row = {}
     for cli in clients:
         row["cliID"] = cli.id
-        row["name"] = cli.CliName
-        row["acronym"] = cli.CliShort
-        row["code"] = cli.CliCode
+        row["name"] = cli.name
+        row["acronym"] = cli.acronym
+        row["code"] = cli.code
         table.append(row.copy())
 
     context = {
@@ -59,11 +59,16 @@ def ClientCreate(request):
     if request.method == 'POST':
         form = ClientForm(request.POST)
         if form.is_valid():
-            form.save()
-            result = {"status": True}
-            return JsonResponse(result)
+            client = form.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({"status": True, "id": client.id, "name": client.name})
+            return redirect('CalendarinhoApp:client', cli_id=client.id)
+    else:
+        form = ClientForm()
     
-    result = {"status": False}
-    return JsonResponse(result, status=500)
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({"status": False}, status=400)
+    
+    return render(request, 'CalendarinhoApp/Create_Client.html', {'form': form})
 
 from .views import not_found

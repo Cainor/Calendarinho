@@ -1,7 +1,7 @@
 django>=5.0.3
-django_autocomplete_light==3.11.0
+django_autocomplete_light==3.12.1
 PyMySQL==1.1.1
-django_crispy_forms==2.1
-crispy-bootstrap4
+django_crispy_forms==2.4
+crispy-bootstrap4==2025.6
 numpy
 cryptography

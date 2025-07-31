@@ -2,7 +2,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Employee, Engagement, Comment, Reports
+from .models import Employee, Engagement, Comment, Report
 from .forms import *
 from django.urls import reverse
 from django.http import JsonResponse
@@ -39,11 +39,11 @@ def EngagementsTable(request):
     row = {}
     for eng in engs:
         row["engID"] = eng.id
-        row["name"] = eng.EngName
-        row["clientName"] = eng.CliName
-        row["serviceType"] = eng.ServiceType
-        row["endDate"] = eng.EndDate
-        row["startDate"] = eng.StartDate
+        row["name"] = eng.name
+        row["clientName"] = eng.client
+        row["serviceType"] = eng.service_type
+        row["endDate"] = eng.end_date
+        row["startDate"] = eng.start_date
         table.append(row.copy())
 
     context = {
@@ -72,8 +72,8 @@ def engagement(request, eng_id):
             return HttpResponseRedirect("/engagement/"+str(engagement.id))
     try:
         comment_form = CommentForm()
-        comments = Comment.objects.filter(eng_id=engagement.id)
-        context = {'eng': engagement, 'scope_list': engagement.Scope.split('\n'),'comment_form': comment_form,
+        comments = Comment.objects.filter(engagement_id=engagement.id)
+        context = {'eng': engagement, 'scope_list': engagement.scope.split('\n'),'comment_form': comment_form,
                    'comments': comments}
     except Engagement.DoesNotExist:
         return not_found(request)
@@ -95,7 +95,7 @@ def deleteMyComment(request, commentID):
 
 @login_required
 def EngagementsCal(request):
-    event_arr = Engagement.getAllEngs()
+    event_arr = Engagement.get_all_engagements()
     context = {
         "events": event_arr,
     }
@@ -107,7 +107,7 @@ def uploadReport(request, eng_id):
         context = {}
         eng = Engagement.objects.get(id=eng_id)
         form = uploadReportForm()
-        listReports = Reports.objects.filter(eng=eng)
+        listReports = Report.objects.filter(engagement=eng)
         context['engagement'] = eng
         context['form'] = form
         context['list'] = listReports
@@ -115,7 +115,7 @@ def uploadReport(request, eng_id):
         if request.method == 'POST':
                 form = uploadReportForm(request.POST, request.FILES)
                 if form.is_valid():
-                    Report = Reports(eng=eng, user=request.user,reportType=request.POST["reportType"],note=request.POST["note"], file=request.FILES['file'])
+                    Report = Report(engagement=eng, user=request.user,reportType=request.POST["reportType"],note=request.POST["note"], file=request.FILES['file'])
                     Report.save()
                     thread = Thread(target = notifyNewReportUpload, args= (Report, request))
                     thread.start()   
@@ -132,7 +132,7 @@ def uploadReport(request, eng_id):
 
 @login_required
 def downloadReport(request, refUUID=None):
-    report = Reports.objects.get(reference=refUUID)
+    report = Report.objects.get(reference=refUUID)
     if(report != None): #Check if UUID is correct
         response = HttpResponse(report.file, content_type='application/pgp-encrypted')
         filename=report.file.name
@@ -144,10 +144,10 @@ def downloadReport(request, refUUID=None):
 
 @login_required
 def deleteReport(request, refUUID=None):
-    report = Reports.objects.get(reference=refUUID)
+    report = Report.objects.get(reference=refUUID)
     if(report != None): #Check if UUID is correct
         if(request.user.is_superuser or request.user==report.user):
-            eng_id = report.eng.id
+            eng_id = report.engagement.id
             report.delete()
             return redirect("/engagement/"+str(eng_id)+"/Reports/")
         else:
@@ -180,9 +180,9 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
                         'message': str(request.user) + ' has assigned you to a new engagement',
                         'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                             args=[engagement.id])),
-                        'engagement_name': engagement.EngName,
-                        'StartDate': engagement.StartDate,
-                        'EndDate': engagement.EndDate,
+                        'engagement_name': engagement.name,
+                        'start_date': engagement.start_date,
+                        'end_date': engagement.end_date,
                         'protocol': 'https' if settings.USE_HTTPS == True else 'http',
                         'domain' : settings.DOMAIN,
                     }
@@ -199,7 +199,7 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
                         'message': str(request.user) + ' has removed you from an engagement ',
                         'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                             args=[engagement.id])),
-                        'engagement_name': engagement.EngName,
+                        'engagement_name': engagement.name,
                         'protocol': 'https' if settings.USE_HTTPS == True else 'http',
                         'domain' : settings.DOMAIN,
                     }
@@ -215,25 +215,25 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
 def notifyNewComment(comment, request):
     user = comment.user
     engagement = comment.eng
-    employees= engagement.Employees.exclude(id=user.id)
+    employees = engagement.employees.exclude(id=user.id)
     context = {
         'message': f'New comment on your engagement by {user.get_full_name()}.',
         'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
-        'engagement_name': engagement.EngName,
+        'engagement_name': engagement.name,
         'user': user,
         'commentbody': comment.body,
         'protocol': 'https' if settings.USE_HTTPS else 'http',
         'domain': settings.DOMAIN,
     }
     try:
-        with get_connection() as connection:
+        with mail.get_connection() as connection:
             for employee in employees :
                 context = {
                         'first_name': employee.first_name,
                         'message': 'New comment on your engagement by ' + user.first_name + ' ' + user.last_name + '.',
                         'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement',
                             args=[engagement.id])),
-                        'engagement_name': engagement.EngName,
+                        'engagement_name': engagement.name,
                         'user':user,
                         'commentbody':comment.body,
                         'protocol': 'https' if settings.USE_HTTPS == True else 'http',
@@ -250,14 +250,14 @@ def notifyNewComment(comment, request):
 
 def notifyNewReportUpload(report, request):
     uploader = request.user
-    engagement = report.eng
-    employees = engagement.Employees.exclude(id=uploader.id)
+    engagement = report.engagement
+    employees = engagement.employees.exclude(id=uploader.id)
 
     context = {
         'first_name': uploader.first_name,
         'message': f'New report uploaded on your engagement by {uploader.get_full_name()}.',
         'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
-        'engagement_name': engagement.EngName,
+        'engagement_name': engagement.name,
         'reportType': report.reportType,
         'user': uploader,
         'protocol': 'https' if settings.USE_HTTPS else 'http',
@@ -265,9 +265,9 @@ def notifyNewReportUpload(report, request):
     }
 
     try:
-        with get_connection() as connection:
+        with mail.get_connection() as connection:
             for employee in employees:
-                email_body = render_to_string(
+                email_body = loader.render_to_string(
                     'CalendarinhoApp/emails/engagement_comment_uploadReport.html', 
                     {**context, 'recipient_first_name': employee.first_name}
                 )
@@ -291,18 +291,18 @@ def notifyManagersNewEngagement(user, engagement, request):
     base_context = {
         'message': f'New engagement added by {user.get_full_name()}.',
         'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
-        'engagement_name': engagement.EngName,
+        'engagement_name': engagement.name,
         'user': user,
         'protocol': 'https' if settings.USE_HTTPS else 'http',
         'domain': settings.DOMAIN,
     }
 
     try:
-        with get_connection() as connection:
+        with mail.get_connection() as connection:
             for manager in managers:
                 context = {**base_context, 'first_name': manager.first_name}
                 
-                email_body = render_to_string(
+                email_body = loader.render_to_string(
                     'CalendarinhoApp/emails/manager_new_engagement_email.html', 
                     context
                 )

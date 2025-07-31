@@ -52,12 +52,11 @@
                     <tbody>
                         {% for row in table %}
                         <tr>
-                            <td><a href="/profile/{{row.empID}}">{{row.name}}</a></td>
+                            <td><a href="/profile/{{row.id}}">{{row.first_name}} {{row.last_name}}</a></td>
                             <td>{{row.status}}</td>
-                            <td>{{row.endDate | date:"Y-m-d"}}</td>
-                            <td>{{row.nextev}}</td>
-                            <td>{{row.startDate | date:"Y-m-d"}}</td>
-
+                            <td>{{row.end_date | date:"Y-m-d"}}</td>
+                            <td>{{row.next_event}}</td>
+                            <td>{{row.start_date | date:"Y-m-d"}}</td>
                         </tr>
                         {% endfor %}
 

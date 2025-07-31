@@ -64,9 +64,9 @@
                   
                       <tr>
                       <td>{{file.note}}</td>
-                      <td>{{file.reportType}}</td>
+                      <td>{{file.report_type}}</td>
                       <td>{{file.user}}</td>
-                      <td>{{file.Timestamp}}</td>
+                      <td>{{file.timestamp}}</td>
                       <td align="center"><a href="/download/{{ file.reference }}"><button class="btn btn-primary btn-md"><i class="fas fa-download"></i></button></a></td>
                       {% if user == file.user or user.is_superuser%}
                         <td align="center"><button id="delete_btn" class="btn btn-danger btn-md" onclick="DeleteConfirmation('{{ file.reference }}')"><i class="fas fa-trash-alt"></i></button></td>
