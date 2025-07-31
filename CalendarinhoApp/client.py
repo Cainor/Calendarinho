@@ -28,9 +28,13 @@ def client(request, cli_id):
                 engsTable.append(singleEng.copy())
         engsTable = sorted(engsTable, key=lambda i: i['precent'])
 
+        # Get vulnerability summary for the client
+        vulnerability_summary = cli.get_vulnerability_summary()
+
         context = {'cli': cli,
                    'engs': engs,
-                   'engagementsBars':engsTable}
+                   'engagementsBars': engsTable,
+                   'vulnerability_summary': vulnerability_summary}
     except Client.DoesNotExist:
         return not_found(request)
 

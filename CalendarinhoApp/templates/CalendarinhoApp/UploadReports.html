@@ -17,12 +17,14 @@
     </a>
   </div>
   <div class="row">
-  <!-- File Upload Card-->
-        <div class="col">
+  <!-- Integrated Report Upload with Vulnerability Counts -->
+        <div class="col-12">
             <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
+                <!-- Card Header -->
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">File Upload</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-upload mr-2"></i>Upload Report with Vulnerability Counts
+                    </h6>
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
@@ -36,6 +38,67 @@
         </div>
   </div>
   {% if list %}
+  <!-- Vulnerability Summary Card -->
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="card shadow">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-chart-pie mr-2"></i>Vulnerability Summary for {{engagement}}
+          </h6>
+        </div>
+        <div class="card-body">
+          {% with eng_summary=engagement.get_vulnerability_summary %}
+            <div class="row">
+              <div class="col-md-3 text-center">
+                <div class="border border-danger rounded p-3">
+                  <h4 class="text-danger font-weight-bold">{{eng_summary.critical_open}}</h4>
+                  <p class="text-muted mb-0">Critical Open</p>
+                  <small class="text-success">Fixed: {{eng_summary.critical_fixed}}</small>
+                </div>
+              </div>
+              <div class="col-md-3 text-center">
+                <div class="border border-warning rounded p-3">
+                  <h4 class="text-warning font-weight-bold">{{eng_summary.high_open}}</h4>
+                  <p class="text-muted mb-0">High Open</p>
+                  <small class="text-success">Fixed: {{eng_summary.high_fixed}}</small>
+                </div>
+              </div>
+              <div class="col-md-3 text-center">
+                <div class="border border-info rounded p-3">
+                  <h4 class="text-info font-weight-bold">{{eng_summary.medium_open}}</h4>
+                  <p class="text-muted mb-0">Medium Open</p>
+                  <small class="text-success">Fixed: {{eng_summary.medium_fixed}}</small>
+                </div>
+              </div>
+              <div class="col-md-3 text-center">
+                <div class="border border-success rounded p-3">
+                  <h4 class="text-success font-weight-bold">{{eng_summary.low_open}}</h4>
+                  <p class="text-muted mb-0">Low Open</p>
+                  <small class="text-success">Fixed: {{eng_summary.low_fixed}}</small>
+                </div>
+              </div>
+            </div>
+            <div class="row mt-3">
+              <div class="col-md-6">
+                <div class="alert alert-danger">
+                  <i class="fas fa-exclamation-triangle mr-2"></i>
+                  <strong>Total Open: {{eng_summary.total_open}}</strong>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="alert alert-success">
+                  <i class="fas fa-check-circle mr-2"></i>
+                  <strong>Total Fixed: {{eng_summary.total_fixed}}</strong>
+                </div>
+              </div>
+            </div>
+          {% endwith %}
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="row">
   <!-- File List Card-->
         <div class="col">

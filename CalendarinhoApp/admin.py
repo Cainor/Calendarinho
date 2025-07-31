@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.core.exceptions import ValidationError
 from threading import Thread
 
-from .models import Employee, Engagement, Leave, Client, Service, Comment, ProjectManager, Report
+from .models import Employee, Engagement, Leave, Client, Service, Comment, ProjectManager, Report, Vulnerability
 from .employee import notifyManagersNewLeave
 from .engagement import notifyEngagedEmployees, notifyManagersNewEngagement
 
@@ -93,3 +93,33 @@ class CommentAdmin(admin.ModelAdmin):
 
 admin.site.register(Comment, CommentAdmin)
 admin.site.register(ProjectManager)
+
+
+class VulnerabilityAdmin(admin.ModelAdmin):
+    list_display = ('title', 'severity', 'status', 'engagement', 'report', 'created_by', 'created_at')
+    list_filter = ('severity', 'status', 'created_at', 'engagement__client')
+    search_fields = ('title', 'description', 'engagement__name', 'report__engagement__name')
+    readonly_fields = ('created_at', 'updated_at', 'fixed_at')
+    list_editable = ('status', 'severity')
+    
+    fieldsets = (
+        ('Vulnerability Information', {
+            'fields': ('title', 'description', 'severity', 'status')
+        }),
+        ('Relationships', {
+            'fields': ('engagement', 'report', 'created_by', 'fixed_by')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at', 'fixed_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def save_model(self, request, obj, form, change):
+        """Update fixed_by when status changes to Fixed"""
+        if obj.status == 'Fixed' and not obj.fixed_by:
+            obj.fixed_by = request.user
+        super().save_model(request, obj, form, change)
+
+
+admin.site.register(Vulnerability, VulnerabilityAdmin)

@@ -40,6 +40,101 @@
         </div>
     </div>
 
+    <!-- Vulnerability Summary Cards -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">
+                        <i class="fas fa-shield-alt mr-2"></i>Vulnerability Summary
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Critical Vulnerabilities -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-danger h-100">
+                                <div class="card-body text-center">
+                                    <div class="text-danger mb-2">
+                                        <i class="fas fa-exclamation-triangle fa-2x"></i>
+                                    </div>
+                                    <h4 class="text-danger font-weight-bold">{{vulnerability_summary.critical_open}}</h4>
+                                    <p class="text-muted mb-1">Critical Open</p>
+                                    <small class="text-success">Fixed: {{vulnerability_summary.critical_fixed}}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- High Vulnerabilities -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-warning h-100">
+                                <div class="card-body text-center">
+                                    <div class="text-warning mb-2">
+                                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                                    </div>
+                                    <h4 class="text-warning font-weight-bold">{{vulnerability_summary.high_open}}</h4>
+                                    <p class="text-muted mb-1">High Open</p>
+                                    <small class="text-success">Fixed: {{vulnerability_summary.high_fixed}}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Medium Vulnerabilities -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-info h-100">
+                                <div class="card-body text-center">
+                                    <div class="text-info mb-2">
+                                        <i class="fas fa-info-circle fa-2x"></i>
+                                    </div>
+                                    <h4 class="text-info font-weight-bold">{{vulnerability_summary.medium_open}}</h4>
+                                    <p class="text-muted mb-1">Medium Open</p>
+                                    <small class="text-success">Fixed: {{vulnerability_summary.medium_fixed}}</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Low Vulnerabilities -->
+                        <div class="col-lg-3 col-md-6 mb-3">
+                            <div class="card border-success h-100">
+                                <div class="card-body text-center">
+                                    <div class="text-success mb-2">
+                                        <i class="fas fa-check-circle fa-2x"></i>
+                                    </div>
+                                    <h4 class="text-success font-weight-bold">{{vulnerability_summary.low_open}}</h4>
+                                    <p class="text-muted mb-1">Low Open</p>
+                                    <small class="text-success">Fixed: {{vulnerability_summary.low_fixed}}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Summary Row -->
+                    <div class="row mt-3">
+                        <div class="col-md-6">
+                            <div class="alert alert-danger">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>Total Open Vulnerabilities: {{vulnerability_summary.total_open}}</strong>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="alert alert-success">
+                                <i class="fas fa-check-circle mr-2"></i>
+                                <strong>Total Fixed Vulnerabilities: {{vulnerability_summary.total_fixed}}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if vulnerability_summary.engagements_with_vulnerabilities > 0 %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-bell mr-2"></i>
+                        <strong>{{vulnerability_summary.engagements_with_vulnerabilities}} engagement(s) have remaining vulnerabilities</strong>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
             <h6 class="m-0 font-weight-bold text-primary">Ongoing Engagements</h6>
@@ -75,7 +170,7 @@
                             <th>Project Manager</th>
                             <th>Start date</th>
                             <th>End Date</th>
-
+                            <th>Vulnerabilities</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -89,7 +184,30 @@
                             {% endif %}
                             <td>{{eng.start_date}}</td>
                             <td>{{eng.end_date}}</td>
-
+                            <td>
+                                {% with eng_summary=eng.get_vulnerability_summary %}
+                                    {% if eng_summary.total_open > 0 %}
+                                        <span class="badge badge-danger">
+                                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                                            {{eng_summary.total_open}} Open
+                                        </span>
+                                        {% if eng_summary.critical_open > 0 %}
+                                            <span class="badge badge-danger ml-1">{{eng_summary.critical_open}} Critical</span>
+                                        {% endif %}
+                                        {% if eng_summary.high_open > 0 %}
+                                            <span class="badge badge-warning ml-1">{{eng_summary.high_open}} High</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="badge badge-success">
+                                            <i class="fas fa-check-circle mr-1"></i>
+                                            All Fixed
+                                        </span>
+                                    {% endif %}
+                                    {% if eng_summary.total_fixed > 0 %}
+                                        <br><small class="text-muted">{{eng_summary.total_fixed}} Fixed</small>
+                                    {% endif %}
+                                {% endwith %}
+                            </td>
                         </tr>
                         {% endfor %}
 

@@ -2,7 +2,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import render, redirect
 from django.template import loader
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Employee, Engagement, Comment, Report
+from .models import Employee, Engagement, Comment, Report, Vulnerability
 from .forms import *
 from django.urls import reverse
 from django.http import JsonResponse
@@ -114,14 +114,45 @@ def uploadReport(request, eng_id):
 
         if request.method == 'POST':
                 form = uploadReportForm(request.POST, request.FILES)
+                
                 if form.is_valid():
-                    Report = Report(engagement=eng, user=request.user,reportType=request.POST["reportType"],note=request.POST["note"], file=request.FILES['file'])
-                    Report.save()
-                    thread = Thread(target = notifyNewReportUpload, args= (Report, request))
+                    new_report = Report(engagement=eng, user=request.user, report_type=form.cleaned_data["report_type"], note=form.cleaned_data["note"], file=form.cleaned_data['file'])
+                    new_report.save()
+                    
+                    # Handle vulnerability counts from the integrated form
+                    for severity in ['critical', 'high', 'medium', 'low']:
+                        # Create new vulnerabilities
+                        new_count = form.cleaned_data.get(f'{severity}_new', 0)
+                        for i in range(new_count):
+                            Vulnerability.objects.create(
+                                title=f"{severity.title()} Vulnerability {i+1}",
+                                description=f"New {severity} vulnerability found in {new_report.report_type} report",
+                                severity=severity.title(),
+                                status='Open',
+                                report=new_report,
+                                engagement=eng,
+                                created_by=request.user
+                            )
+                        
+                        # Create fixed vulnerabilities
+                        fixed_count = form.cleaned_data.get(f'{severity}_fixed', 0)
+                        for i in range(fixed_count):
+                            Vulnerability.objects.create(
+                                title=f"Fixed {severity.title()} Vulnerability {i+1}",
+                                description=f"Previously identified {severity} vulnerability now fixed",
+                                severity=severity.title(),
+                                status='Fixed',
+                                report=new_report,
+                                engagement=eng,
+                                created_by=request.user
+                            )
+                    
+                    thread = Thread(target = notifyNewReportUpload, args= (new_report, request))
                     thread.start()   
                     
-                    context['reference']=Report.reference
-                    context['note'] = Report.note
+                    context['reference']=new_report.reference
+                    context['note'] = new_report.note
+                    context['form'] = uploadReportForm()  # Reset form
                     return render(request,'CalendarinhoApp/UploadReports.html',context)
                 else:
                     context['error'] = "Only .gpg files are allowed"
