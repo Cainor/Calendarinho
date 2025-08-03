@@ -9,6 +9,7 @@ from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.core import mail
 from django.core.mail import EmailMessage
+from django.utils import timezone
 import logging
 from django.conf import settings
 
@@ -108,9 +109,18 @@ def uploadReport(request, eng_id):
         eng = Engagement.objects.get(id=eng_id)
         form = uploadReportForm()
         listReports = Report.objects.filter(engagement=eng)
+        
+        # Order vulnerabilities by severity priority: Critical > High > Medium > Low
+        severity_order = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4}
+        ordered_vulnerabilities = sorted(
+            eng.vulnerabilities.all(),
+            key=lambda v: (severity_order.get(v.severity, 5), v.created_at)
+        )
+        
         context['engagement'] = eng
         context['form'] = form
         context['list'] = listReports
+        context['ordered_vulnerabilities'] = ordered_vulnerabilities
 
         if request.method == 'POST':
                 form = uploadReportForm(request.POST, request.FILES)
@@ -118,34 +128,6 @@ def uploadReport(request, eng_id):
                 if form.is_valid():
                     new_report = Report(engagement=eng, user=request.user, report_type=form.cleaned_data["report_type"], note=form.cleaned_data["note"], file=form.cleaned_data['file'])
                     new_report.save()
-                    
-                    # Handle vulnerability counts from the integrated form
-                    for severity in ['critical', 'high', 'medium', 'low']:
-                        # Create new vulnerabilities
-                        new_count = form.cleaned_data.get(f'{severity}_new', 0)
-                        for i in range(new_count):
-                            Vulnerability.objects.create(
-                                title=f"{severity.title()} Vulnerability {i+1}",
-                                description=f"New {severity} vulnerability found in {new_report.report_type} report",
-                                severity=severity.title(),
-                                status='Open',
-                                report=new_report,
-                                engagement=eng,
-                                created_by=request.user
-                            )
-                        
-                        # Create fixed vulnerabilities
-                        fixed_count = form.cleaned_data.get(f'{severity}_fixed', 0)
-                        for i in range(fixed_count):
-                            Vulnerability.objects.create(
-                                title=f"Fixed {severity.title()} Vulnerability {i+1}",
-                                description=f"Previously identified {severity} vulnerability now fixed",
-                                severity=severity.title(),
-                                status='Fixed',
-                                report=new_report,
-                                engagement=eng,
-                                created_by=request.user
-                            )
                     
                     thread = Thread(target = notifyNewReportUpload, args= (new_report, request))
                     thread.start()   
@@ -185,6 +167,180 @@ def deleteReport(request, refUUID=None):
             return not_found(request)
     else:
         return not_found(request)
+
+
+@login_required
+def toggleVulnerabilityStatus(request, vuln_id):
+    """AJAX endpoint to toggle vulnerability status between Open and Fixed"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        vulnerability = Vulnerability.objects.get(id=vuln_id)
+        
+        # Check permissions - only creators, superusers, or managers can modify
+        if not (request.user == vulnerability.created_by or request.user.is_superuser or 
+                request.user.user_type == 'M'):
+            return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+        
+        # Toggle status
+        if vulnerability.status == 'Open':
+            vulnerability.status = 'Fixed'
+            vulnerability.fixed_at = timezone.now()
+            vulnerability.fixed_by = request.user
+        else:
+            vulnerability.status = 'Open'
+            vulnerability.fixed_at = None
+            vulnerability.fixed_by = None
+        
+        vulnerability.save()
+        
+        return JsonResponse({
+            'success': True, 
+            'status': vulnerability.status,
+            'fixed_at': vulnerability.fixed_at.isoformat() if vulnerability.fixed_at else None,
+            'fixed_by': str(vulnerability.fixed_by) if vulnerability.fixed_by else None
+        })
+        
+    except Vulnerability.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Vulnerability not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required 
+def updateVulnerabilityTitle(request, vuln_id):
+    """AJAX endpoint to update vulnerability title"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        new_title = data.get('title', '').strip()
+        
+        if not new_title:
+            return JsonResponse({'success': False, 'error': 'Title cannot be empty'}, status=400)
+        
+        vulnerability = Vulnerability.objects.get(id=vuln_id)
+        
+        # Check permissions
+        if not (request.user == vulnerability.created_by or request.user.is_superuser or 
+                request.user.user_type == 'M'):
+            return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+        
+        vulnerability.title = new_title
+        vulnerability.save()
+        
+        return JsonResponse({'success': True, 'title': vulnerability.title})
+        
+    except Vulnerability.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Vulnerability not found'}, status=404)
+    except json.JSONDecodeError:
+        return JsonResponse({'success': False, 'error': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def deleteVulnerability(request, vuln_id):
+    """AJAX endpoint to delete a vulnerability"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        vulnerability = Vulnerability.objects.get(id=vuln_id)
+        
+        # Check permissions - only creators, superusers, or managers can delete
+        if not (request.user == vulnerability.created_by or request.user.is_superuser or 
+                request.user.user_type == 'M'):
+            return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+        
+        vulnerability.delete()
+        
+        return JsonResponse({'success': True})
+        
+    except Vulnerability.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Vulnerability not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def addVulnerabilities(request, eng_id):
+    """AJAX endpoint to add vulnerabilities to an engagement"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        eng = Engagement.objects.get(id=eng_id)
+        
+        # Check permissions - only engaged users, superusers, or managers can add vulnerabilities
+        if not (request.user in eng.employees.all() or request.user.is_superuser or 
+                request.user.user_type == 'M'):
+            return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+        
+        severity_mapping = {
+            'critical': 'Critical',
+            'high': 'High', 
+            'medium': 'Medium',
+            'low': 'Low'
+        }
+        
+        severity_abbrev = {
+            'Critical': 'c',
+            'High': 'h',
+            'Medium': 'm', 
+            'Low': 'l'
+        }
+        
+        # Get existing vulnerability counts per severity for this engagement
+        existing_counts = {}
+        for sev_key, sev_title in severity_mapping.items():
+            existing_counts[sev_title] = eng.vulnerabilities.filter(severity=sev_title).count()
+        
+        created_titles = []  # Track created titles
+        created_vulns = []
+        
+        for sev_key, sev_title in severity_mapping.items():
+            # Create new vulnerabilities
+            new_count = int(request.POST.get(f'{sev_key}_new', 0))
+            abbrev = severity_abbrev[sev_title]
+            
+            for i in range(new_count):
+                vuln_number = existing_counts[sev_title] + i + 1
+                title = f"{abbrev}{vuln_number}"
+                created_titles.append(title)
+                
+                vuln = Vulnerability.objects.create(
+                    title=title,
+                    description=f"New {sev_title.lower()} severity vulnerability",
+                    severity=sev_title,
+                    status='Open',
+                    report=None,  # Not associated with a specific report
+                    engagement=eng,
+                    created_by=request.user
+                )
+                created_vulns.append({
+                    'id': vuln.id,
+                    'title': vuln.title,
+                    'severity': vuln.severity,
+                    'status': vuln.status
+                })
+                
+            existing_counts[sev_title] += new_count
+        
+        return JsonResponse({
+            'success': True, 
+            'created_titles': ' '.join(created_titles),
+            'vulnerabilities': created_vulns,
+            'count': len(created_vulns)
+        })
+        
+    except Engagement.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Engagement not found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):

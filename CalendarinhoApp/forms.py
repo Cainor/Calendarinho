@@ -130,171 +130,67 @@ class VulnerabilityCountForm(forms.Form):
     )
 
 class uploadReportForm(forms.ModelForm):
-    # Vulnerability count fields
-    critical_new = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-    high_new = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-    medium_new = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-    low_new = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-    
-    critical_fixed = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-    high_fixed = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-    medium_fixed = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-    low_fixed = forms.IntegerField(
-        min_value=0, 
-        initial=0,
-        required=False,
-        widget=forms.NumberInput(attrs={
-            'class': 'form-control text-center',
-            'style': 'width: 80px;',
-            'placeholder': '0'
-        })
-    )
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
         self.helper.form_method = 'post'
         self.helper.form_enctype = 'multipart/form-data'
         self.helper.layout = Layout(
-            # Report upload section
+            # Report upload section only
             Div(
                 Div('file', css_class="col-md-4"),
                 Div('report_type', css_class="col-md-4"),
                 Div('note', css_class="col-md-4"),
                 css_class="row mb-4"
             ),
-            # Vulnerability counts section
-            Div(
-                Div(
-                    HTML('<h6 class="text-primary mb-3"><i class="fas fa-plus-circle mr-1"></i>New Vulnerabilities Found</h6>'),
-                    Div(
-                        Div(
-                            HTML('<label class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i>Critical</label>'),
-                            'critical_new',
-                            css_class="col-6"
-                        ),
-                        Div(
-                            HTML('<label class="text-warning font-weight-bold"><i class="fas fa-exclamation-circle mr-1"></i>High</label>'),
-                            'high_new',
-                            css_class="col-6"
-                        ),
-                        css_class="row mb-3"
-                    ),
-                    Div(
-                        Div(
-                            HTML('<label class="text-info font-weight-bold"><i class="fas fa-info-circle mr-1"></i>Medium</label>'),
-                            'medium_new',
-                            css_class="col-6"
-                        ),
-                        Div(
-                            HTML('<label class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i>Low</label>'),
-                            'low_new',
-                            css_class="col-6"
-                        ),
-                        css_class="row mb-3"
-                    ),
-                    css_class="col-md-6"
-                ),
-                Div(
-                    HTML('<h6 class="text-success mb-3"><i class="fas fa-check-double mr-1"></i>Vulnerabilities Fixed</h6>'),
-                    Div(
-                        Div(
-                            HTML('<label class="text-danger font-weight-bold"><i class="fas fa-exclamation-triangle mr-1"></i>Critical</label>'),
-                            'critical_fixed',
-                            css_class="col-6"
-                        ),
-                        Div(
-                            HTML('<label class="text-warning font-weight-bold"><i class="fas fa-exclamation-circle mr-1"></i>High</label>'),
-                            'high_fixed',
-                            css_class="col-6"
-                        ),
-                        css_class="row mb-3"
-                    ),
-                    Div(
-                        Div(
-                            HTML('<label class="text-info font-weight-bold"><i class="fas fa-info-circle mr-1"></i>Medium</label>'),
-                            'medium_fixed',
-                            css_class="col-6"
-                        ),
-                        Div(
-                            HTML('<label class="text-success font-weight-bold"><i class="fas fa-check-circle mr-1"></i>Low</label>'),
-                            'low_fixed',
-                            css_class="col-6"
-                        ),
-                        css_class="row mb-3"
-                    ),
-                    css_class="col-md-6"
-                ),
-                css_class="row"
-            ),
-            HTML('<div class="alert alert-info mt-3"><i class="fas fa-info-circle mr-2"></i><small><strong>Quick Entry:</strong> Enter the number of vulnerabilities found or fixed in this report. Leave as 0 if none.</small></div>'),
             ButtonHolder(
                 Submit('submit', 'Upload Report', css_class='btn btn-primary px-4')
             )
         )
+
+    def generate_vulnerability_titles(self, severity, count, existing_count=0):
+        """Generate vulnerability titles based on severity and count pattern"""
+        severity_abbrev = {
+            'Critical': 'c',
+            'High': 'h', 
+            'Medium': 'm',
+            'Low': 'l'
+        }
+        
+        titles = []
+        abbrev = severity_abbrev.get(severity, severity.lower()[0])
+        
+        for i in range(count):
+            title = f"{abbrev}{existing_count + i + 1}"
+            titles.append(title)
+        
+        return titles
+    
+    def get_vulnerability_title_preview(self):
+        """Generate a preview of vulnerability titles that will be created"""
+        preview = []
+        
+        # Get existing vulnerability counts for pattern generation
+        existing_counts = {
+            'Critical': 0,
+            'High': 0,
+            'Medium': 0,
+            'Low': 0
+        }
+        
+        # Add new vulnerabilities to preview
+        for severity in ['Critical', 'High', 'Medium', 'Low']:
+            count = self.cleaned_data.get(f'{severity.lower()}_new', 0)
+            if count > 0:
+                titles = self.generate_vulnerability_titles(
+                    severity, 
+                    count, 
+                    existing_counts[severity]
+                )
+                preview.extend(titles)
+                existing_counts[severity] += count
+        
+        return ' '.join(preview) if preview else "No vulnerabilities"
 
     class Meta:
         model = Report

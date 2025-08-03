@@ -38,6 +38,12 @@ urlpatterns = [
     path('download/<uuid:refUUID>', engagement.downloadReport, name='downloadReport'),
     path('delete/<uuid:refUUID>', engagement.deleteReport, name='deleteReport'),
     
+    # AJAX vulnerability management endpoints
+    path('vulnerability/<int:vuln_id>/toggle-status/', engagement.toggleVulnerabilityStatus, name='toggleVulnerabilityStatus'),
+    path('vulnerability/<int:vuln_id>/update-title/', engagement.updateVulnerabilityTitle, name='updateVulnerabilityTitle'),
+    path('vulnerability/<int:vuln_id>/delete/', engagement.deleteVulnerability, name='deleteVulnerability'),
+    path('engagement/<int:eng_id>/add-vulnerabilities/', engagement.addVulnerabilities, name='addVulnerabilities'),
+    
     
     path('login', authentication.loginForm, name='login'),
     re_path(r'^login\/(?P<next>.*)$', view=authentication.loginForm, name='login'),

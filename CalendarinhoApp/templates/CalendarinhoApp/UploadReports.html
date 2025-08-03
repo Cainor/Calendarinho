@@ -2,94 +2,214 @@
 {% load static %}
 {% load crispy_forms_tags %}
 
-
-
-
 {% block head_block %}
+<style>
+.vulnerability-item {
+    border: 1px solid #e3e6f0;
+    border-radius: 0.35rem;
+    padding: 15px;
+    margin-bottom: 10px;
+    background: #fff;
+    transition: all 0.3s ease;
+}
+.vulnerability-item:hover {
+    box-shadow: 0 0.15rem 0.35rem rgba(58, 59, 69, 0.15);
+}
+.vulnerability-fixed {
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+.severity-badge {
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+}
+.upload-area {
+    border: 2px dashed #e3e6f0;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    background: #f8f9fc;
+}
+.upload-area:hover {
+    border-color: #5a5c69;
+    background: #fff;
+}
+.upload-area.dragover {
+    border-color: #1cc88a;
+    background: #d4edda;
+}
+.stats-card {
+    background: #ffffff;
+    border: 1px solid #e3e6f0;
+    border-radius: 0.5rem;
+}
+.stats-item {
+    text-align: center;
+    padding: 1.5rem;
+    border-radius: 0.375rem;
+    background: #f8f9fc;
+    border: 1px solid #e3e6f0;
+    transition: all 0.3s ease;
+}
+.stats-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+.stats-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+}
+.stats-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.25rem;
+}
+.stats-sublabel {
+    font-size: 0.75rem;
+    opacity: 0.7;
+}
+.border-left-danger {
+    border-left: 4px solid #e74a3b !important;
+}
+.border-left-success {
+    border-left: 4px solid #1cc88a !important;
+}
+.vulnerability-counter {
+    width: 70px;
+    text-align: center;
+    border-radius: 0.375rem;
+    border: 2px solid #e3e6f0;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.vulnerability-counter:focus {
+    border-color: #5a5c69;
+    box-shadow: 0 0 0 0.2rem rgba(90, 92, 105, 0.25);
+}
+.vuln-section {
+    background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+}
+.section-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #e3e6f0 50%, transparent 100%);
+    margin: 2rem 0;
+}
+</style>
 {% endblock %}
 
 {% block body_block %}
 <div class="container-fluid">
-  <div class="row">
-    <h1 class="h3 mb-2 text-title-color col-sm">Reports for {{engagement}}</h1>
-    <a href="/engagement/{{engagement.id}}">
-      <input class="btn btn-primary btn-md" style="margin-bottom: 35px; margin-right: 10px;" type="button" value="Back"></input>
-    </a>
+  <!-- Header Section -->
+  <div class="row align-items-center mb-4">
+    <div class="col">
+      <h1 class="h3 mb-0 text-title-color">
+        <i class="fas fa-shield-alt text-primary mr-3"></i>
+        Security Reports - {{engagement}}
+      </h1>
+      <p class="text-muted mb-0">Manage reports and track vulnerabilities for this engagement</p>
+    </div>
+    <div class="col-auto">
+      <a href="/engagement/{{engagement.id}}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left mr-2"></i>Back to Engagement
+      </a>
+    </div>
   </div>
-  <div class="row">
-  <!-- Integrated Report Upload with Vulnerability Counts -->
-        <div class="col-12">
-            <div class="card shadow mb-4">
-                <!-- Card Header -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">
-                        <i class="fas fa-upload mr-2"></i>Upload Report with Vulnerability Counts
-                    </h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    {% csrf_token %}
-                    {% crispy form form.helper %}
-                    {% if error %}
-                    <p class="text-danger">{{ error }}</p>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-  </div>
+  
   {% if list %}
-  <!-- Vulnerability Summary Card -->
+  <!-- Redesigned Statistics Dashboard -->
   <div class="row mb-4">
     <div class="col-12">
-      <div class="card shadow">
+      <div class="card shadow stats-card">
         <div class="card-header py-3">
           <h6 class="m-0 font-weight-bold text-primary">
-            <i class="fas fa-chart-pie mr-2"></i>Vulnerability Summary for {{engagement}}
+            <i class="fas fa-chart-bar mr-2"></i>Vulnerability Statistics Overview
           </h6>
         </div>
         <div class="card-body">
           {% with eng_summary=engagement.get_vulnerability_summary %}
-            <div class="row">
-              <div class="col-md-3 text-center">
-                <div class="border border-danger rounded p-3">
-                  <h4 class="text-danger font-weight-bold">{{eng_summary.critical_open}}</h4>
-                  <p class="text-muted mb-0">Critical Open</p>
-                  <small class="text-success">Fixed: {{eng_summary.critical_fixed}}</small>
+            <!-- Severity Statistics -->
+            <div class="row mb-4">
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-item">
+                  <div class="stats-number text-danger">{{eng_summary.critical_open}}</div>
+                  <div class="stats-label text-danger">Critical</div>
+                  <div class="stats-sublabel text-muted">
+                    <i class="fas fa-check-circle text-success"></i> {{eng_summary.critical_fixed}} Fixed
+                  </div>
                 </div>
               </div>
-              <div class="col-md-3 text-center">
-                <div class="border border-warning rounded p-3">
-                  <h4 class="text-warning font-weight-bold">{{eng_summary.high_open}}</h4>
-                  <p class="text-muted mb-0">High Open</p>
-                  <small class="text-success">Fixed: {{eng_summary.high_fixed}}</small>
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-item">
+                  <div class="stats-number" style="color: #f6c23e;">{{eng_summary.high_open}}</div>
+                  <div class="stats-label" style="color: #f6c23e;">High</div>
+                  <div class="stats-sublabel text-muted">
+                    <i class="fas fa-check-circle text-success"></i> {{eng_summary.high_fixed}} Fixed
+                  </div>
                 </div>
               </div>
-              <div class="col-md-3 text-center">
-                <div class="border border-info rounded p-3">
-                  <h4 class="text-info font-weight-bold">{{eng_summary.medium_open}}</h4>
-                  <p class="text-muted mb-0">Medium Open</p>
-                  <small class="text-success">Fixed: {{eng_summary.medium_fixed}}</small>
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-item">
+                  <div class="stats-number text-info">{{eng_summary.medium_open}}</div>
+                  <div class="stats-label text-info">Medium</div>
+                  <div class="stats-sublabel text-muted">
+                    <i class="fas fa-check-circle text-success"></i> {{eng_summary.medium_fixed}} Fixed
+                  </div>
                 </div>
               </div>
-              <div class="col-md-3 text-center">
-                <div class="border border-success rounded p-3">
-                  <h4 class="text-success font-weight-bold">{{eng_summary.low_open}}</h4>
-                  <p class="text-muted mb-0">Low Open</p>
-                  <small class="text-success">Fixed: {{eng_summary.low_fixed}}</small>
+              <div class="col-lg-3 col-md-6 mb-3">
+                <div class="stats-item">
+                  <div class="stats-number text-success">{{eng_summary.low_open}}</div>
+                  <div class="stats-label text-success">Low</div>
+                  <div class="stats-sublabel text-muted">
+                    <i class="fas fa-check-circle text-success"></i> {{eng_summary.low_fixed}} Fixed
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="row mt-3">
-              <div class="col-md-6">
-                <div class="alert alert-danger">
-                  <i class="fas fa-exclamation-triangle mr-2"></i>
-                  <strong>Total Open: {{eng_summary.total_open}}</strong>
+            
+            <!-- Summary Statistics -->
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <div class="stats-item border-left-danger">
+                  <div class="stats-number text-danger">{{eng_summary.total_open}}</div>
+                  <div class="stats-label text-muted">Total Open</div>
+                  <div class="stats-sublabel text-muted">
+                    <i class="fas fa-exclamation-triangle"></i> Needs Attention
+                  </div>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="alert alert-success">
-                  <i class="fas fa-check-circle mr-2"></i>
-                  <strong>Total Fixed: {{eng_summary.total_fixed}}</strong>
+              <div class="col-md-4 mb-3">
+                <div class="stats-item border-left-success">
+                  <div class="stats-number text-success">{{eng_summary.total_fixed}}</div>
+                  <div class="stats-label text-muted">Total Fixed</div>
+                  <div class="stats-sublabel text-muted">
+                    <i class="fas fa-check-circle"></i> Completed
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-4 mb-3">
+                <div class="stats-item">
+                  {% with total_vulns=eng_summary.total_open|add:eng_summary.total_fixed %}
+                    {% if total_vulns > 0 %}
+                      {% widthratio eng_summary.total_fixed total_vulns 100 as fix_rate %}
+                      <div class="stats-number" style="color: {% if fix_rate >= 80 %}#1cc88a{% elif fix_rate >= 50 %}#f6c23e{% else %}#e74a3b{% endif %}">{{fix_rate}}%</div>
+                    {% else %}
+                      <div class="stats-number text-success">100%</div>
+                    {% endif %}
+                  {% endwith %}
+                  <div class="stats-label text-muted">Fix Rate</div>
+                  <div class="stats-sublabel text-muted">
+                    <i class="fas fa-chart-pie"></i> Progress
+                  </div>
                 </div>
               </div>
             </div>
@@ -98,70 +218,514 @@
       </div>
     </div>
   </div>
-
-  <div class="row">
-  <!-- File List Card-->
-        <div class="col">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">List of Files</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                <link rel="stylesheet" href="{% static 'css/fnon.min.css' %}" />
-                <script src="{% static 'js/fnon.min.js' %}"></script>
-                <table class="table table-bordered sortable" id="dataTable" width="100%" cellspacing="0">
-                    <thead class="thead-light">
-                      <tr>
-                      <th style="text-align:center">Note</th>
-                      <th style="text-align:center">Type</th>
-                      <th style="text-align:center">Uploaded By</th>
-                      <th style="text-align:center">Timestamp</th>
-                      <th style="text-align:center">Download</th>
-                      <th style="text-align:center">Delete</th>
-                      </tr>
-                    </thead>
-                    <tbody class="table-hover">
-                  {% for file in list%}
-                  
-                      <tr>
-                      <td>{{file.note}}</td>
-                      <td>{{file.report_type}}</td>
-                      <td>{{file.user}}</td>
-                      <td>{{file.timestamp}}</td>
-                      <td align="center"><a href="/download/{{ file.reference }}"><button class="btn btn-primary btn-md"><i class="fas fa-download"></i></button></a></td>
-                      {% if user == file.user or user.is_superuser%}
-                        <td align="center"><button id="delete_btn" class="btn btn-danger btn-md" onclick="DeleteConfirmation('{{ file.reference }}')"><i class="fas fa-trash-alt"></i></button></td>
-                      {% else %}
-                        <td align="center"><button id="delete_btn" class="btn btn-secondary btn-md" disabled><i class="fas fa-trash-alt"></i></button></td>
-                      {% endif %}
-                      </tr>
-                    
-                  {% endfor %}
-                      </tbody>
-                  </table>
-                </div>         
-                <script>
-                  function DeleteConfirmation(uuid){
-                    Fnon.Ask.Dark({
-                    title:'Confirmation',
-                    message:'Are you sure you want to delete this report?',
-                    callback:(result)=>{
-                      if(result){
-                        document.location = "/delete/"+uuid
-                      }
-                      }
-                    });
-                    }
-                </script>  
-            </div>
-        </div>
-  </div>
-  {% else %}
-  <div class="row">
-  <p class="col" align="center"><i>There is no uploaded reports for this engagement.</i></p>
-  </div>
   {% endif %}
+  
+  <!-- Main Content Row -->
+  <div class="row">
+    <!-- Left Column - Forms -->
+    <div class="col-lg-6">
+      <!-- File Upload Section -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-cloud-upload-alt mr-2"></i>Upload Report
+          </h6>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data" id="uploadForm">
+            {% csrf_token %}
+            
+            <!-- File Upload Area -->
+            <div class="upload-area mb-3" id="uploadArea">
+              <div class="upload-content">
+                <i class="fas fa-cloud-upload-alt fa-2x text-muted mb-2"></i>
+                <h6>Drop files here or click to browse</h6>
+                <p class="text-muted small mb-2">PDF, DOC, DOCX files up to 25MB</p>
+                <input type="file" name="file" id="fileInput" class="d-none" accept=".pdf,.doc,.docx,.gpg">
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="document.getElementById('fileInput').click()">
+                  <i class="fas fa-folder-open mr-1"></i>Browse
+                </button>
+              </div>
+              <div id="selectedFile" class="mt-2 d-none">
+                <div class="alert alert-info py-2">
+                  <i class="fas fa-file mr-1"></i>
+                  <span id="fileName"></span>
+                  <button type="button" class="btn btn-sm btn-outline-danger ml-2 py-0 px-2" onclick="clearFile()">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Report Details -->
+            <div class="row">
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="report_type" class="font-weight-bold">Type</label>
+                  <select name="report_type" class="form-control form-control-sm" required>
+                    <option value="Draft">Draft</option>
+                    <option value="Final">Final</option>
+                    <option value="Verification">Verification</option>
+                  </select>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <div class="form-group">
+                  <label for="note" class="font-weight-bold">Note</label>
+                  <input type="text" name="note" class="form-control form-control-sm" placeholder="Optional description">
+                </div>
+              </div>
+            </div>
+            
+            <button type="submit" class="btn btn-primary btn-block">
+              <i class="fas fa-upload mr-2"></i>Upload Report
+            </button>
+          </form>
+        </div>
+      </div>
+      
+      <!-- Reports List -->
+      {% if list %}
+      <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+          <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-file-alt mr-2"></i>Reports ({{list|length}})
+          </h6>
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-primary" onclick="filterReports('all')">All</button>
+            <button type="button" class="btn btn-outline-info" onclick="filterReports('draft')">Draft</button>
+            <button type="button" class="btn btn-outline-success" onclick="filterReports('final')">Final</button>
+            <button type="button" class="btn btn-outline-warning" onclick="filterReports('verification')">Verification</button>
+          </div>
+        </div>
+        <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+          <div class="table-responsive">
+            <table class="table table-sm" id="reportsTable">
+              <thead class="thead-light">
+                <tr>
+                  <th>File</th>
+                  <th>Type</th>
+                  <th>Date</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for file in list %}
+                <tr data-type="{{file.report_type|lower}}">
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <i class="fas fa-file-pdf text-danger mr-2"></i>
+                      <div>
+                        <div class="font-weight-bold">{{file.note|default:"Report"|truncatechars:20}}</div>
+                        <small class="text-muted">by {{file.user.first_name}} {{file.user.last_name}}</small>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <span class="badge badge-{% if file.report_type == 'Draft' %}secondary{% elif file.report_type == 'Final' %}success{% else %}warning{% endif %}">
+                      {{file.report_type}}
+                    </span>
+                  </td>
+                  <td>
+                    <small>{{file.timestamp|date:"M d, Y"}}</small>
+                  </td>
+                  <td>
+                    <div class="btn-group btn-group-sm" role="group">
+                      <a href="/download/{{ file.reference }}" class="btn btn-outline-primary" title="Download">
+                        <i class="fas fa-download"></i>
+                      </a>
+                      {% if user == file.user or user.is_superuser %}
+                        <button class="btn btn-outline-danger" onclick="DeleteConfirmation('{{ file.reference }}')" title="Delete">
+                          <i class="fas fa-trash-alt"></i>
+                        </button>
+                      {% endif %}
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="card shadow mb-4">
+        <div class="card-body text-center py-5">
+          <i class="fas fa-file-alt fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">No Reports Yet</h5>
+          <p class="text-muted">Upload your first report to get started.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    
+    <!-- Right Column - Vulnerabilities -->
+    <div class="col-lg-6">
+      <!-- Add Vulnerabilities Section -->
+      <div class="card shadow mb-4">
+        <div class="card-header py-3">
+          <h6 class="m-0 font-weight-bold text-success">
+            <i class="fas fa-plus-circle mr-2"></i>Add New Vulnerabilities
+          </h6>
+        </div>
+        <div class="card-body vuln-section">
+          <form id="addVulnForm">
+            {% csrf_token %}
+            <p class="text-muted small mb-3">
+              <i class="fas fa-info-circle mr-1"></i>
+              Add vulnerabilities found during testing. Titles will be auto-generated (c1, c2, m1, m2, etc.)
+            </p>
+            
+            <div class="row text-center">
+              <div class="col-6 col-md-3 mb-3">
+                <div class="text-center">
+                  <label class="font-weight-bold text-danger small d-block mb-2">
+                    <i class="fas fa-exclamation-triangle mr-1"></i>Critical
+                  </label>
+                  <input type="number" name="critical_new" min="0" value="0" 
+                         class="form-control vulnerability-counter mx-auto" 
+                         style="max-width: 70px;">
+                </div>
+              </div>
+              <div class="col-6 col-md-3 mb-3">
+                <div class="text-center">
+                  <label class="font-weight-bold small d-block mb-2" style="color: #f6c23e;">
+                    <i class="fas fa-exclamation-circle mr-1"></i>High
+                  </label>
+                  <input type="number" name="high_new" min="0" value="0" 
+                         class="form-control vulnerability-counter mx-auto" 
+                         style="max-width: 70px;">
+                </div>
+              </div>
+              <div class="col-6 col-md-3 mb-3">
+                <div class="text-center">
+                  <label class="font-weight-bold text-info small d-block mb-2">
+                    <i class="fas fa-info-circle mr-1"></i>Medium
+                  </label>
+                  <input type="number" name="medium_new" min="0" value="0" 
+                         class="form-control vulnerability-counter mx-auto" 
+                         style="max-width: 70px;">
+                </div>
+              </div>
+              <div class="col-6 col-md-3 mb-3">
+                <div class="text-center">
+                  <label class="font-weight-bold text-success small d-block mb-2">
+                    <i class="fas fa-check-circle mr-1"></i>Low
+                  </label>
+                  <input type="number" name="low_new" min="0" value="0" 
+                         class="form-control vulnerability-counter mx-auto" 
+                         style="max-width: 70px;">
+                </div>
+              </div>
+            </div>
+            
+            <div id="vulnPreview" class="alert alert-light small d-none">
+              <strong>Preview:</strong> <span id="previewText"></span>
+            </div>
+            
+            <button type="submit" class="btn btn-success btn-block">
+              <i class="fas fa-plus mr-2"></i>Add Vulnerabilities
+            </button>
+          </form>
+        </div>
+      </div>
+      <!-- Vulnerability Management Section -->
+      {% if list %}
+      <div class="card shadow">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+          <h6 class="m-0 font-weight-bold text-primary">
+            <i class="fas fa-tasks mr-2"></i>Vulnerability Management
+          </h6>
+          <div class="btn-group btn-group-sm" role="group">
+            <button type="button" class="btn btn-outline-primary" onclick="filterVulns('all')">All</button>
+            <button type="button" class="btn btn-outline-danger" onclick="filterVulns('open')">Open</button>
+            <button type="button" class="btn btn-outline-success" onclick="filterVulns('fixed')">Fixed</button>
+          </div>
+        </div>
+        <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+          <div id="vulnerabilityList">
+            {% for vuln in ordered_vulnerabilities %}
+              <div class="vulnerability-item {% if vuln.status == 'Fixed' %}vulnerability-fixed{% endif %}" data-status="{{vuln.status|lower}}" data-severity="{{vuln.severity|lower}}">
+                <div class="row align-items-center">
+                  <div class="col-2">
+                    <span class="severity-badge bg-{% if vuln.severity == 'Critical' %}danger{% elif vuln.severity == 'High' %}warning{% elif vuln.severity == 'Medium' %}info{% else %}success{% endif %} text-white">
+                      {{vuln.get_severity_icon}} {{vuln.severity|slice:":1"}}
+                    </span>
+                  </div>
+                  <div class="col-5">
+                    <input type="text" class="form-control form-control-sm vulnerability-title" value="{{vuln.title}}" data-vuln-id="{{vuln.id}}" onchange="updateVulnTitle({{vuln.id}}, this.value)">
+                  </div>
+                  <div class="col-3">
+                    <div class="custom-control custom-switch">
+                      <input type="checkbox" class="custom-control-input" id="status-{{vuln.id}}" {% if vuln.status == 'Fixed' %}checked{% endif %} onchange="toggleVulnStatus({{vuln.id}})">
+                      <label class="custom-control-label small" for="status-{{vuln.id}}">{% if vuln.status == 'Fixed' %}Fixed{% else %}Open{% endif %}</label>
+                    </div>
+                  </div>
+                  <div class="col-2 text-right">
+                    <button class="btn btn-outline-danger btn-sm" onclick="deleteVuln({{vuln.id}})" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="alert alert-info text-center">
+                <i class="fas fa-info-circle mr-2"></i>No vulnerabilities found.
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+      {% else %}
+      <div class="card shadow">
+        <div class="card-body text-center py-5">
+          <i class="fas fa-shield-alt fa-3x text-muted mb-3"></i>
+          <h5 class="text-muted">No Vulnerabilities Yet</h5>
+          <p class="text-muted">Add vulnerabilities using the form above.</p>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
+
+<!-- JavaScript for Enhanced Functionality -->
+<script src="{% static 'js/fnon.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'css/fnon.min.css' %}" />
+
+<script>
+// File upload handling
+document.getElementById('uploadArea').addEventListener('click', function() {
+    document.getElementById('fileInput').click();
+});
+
+document.getElementById('uploadArea').addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.classList.add('dragover');
+});
+
+document.getElementById('uploadArea').addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+});
+
+document.getElementById('uploadArea').addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.classList.remove('dragover');
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        document.getElementById('fileInput').files = files;
+        showSelectedFile(files[0]);
+    }
+});
+
+document.getElementById('fileInput').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        showSelectedFile(e.target.files[0]);
+    }
+});
+
+function showSelectedFile(file) {
+    document.getElementById('fileName').textContent = file.name;
+    document.getElementById('selectedFile').classList.remove('d-none');
+}
+
+function clearFile() {
+    document.getElementById('fileInput').value = '';
+    document.getElementById('selectedFile').classList.add('d-none');
+}
+
+// Vulnerability management functions
+function toggleVulnStatus(vulnId) {
+    const checkbox = document.getElementById('status-' + vulnId);
+    const vulnerabilityItem = checkbox.closest('.vulnerability-item');
+    
+    fetch(`/vulnerability/${vulnId}/toggle-status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const label = checkbox.nextElementSibling;
+            if (data.status === 'Fixed') {
+                vulnerabilityItem.classList.add('vulnerability-fixed');
+                label.textContent = 'Fixed';
+            } else {
+                vulnerabilityItem.classList.remove('vulnerability-fixed');
+                label.textContent = 'Open';
+            }
+            vulnerabilityItem.setAttribute('data-status', data.status.toLowerCase());
+            // Refresh statistics
+            location.reload();
+        } else {
+            alert('Error updating vulnerability status');
+            checkbox.checked = !checkbox.checked;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        checkbox.checked = !checkbox.checked;
+    });
+}
+
+function updateVulnTitle(vulnId, newTitle) {
+    if (!newTitle.trim()) return;
+    
+    fetch(`/vulnerability/${vulnId}/update-title/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({title: newTitle})
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            alert('Error updating vulnerability title');
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
+
+function deleteVuln(vulnId) {
+    Fnon.Ask.Dark({
+        title: 'Delete Vulnerability',
+        message: 'Are you sure you want to delete this vulnerability? This action cannot be undone.',
+        callback: (result) => {
+            if (result) {
+                fetch(`/vulnerability/${vulnId}/delete/`, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        alert('Error deleting vulnerability');
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            }
+        }
+    });
+}
+
+// Filter functions
+function filterVulns(status) {
+    const items = document.querySelectorAll('.vulnerability-item');
+    items.forEach(item => {
+        if (status === 'all' || item.dataset.status === status) {
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+function filterReports(type) {
+    const rows = document.querySelectorAll('#reportsTable tbody tr');
+    rows.forEach(row => {
+        if (type === 'all' || row.dataset.type === type) {
+            row.style.display = 'table-row';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+}
+
+// Report deletion confirmation
+function DeleteConfirmation(uuid) {
+    Fnon.Ask.Dark({
+        title: 'Delete Report',
+        message: 'Are you sure you want to delete this report? All associated vulnerabilities will also be deleted.',
+        callback: (result) => {
+            if (result) {
+                document.location = "/delete/" + uuid;
+            }
+        }
+    });
+}
+
+// Handle separate vulnerability form
+document.getElementById('addVulnForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const critical = parseInt(formData.get('critical_new')) || 0;
+    const high = parseInt(formData.get('high_new')) || 0;
+    const medium = parseInt(formData.get('medium_new')) || 0;
+    const low = parseInt(formData.get('low_new')) || 0;
+    
+    if (critical + high + medium + low === 0) {
+        alert('Please enter at least one vulnerability count.');
+        return;
+    }
+    
+    fetch(`/engagement/{{engagement.id}}/add-vulnerabilities/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Reset form
+            this.reset();
+            updatePreview();
+            // Refresh the page to show new vulnerabilities
+            location.reload();
+        } else {
+            alert('Error adding vulnerabilities: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while adding vulnerabilities.');
+    });
+});
+
+// Auto-generate vulnerability titles preview
+function updatePreview() {
+    const critical = parseInt(document.querySelector('[name=\"critical_new\"]').value) || 0;
+    const high = parseInt(document.querySelector('[name=\"high_new\"]').value) || 0;
+    const medium = parseInt(document.querySelector('[name=\"medium_new\"]').value) || 0;
+    const low = parseInt(document.querySelector('[name=\"low_new\"]').value) || 0;
+    
+    const titles = [];
+    
+    // Generate titles based on current counts (simplified - in real app would get existing counts)
+    for (let i = 1; i <= critical; i++) titles.push('c' + i);
+    for (let i = 1; i <= high; i++) titles.push('h' + i);
+    for (let i = 1; i <= medium; i++) titles.push('m' + i);
+    for (let i = 1; i <= low; i++) titles.push('l' + i);
+    
+    const preview = document.getElementById('vulnPreview');
+    const previewText = document.getElementById('previewText');
+    
+    if (titles.length > 0) {
+        previewText.textContent = titles.join(' ');
+        preview.classList.remove('d-none');
+    } else {
+        preview.classList.add('d-none');
+    }
+}
+
+// Add event listeners for preview updates
+document.querySelectorAll('.vulnerability-counter').forEach(input => {
+    input.addEventListener('input', updatePreview);
+});
+
+// Initialize preview
+updatePreview();
+</script>
 {% endblock %}

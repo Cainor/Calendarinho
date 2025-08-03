@@ -250,7 +250,7 @@ class Vulnerability(models.Model):
     description = models.TextField(verbose_name="Description")
     severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default='Medium')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Open')
-    report = models.ForeignKey('Report', on_delete=models.CASCADE, related_name='vulnerabilities')
+    report = models.ForeignKey('Report', on_delete=models.CASCADE, related_name='vulnerabilities', null=True, blank=True)
     engagement = models.ForeignKey(Engagement, on_delete=models.CASCADE, related_name='vulnerabilities')
     created_by = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='created_vulnerabilities')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -259,7 +259,7 @@ class Vulnerability(models.Model):
     fixed_by = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='fixed_vulnerabilities', null=True, blank=True)
     
     class Meta:
-        ordering = ['-severity', '-created_at']
+        ordering = ['-created_at']  # We'll handle severity ordering in views
         verbose_name = "Vulnerability"
         verbose_name_plural = "Vulnerabilities"
         indexes = [
