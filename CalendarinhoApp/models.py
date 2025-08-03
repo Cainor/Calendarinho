@@ -2,6 +2,7 @@ from statistics import mode
 from typing import Tuple
 from django.db import models
 from django.utils import timezone
+from django.db.models import Count, Q, Case, When, IntegerField
 import datetime, uuid
 from collections import namedtuple
 from users.models import CustomUser as Employee
@@ -32,39 +33,35 @@ class Client(models.Model):
         return sum(eng.working_employees() for eng in ongoing_engagements)
 
     def get_vulnerability_summary(self):
-        """Get vulnerability summary for all client engagements"""
-        summary = {
-            'critical_open': 0,
-            'high_open': 0,
-            'medium_open': 0,
-            'low_open': 0,
-            'critical_fixed': 0,
-            'high_fixed': 0,
-            'medium_fixed': 0,
-            'low_fixed': 0,
-            'total_open': 0,
-            'total_fixed': 0,
-            'engagements_with_vulnerabilities': 0
-        }
+        """Get vulnerability summary for all client engagements using optimized database queries"""
+        # Use aggregation to count vulnerabilities in a single query
+        summary_data = self.engagements.aggregate(
+            critical_open=Count('vulnerabilities', filter=Q(vulnerabilities__severity='Critical', vulnerabilities__status='Open')),
+            high_open=Count('vulnerabilities', filter=Q(vulnerabilities__severity='High', vulnerabilities__status='Open')),
+            medium_open=Count('vulnerabilities', filter=Q(vulnerabilities__severity='Medium', vulnerabilities__status='Open')),
+            low_open=Count('vulnerabilities', filter=Q(vulnerabilities__severity='Low', vulnerabilities__status='Open')),
+            critical_fixed=Count('vulnerabilities', filter=Q(vulnerabilities__severity='Critical', vulnerabilities__status='Fixed')),
+            high_fixed=Count('vulnerabilities', filter=Q(vulnerabilities__severity='High', vulnerabilities__status='Fixed')),
+            medium_fixed=Count('vulnerabilities', filter=Q(vulnerabilities__severity='Medium', vulnerabilities__status='Fixed')),
+            low_fixed=Count('vulnerabilities', filter=Q(vulnerabilities__severity='Low', vulnerabilities__status='Fixed')),
+        )
         
-        for engagement in self.engagements.all():
-            eng_summary = engagement.get_vulnerability_summary()
-            summary['critical_open'] += eng_summary['critical_open']
-            summary['high_open'] += eng_summary['high_open']
-            summary['medium_open'] += eng_summary['medium_open']
-            summary['low_open'] += eng_summary['low_open']
-            summary['critical_fixed'] += eng_summary['critical_fixed']
-            summary['high_fixed'] += eng_summary['high_fixed']
-            summary['medium_fixed'] += eng_summary['medium_fixed']
-            summary['low_fixed'] += eng_summary['low_fixed']
-            
-            if eng_summary['total_open'] > 0:
-                summary['engagements_with_vulnerabilities'] += 1
+        # Calculate totals
+        summary_data['total_open'] = (
+            summary_data['critical_open'] + summary_data['high_open'] + 
+            summary_data['medium_open'] + summary_data['low_open']
+        )
+        summary_data['total_fixed'] = (
+            summary_data['critical_fixed'] + summary_data['high_fixed'] + 
+            summary_data['medium_fixed'] + summary_data['low_fixed']
+        )
         
-        summary['total_open'] = summary['critical_open'] + summary['high_open'] + summary['medium_open'] + summary['low_open']
-        summary['total_fixed'] = summary['critical_fixed'] + summary['high_fixed'] + summary['medium_fixed'] + summary['low_fixed']
+        # Count engagements with open vulnerabilities
+        summary_data['engagements_with_vulnerabilities'] = self.engagements.filter(
+            vulnerabilities__status='Open'
+        ).distinct().count()
         
-        return summary
+        return summary_data
 
 
 class Service(models.Model):
@@ -73,7 +70,6 @@ class Service(models.Model):
 
     def __str__(self):
         return str(self.name)
-
 
 
 class Leave(models.Model):
@@ -86,7 +82,6 @@ class Leave(models.Model):
 
     def __str__(self):
         return f"{self.leave_type} - {self.note}"
-    
 
 
 class OTP(models.Model):
@@ -110,6 +105,7 @@ class ProjectManager(models.Model):
 
     def __str__(self):
         return str(self.name)
+
 
 class Engagement(models.Model):
     name = models.CharField(max_length=200, verbose_name="Engagement Name",
@@ -172,41 +168,54 @@ class Engagement(models.Model):
         return self.employees.count()
 
     def get_vulnerability_summary(self):
-        """Get vulnerability summary for this engagement"""
-        summary = {
-            'critical_open': 0,
-            'high_open': 0,
-            'medium_open': 0,
-            'low_open': 0,
-            'critical_fixed': 0,
-            'high_fixed': 0,
-            'medium_fixed': 0,
-            'low_fixed': 0,
-            'total_open': 0,
-            'total_fixed': 0
-        }
+        """Get vulnerability summary for this engagement using optimized database queries"""
+        # Use aggregation to count vulnerabilities in a single query
+        summary_data = self.vulnerabilities.aggregate(
+            critical_open=Count('id', filter=Q(severity='Critical', status='Open')),
+            high_open=Count('id', filter=Q(severity='High', status='Open')),
+            medium_open=Count('id', filter=Q(severity='Medium', status='Open')),
+            low_open=Count('id', filter=Q(severity='Low', status='Open')),
+            critical_fixed=Count('id', filter=Q(severity='Critical', status='Fixed')),
+            high_fixed=Count('id', filter=Q(severity='High', status='Fixed')),
+            medium_fixed=Count('id', filter=Q(severity='Medium', status='Fixed')),
+            low_fixed=Count('id', filter=Q(severity='Low', status='Fixed')),
+        )
         
-        # Access reports through the reverse relationship from Report model
-        for report in self.report_set.all():
-            report_summary = report.get_vulnerability_summary()
-            summary['critical_open'] += report_summary['critical_open']
-            summary['high_open'] += report_summary['high_open']
-            summary['medium_open'] += report_summary['medium_open']
-            summary['low_open'] += report_summary['low_open']
-            summary['critical_fixed'] += report_summary['critical_fixed']
-            summary['high_fixed'] += report_summary['high_fixed']
-            summary['medium_fixed'] += report_summary['medium_fixed']
-            summary['low_fixed'] += report_summary['low_fixed']
+        # Calculate totals
+        summary_data['total_open'] = (
+            summary_data['critical_open'] + summary_data['high_open'] + 
+            summary_data['medium_open'] + summary_data['low_open']
+        )
+        summary_data['total_fixed'] = (
+            summary_data['critical_fixed'] + summary_data['high_fixed'] + 
+            summary_data['medium_fixed'] + summary_data['low_fixed']
+        )
         
-        summary['total_open'] = summary['critical_open'] + summary['high_open'] + summary['medium_open'] + summary['low_open']
-        summary['total_fixed'] = summary['critical_fixed'] + summary['high_fixed'] + summary['medium_fixed'] + summary['low_fixed']
-        
-        return summary
+        return summary_data
 
     def has_remaining_vulnerabilities(self):
-        """Check if engagement has any open vulnerabilities"""
+        """Check if engagement has any open vulnerabilities - optimized version"""
+        return self.vulnerabilities.filter(status='Open').exists()
+
+    def get_vulnerability_risk_score(self):
+        """Calculate a risk score based on vulnerability severity and count"""
         summary = self.get_vulnerability_summary()
-        return summary['total_open'] > 0
+        # Weight: Critical=10, High=7, Medium=4, Low=1
+        risk_score = (
+            summary['critical_open'] * 10 +
+            summary['high_open'] * 7 +
+            summary['medium_open'] * 4 +
+            summary['low_open'] * 1
+        )
+        return risk_score
+
+    def get_vulnerability_remediation_rate(self):
+        """Calculate the percentage of vulnerabilities that have been fixed"""
+        summary = self.get_vulnerability_summary()
+        total_vulns = summary['total_open'] + summary['total_fixed']
+        if total_vulns == 0:
+            return 100  # No vulnerabilities means 100% remediation
+        return round((summary['total_fixed'] / total_vulns) * 100, 2)
 
 
 class Comment(models.Model):
@@ -253,6 +262,10 @@ class Vulnerability(models.Model):
         ordering = ['-severity', '-created_at']
         verbose_name = "Vulnerability"
         verbose_name_plural = "Vulnerabilities"
+        indexes = [
+            models.Index(fields=['status', 'severity']),
+            models.Index(fields=['engagement', 'status']),
+        ]
     
     def __str__(self):
         return f"{self.title} - {self.severity} ({self.status})"
@@ -286,6 +299,41 @@ class Vulnerability(models.Model):
         }
         return icons.get(self.severity, '⚪')
 
+    def get_severity_weight(self):
+        """Get numeric weight for severity (useful for calculations)"""
+        weights = {
+            'Critical': 10,
+            'High': 7,
+            'Medium': 4,
+            'Low': 1
+        }
+        return weights.get(self.severity, 0)
+
+    def days_to_fix(self):
+        """Calculate days taken to fix vulnerability"""
+        if self.status == 'Fixed' and self.fixed_at:
+            delta = self.fixed_at.date() - self.created_at.date()
+            return delta.days
+        return None
+
+    def is_overdue(self, sla_days=None):
+        """Check if vulnerability is overdue based on SLA"""
+        if self.status == 'Fixed':
+            return False
+        
+        if sla_days is None:
+            # Default SLA based on severity
+            sla_mapping = {
+                'Critical': 7,
+                'High': 30,
+                'Medium': 90,
+                'Low': 180
+            }
+            sla_days = sla_mapping.get(self.severity, 90)
+        
+        days_open = (timezone.now().date() - self.created_at.date()).days
+        return days_open > sla_days
+
 
 class Report(models.Model):
     REPORT_TYPES = (("Draft", "Draft"), ("Final", "Final"), ("Verification", "Verification"))
@@ -313,41 +361,27 @@ class Report(models.Model):
         super().delete(*args, **kwargs)
     
     def get_vulnerability_summary(self):
-        """Get vulnerability summary for this report"""
-        summary = {
-            'critical_open': 0,
-            'high_open': 0,
-            'medium_open': 0,
-            'low_open': 0,
-            'critical_fixed': 0,
-            'high_fixed': 0,
-            'medium_fixed': 0,
-            'low_fixed': 0,
-            'total_open': 0,
-            'total_fixed': 0
-        }
+        """Get vulnerability summary for this report using optimized database queries"""
+        # Use aggregation to count vulnerabilities in a single query
+        summary_data = self.vulnerabilities.aggregate(
+            critical_open=Count('id', filter=Q(severity='Critical', status='Open')),
+            high_open=Count('id', filter=Q(severity='High', status='Open')),
+            medium_open=Count('id', filter=Q(severity='Medium', status='Open')),
+            low_open=Count('id', filter=Q(severity='Low', status='Open')),
+            critical_fixed=Count('id', filter=Q(severity='Critical', status='Fixed')),
+            high_fixed=Count('id', filter=Q(severity='High', status='Fixed')),
+            medium_fixed=Count('id', filter=Q(severity='Medium', status='Fixed')),
+            low_fixed=Count('id', filter=Q(severity='Low', status='Fixed')),
+        )
         
-        for vuln in self.vulnerabilities.all():
-            if vuln.status == 'Open':
-                if vuln.severity == 'Critical':
-                    summary['critical_open'] += 1
-                elif vuln.severity == 'High':
-                    summary['high_open'] += 1
-                elif vuln.severity == 'Medium':
-                    summary['medium_open'] += 1
-                elif vuln.severity == 'Low':
-                    summary['low_open'] += 1
-            else:  # Fixed
-                if vuln.severity == 'Critical':
-                    summary['critical_fixed'] += 1
-                elif vuln.severity == 'High':
-                    summary['high_fixed'] += 1
-                elif vuln.severity == 'Medium':
-                    summary['medium_fixed'] += 1
-                elif vuln.severity == 'Low':
-                    summary['low_fixed'] += 1
+        # Calculate totals
+        summary_data['total_open'] = (
+            summary_data['critical_open'] + summary_data['high_open'] + 
+            summary_data['medium_open'] + summary_data['low_open']
+        )
+        summary_data['total_fixed'] = (
+            summary_data['critical_fixed'] + summary_data['high_fixed'] + 
+            summary_data['medium_fixed'] + summary_data['low_fixed']
+        )
         
-        summary['total_open'] = summary['critical_open'] + summary['high_open'] + summary['medium_open'] + summary['low_open']
-        summary['total_fixed'] = summary['critical_fixed'] + summary['high_fixed'] + summary['medium_fixed'] + summary['low_fixed']
-        
-        return summary
+        return summary_data
