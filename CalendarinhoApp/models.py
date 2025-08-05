@@ -338,6 +338,8 @@ class Comment(models.Model):
     user = models.ForeignKey(
         Employee, on_delete=models.PROTECT, related_name='comments')
     body = models.TextField()
+    mentioned_users = models.ManyToManyField(
+        Employee, blank=True, related_name='mentioned_in_comments')
     created_on = models.DateTimeField(auto_now_add=True)
 
     class Meta:

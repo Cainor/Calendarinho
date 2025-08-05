@@ -111,6 +111,10 @@ urlpatterns = [
     
     path('DeleteComment/<int:commentID>',
          engagement.deleteMyComment, name='deleteMyComment'),
+    
+    # Mention system API endpoints
+    path('api/engagement/<int:eng_id>/search-users/', 
+         engagement.api_search_users_for_mention, name='api_search_users_for_mention'),
 
     path('forgetpassword',authentication.forgetPasswordInit, name='forgetpasswordInit'),
     path('forgetpasswordOTP',authentication.forgetpasswordOTP, name='forgetpasswordOTP'),

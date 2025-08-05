@@ -108,9 +108,43 @@ def engagement(request, eng_id):
             new_comment.user = request.user
             # Save the comment to the database
             new_comment.save()
-            # Send notification to the users those involved in the engagement
-            thread = Thread(target = notifyNewComment, args= (new_comment, request))
-            thread.start()
+            
+            # Parse mentions from comment body
+            mentioned_users, everyone_mentioned = parse_mentions_from_comment(
+                new_comment.body, engagement
+            )
+            
+            # Save mentioned users to the comment
+            if mentioned_users:
+                new_comment.mentioned_users.set(mentioned_users)
+            
+            # Handle notifications
+            if mentioned_users:
+                # Send mention notifications to mentioned users
+                mention_thread = Thread(
+                    target=notifyMentionedUsers, 
+                    args=(new_comment, mentioned_users, everyone_mentioned, request)
+                )
+                mention_thread.start()
+                
+                # Send regular comment notifications to non-mentioned users (excluding comment author)
+                mentioned_user_ids = [u.id for u in mentioned_users]
+                regular_notification_users = engagement.employees.exclude(
+                    id__in=mentioned_user_ids + [request.user.id]
+                )
+                
+                if regular_notification_users.exists():
+                    # Send regular notifications using a modified version of notifyNewComment
+                    regular_thread = Thread(
+                        target=notifyRegularCommentUsers, 
+                        args=(new_comment, regular_notification_users, request)
+                    )
+                    regular_thread.start()
+            else:
+                # No mentions, send regular notification to all engagement users
+                thread = Thread(target=notifyNewComment, args=(new_comment, request))
+                thread.start()
+            
             return HttpResponseRedirect("/engagement/"+str(engagement.id))
     try:
         comment_form = CommentForm()
@@ -547,3 +581,263 @@ def notifyManagersNewEngagement(user, engagement, request):
 
     except ConnectionRefusedError as e:
         logger.error(f"Failed to send emails: {e}")
+
+
+import re
+from django.db.models import Q
+
+
+@login_required
+def api_search_users_for_mention(request, eng_id):
+    """API endpoint for searching users to mention in comments"""
+    try:
+        engagement = Engagement.objects.get(id=eng_id)
+        
+        # Check if user has access to this engagement
+        if not engagement.employees.filter(id=request.user.id).exists():
+            return JsonResponse({'error': 'Access denied'}, status=403)
+        
+        query = request.GET.get('q', '').strip()
+        
+        # Get all users in the engagement, ordered consistently by first name
+        engagement_users = engagement.employees.all().order_by('first_name', 'last_name', 'username')
+        
+        # Prepare user data for response
+        users_data = []
+        
+        # Always add "Everyone" option at the top for empty queries or if query matches "everyone"
+        include_everyone = not query or 'everyone' in query.lower()
+        if include_everyone:
+            users_data.append({
+                'id': 'everyone',
+                'username': 'everyone',
+                'display_name': 'Everyone',
+                'full_name': 'Everyone in this engagement',
+                'is_special': True
+            })
+        
+        # Filter and add individual users
+        if query:
+            # Search ALL active users (not just engagement members) when there's a query
+            all_users = Employee.objects.filter(
+                Q(first_name__icontains=query) |
+                Q(last_name__icontains=query) |
+                Q(username__icontains=query),
+                is_active=True
+            ).order_by('first_name', 'last_name', 'username')
+            
+            # Prioritize engagement users in results
+            engagement_user_ids = set(engagement_users.values_list('id', flat=True))
+            engagement_matches = [u for u in all_users if u.id in engagement_user_ids]
+            other_matches = [u for u in all_users if u.id not in engagement_user_ids]
+            
+            # Combine results with engagement users first
+            combined_users = engagement_matches + other_matches
+            
+            # Limit results, accounting for "Everyone" option if included
+            limit = 9 if include_everyone else 10
+            filtered_users = combined_users[:limit]
+        else:
+            # For empty query, return all users (up to limit)
+            # Since "Everyone" is already included, limit to 9 users
+            filtered_users = engagement_users[:9]
+        
+        # Add individual users to results
+        for user in filtered_users:
+            users_data.append({
+                'id': user.id,
+                'username': user.username,
+                'display_name': f"{user.first_name} {user.last_name}".strip() or user.username,
+                'full_name': user.get_full_name() or user.username,
+                'is_special': False
+            })
+        
+        return JsonResponse({
+            'users': users_data,
+            'count': len(users_data)
+        })
+        
+    except Engagement.DoesNotExist:
+        return JsonResponse({'error': 'Engagement not found'}, status=404)
+    except Exception as e:
+        logger.error(f"Error in user search API: {e}")
+        return JsonResponse({'error': 'Internal server error'}, status=500)
+
+
+def parse_mentions_from_comment(comment_body, engagement):
+    """
+    Parse @mentions from comment body and return list of mentioned users
+    Supports both @username and @"First Last" name formats
+    """
+    mentioned_users = []
+    everyone_mentioned = False
+    
+    # Pattern 1: @"First Last" - names in quotes
+    quoted_pattern = r'@"([^"]+)"'
+    quoted_mentions = re.findall(quoted_pattern, comment_body, re.IGNORECASE)
+    
+    # Pattern 2: @word - single word mentions (usernames or "everyone")
+    word_pattern = r'@(\w+)'
+    word_mentions = re.findall(word_pattern, comment_body, re.IGNORECASE)
+    
+    # Process quoted name mentions (e.g., @"John Doe")
+    for full_name in quoted_mentions:
+        if full_name.lower() == 'everyone':
+            everyone_mentioned = True
+        else:
+            # Try to find user by full name
+            name_parts = full_name.strip().split()
+            if len(name_parts) >= 2:
+                first_name = name_parts[0]
+                last_name = ' '.join(name_parts[1:])
+                try:
+                    # Search ALL users first
+                    user = Employee.objects.get(
+                        first_name__iexact=first_name,
+                        last_name__iexact=last_name,
+                        is_active=True
+                    )
+                    mentioned_users.append(user)
+                except Employee.DoesNotExist:
+                    # Try partial matches in all users
+                    potential_users = Employee.objects.filter(
+                        Q(first_name__icontains=first_name) & Q(last_name__icontains=last_name),
+                        is_active=True
+                    )
+                    if potential_users.exists():
+                        mentioned_users.append(potential_users.first())
+    
+    # Process single word mentions (usernames or "everyone")
+    for word in word_mentions:
+        if word.lower() == 'everyone':
+            everyone_mentioned = True
+        else:
+            # Try to find the user by username first, then by first name (search ALL users)
+            try:
+                user = Employee.objects.get(username__iexact=word, is_active=True)
+                mentioned_users.append(user)
+            except Employee.DoesNotExist:
+                try:
+                    user = Employee.objects.get(first_name__iexact=word, is_active=True)
+                    mentioned_users.append(user)
+                except Employee.DoesNotExist:
+                    # User not found, skip
+                    pass
+    
+    # If "everyone" was mentioned, add all engagement employees (but don't duplicate)
+    if everyone_mentioned:
+        all_engagement_users = list(engagement.employees.all())
+        mentioned_users.extend(all_engagement_users)
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_mentioned_users = []
+    for user in mentioned_users:
+        if user.id not in seen:
+            seen.add(user.id)
+            unique_mentioned_users.append(user)
+    
+    return unique_mentioned_users, everyone_mentioned
+
+
+def notifyMentionedUsers(comment, mentioned_users, everyone_mentioned, request):
+    """
+    Send notifications to users mentioned in a comment
+    """
+    user = comment.user
+    engagement = comment.engagement
+    
+    # Exclude the comment author from notifications
+    users_to_notify = [u for u in mentioned_users if u.id != user.id]
+    
+    if not users_to_notify:
+        return
+    
+    # Determine the notification message
+    if everyone_mentioned:
+        message_text = f'{user.get_full_name()} mentioned everyone in a comment on your engagement.'
+    else:
+        message_text = f'{user.get_full_name()} mentioned you in a comment on your engagement.'
+    
+    context = {
+        'message': message_text,
+        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+        'engagement_name': engagement.name,
+        'user': user,
+        'commentbody': comment.body,
+        'protocol': 'https' if settings.USE_HTTPS else 'http',
+        'domain': settings.DOMAIN,
+    }
+    
+    try:
+        with mail.get_connection() as connection:
+            for mentioned_user in users_to_notify:
+                user_context = {
+                    **context,
+                    'first_name': mentioned_user.first_name,
+                    'mentioned_user': mentioned_user,
+                }
+                
+                email_body = loader.render_to_string(
+                    'CalendarinhoApp/emails/mention_notification_email.html', 
+                    user_context
+                )
+                
+                subject = f'You were mentioned in a comment on {engagement.name}'
+                if everyone_mentioned:
+                    subject = f'Everyone was mentioned in a comment on {engagement.name}'
+                
+                email = EmailMessage(
+                    subject,
+                    email_body,
+                    to=[mentioned_user.email],
+                    connection=connection
+                )
+                email.content_subtype = "html"
+                email.send()
+                
+    except ConnectionRefusedError as e:
+        logger.error(f"Failed to send mention notification emails: {e}")
+
+
+def notifyRegularCommentUsers(comment, users_to_notify, request):
+    """
+    Send regular comment notifications to specific users (used when some users are mentioned)
+    """
+    user = comment.user
+    engagement = comment.engagement
+    
+    context = {
+        'message': f'New comment on your engagement by {user.get_full_name()}.',
+        'engagement_url': request.build_absolute_uri(reverse('CalendarinhoApp:engagement', args=[engagement.id])),
+        'engagement_name': engagement.name,
+        'user': user,
+        'commentbody': comment.body,
+        'protocol': 'https' if settings.USE_HTTPS else 'http',
+        'domain': settings.DOMAIN,
+    }
+    
+    try:
+        with mail.get_connection() as connection:
+            for employee in users_to_notify:
+                user_context = {
+                    **context,
+                    'first_name': employee.first_name,
+                }
+                
+                email_body = loader.render_to_string(
+                    'CalendarinhoApp/emails/engagement_comment_email.html', 
+                    user_context
+                )
+                
+                email = EmailMessage(
+                    'New comment on your engagement', 
+                    email_body, 
+                    to=[employee.email], 
+                    connection=connection
+                )
+                email.content_subtype = "html"
+                email.send()
+                
+    except ConnectionRefusedError as e:
+        logger.error(f"Failed to send regular comment emails: {e}")
