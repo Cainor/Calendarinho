@@ -6,6 +6,269 @@
 {% block head_block %}
 <!-- Custom styles for this page -->
 <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+<style>
+    /* Employee Status Badges */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.775rem;
+        font-weight: 600;
+        border-radius: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        white-space: nowrap;
+        border: 2px solid transparent;
+        transition: all 0.2s ease;
+    }
+    
+    .status-available {
+        background: #d4edda;
+        color: #155724;
+        border-color: #b4d8c0;
+    }
+    
+    .status-engaged {
+        background: #fff3cd;
+        color: #856404;
+        border-color: #f7dc6f;
+    }
+    
+    .status-training {
+        background: #d1ecf1;
+        color: #0c5460;
+        border-color: #abdde5;
+    }
+    
+    .status-vacation {
+        background: #f8d7da;
+        color: #721c24;
+        border-color: #f1959b;
+    }
+    
+    .status-icon {
+        font-size: 0.75rem;
+    }
+    
+    /* Enhanced Employee Name */
+    .employee-name {
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: #2c3e50;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .employee-name:hover {
+        color: #4e73df;
+        text-decoration: none;
+    }
+    
+    /* Date Display */
+    .human-date {
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .date-relative {
+        font-size: 0.85rem;
+        color: #6c757d;
+        font-style: italic;
+    }
+    
+    /* Next Event Styling */
+    .next-event {
+        padding: 0.25rem 0.5rem;
+        background: #f8f9fa;
+        border-radius: 0.375rem;
+        font-size: 0.9rem;
+        border-left: 3px solid #dee2e6;
+    }
+    
+    .next-event.urgent {
+        background: #fff5f5;
+        border-left-color: #e53e3e;
+        color: #c53030;
+    }
+    
+    .next-event.soon {
+        background: #fffbf0;
+        border-left-color: #dd6b20;
+        color: #c05621;
+    }
+    
+    /* Table Enhancements */
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fc;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .table th {
+        background: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        border: 1px solid #dee2e6;
+    }
+    
+    .table td {
+        vertical-align: middle;
+        padding: 0.875rem 0.75rem;
+        border-top: 1px solid #e3e6f0;
+    }
+    
+    /* Enhanced Filter Styling */
+    .enhanced-filter-form {
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        border: 1px solid #e3e6f0;
+    }
+    
+    .filter-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #5a5c69;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filter-select,
+    .filter-input {
+        border-radius: 0.5rem;
+        border: 1px solid #d1d3e2;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .filter-select:focus,
+    .filter-input:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25), 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Mobile Card Layout */
+    .mobile-cards-container {
+        padding: 0.5rem;
+    }
+    
+    .employee-card {
+        transition: all 0.2s ease;
+    }
+    
+    .employee-card .card {
+        border-left: 4px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .employee-card .card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Status-based card borders */
+    .employee-card[data-status="Available"] .card {
+        border-left-color: #1cc88a;
+    }
+    
+    .employee-card[data-status="Engaged"] .card {
+        border-left-color: #f6c23e;
+    }
+    
+    .employee-card[data-status="Training"] .card {
+        border-left-color: #36b9cc;
+    }
+    
+    .employee-card[data-status="Vacation"] .card {
+        border-left-color: #e74a3b;
+    }
+    
+    /* Bulk Operations */
+    .bulk-actions {
+        transition: all 0.3s ease;
+    }
+    
+    .bulk-actions.show {
+        display: flex !important;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        border-radius: 0.5rem;
+    }
+    
+    .loading-spinner {
+        text-align: center;
+    }
+    
+    .card-body {
+        position: relative;
+    }
+    
+    /* Filter Results Count */
+    #filter-results-count {
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Responsive Improvements */
+    @media (max-width: 991.98px) {
+        .enhanced-filter-form {
+            padding: 1rem;
+        }
+        
+        .mobile-cards-container {
+            padding: 0;
+        }
+        
+        .employee-card .card {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-label {
+            font-size: 0.8rem;
+        }
+        
+        .bulk-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+        
+        .bulk-actions .btn-group {
+            display: flex;
+            justify-content: space-around;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block body_block %}
@@ -15,58 +278,645 @@
 <script src="{% static 'vendor/datatables/dataTables.bootstrap4.min.js' %}"></script>
 
 <!-- Begin Page Content -->
-<div class="container-fluid">
+<div class="container-fluid" style="flex: 1;">
 
     <!-- Page Heading -->
-    <h1 class="h3 mb-2 text-title-color">Employees Table</h1>
-    <p class="mb-4">List of all emplyees names and their current and upcoming event.</p>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-1 text-title-color">
+                <i class="fas fa-users mr-2 text-primary"></i>
+                Employees Overview
+            </h1>
+            <p class="mb-0 text-muted">Manage your team's availability and track engagement status</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="badge badge-pill mr-3" style="background: #e3f2fd; color: #1976d2; padding: 0.5rem 1rem;">
+                <i class="fas fa-users mr-1"></i>
+                {{table|length}} Total Employees
+            </span>
+            <span class="badge badge-pill mr-3" style="background: #e8f5e8; color: #2d5a2d; padding: 0.5rem 1rem;">
+                <i class="fas fa-check-circle mr-1"></i>
+                {{employee_counts.available}} Available
+            </span>
+            <span class="badge badge-pill mr-3" style="background: #fff3cd; color: #856404; padding: 0.5rem 1rem;">
+                <i class="fas fa-briefcase mr-1"></i>
+                {{employee_counts.engaged}} Engaged
+            </span>
+            <span class="badge badge-pill" style="background: #f0f0f0; color: #6c757d; padding: 0.5rem 1rem;">
+                <i class="fas fa-chart-line mr-1"></i>
+                {{utilization_rate}}% Utilization
+            </span>
+        </div>
+    </div>
 
-    <!-- DataTales Example -->
+    <!-- Enhanced Employees Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Employees Table</h6>
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+                <div class="mb-2 mb-md-0">
+                    <h6 class="m-0 font-weight-bold text-primary d-flex align-items-center">
+                        <i class="fas fa-filter mr-2"></i>Employees Table
+                        <span id="filter-results-count" class="badge badge-info ml-2" style="display: none;">0 results</span>
+                    </h6>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bulk-actions" style="display: none;">
+                        <span class="text-muted mr-2" id="selected-count">0 selected</span>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-success" onclick="bulkUpdateStatus('Available')" title="Mark as Available">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-warning" onclick="bulkUpdateStatus('Training')" title="Mark as Training">
+                                <i class="fas fa-graduation-cap"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-info" onclick="bulkUpdateStatus('Vacation')" title="Mark as Vacation">
+                                <i class="fas fa-umbrella-beach"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filter Form -->
+            <form id="employees-filter-form" class="enhanced-filter-form mt-3">
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-3 mb-3">
+                        <label class="filter-label" for="nameFilter">
+                            <i class="fas fa-user mr-1"></i>Employee Name
+                        </label>
+                        <input type="text" class="form-control filter-input" id="nameFilter" name="nameFilter" placeholder="Search by name...">
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 mb-3">
+                        <label class="filter-label" for="statusFilter">
+                            <i class="fas fa-flag mr-1"></i>Status
+                        </label>
+                        <select class="form-control filter-select" id="statusFilter" name="statusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="Available">Available</option>
+                            <option value="Engaged">Engaged</option>
+                            <option value="Training">Training</option>
+                            <option value="Vacation">Vacation</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 mb-3">
+                        <label class="filter-label" for="availabilityFilter">
+                            <i class="fas fa-calendar mr-1"></i>Availability
+                        </label>
+                        <select class="form-control filter-select" id="availabilityFilter" name="availabilityFilter">
+                            <option value="">All Employees</option>
+                            <option value="available-now">Available Now</option>
+                            <option value="ending-soon">Ending Soon</option>
+                            <option value="starting-soon">Starting Soon</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-3 mb-3">
+                        <label class="filter-label" for="engagementFilter">
+                            <i class="fas fa-briefcase mr-1"></i>Workload
+                        </label>
+                        <select class="form-control filter-select" id="engagementFilter" name="engagementFilter">
+                            <option value="">All Workloads</option>
+                            <option value="active">Has Active Engagements</option>
+                            <option value="none">No Active Engagements</option>
+                            <option value="multiple">Multiple Engagements</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                            <div class="d-flex flex-wrap">
+                                <button type="submit" class="btn btn-primary btn-sm mr-2">
+                                    <i class="fas fa-filter mr-1"></i>Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllFilters()">
+                                    <i class="fas fa-times mr-1"></i>Clear All
+                                </button>
+                            </div>
+                            <div class="filter-status text-muted small">
+                                <span id="active-filters-count">No active filters</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="card-body">
             <div class="table-responsive">
+                <!-- Mobile Card Layout (Hidden on Desktop) -->
+                <div class="d-block d-lg-none mobile-cards-container">
+                {% for row in table %}
+                <div class="employee-card" data-name="{{row.first_name}} {{row.last_name}}" data-status="{{row.status_type}}" data-engagements="{{row.current_engagements}}" data-start="{{row.start_date|date:'Y-m-d'}}" data-end="{{row.end_date|date:'Y-m-d'}}">
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input row-checkbox" id="mobile-check-{{row.id}}" value="{{row.id}}">
+                                    <label class="custom-control-label" for="mobile-check-{{row.id}}"></label>
+                                </div>
+                                {% if row.status_type == 'Available' %}
+                                    <span class="status-badge status-available">
+                                        <i class="fas fa-check-circle status-icon"></i>
+                                        Available
+                                    </span>
+                                {% elif row.status_type == 'Engaged' %}
+                                    <span class="status-badge status-engaged">
+                                        <i class="fas fa-briefcase status-icon"></i>
+                                        {{row.status}}
+                                    </span>
+                                {% elif row.status_type == 'Training' %}
+                                    <span class="status-badge status-training">
+                                        <i class="fas fa-graduation-cap status-icon"></i>
+                                        {{row.status}}
+                                    </span>
+                                {% elif row.status_type == 'Vacation' %}
+                                    <span class="status-badge status-vacation">
+                                        <i class="fas fa-umbrella-beach status-icon"></i>
+                                        {{row.status}}
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <h6 class="card-title mb-2">
+                                <a href="/profile/{{row.id}}" class="employee-name text-decoration-none">
+                                    {{row.first_name}} {{row.last_name}}
+                                </a>
+                            </h6>
+                            
+                            <div class="row text-sm">
+                                <div class="col-6 mb-2">
+                                    <strong class="text-muted">Start:</strong><br>
+                                    <span class="human-date" data-date="{{row.start_date|date:'Y-m-d'}}">{{row.start_date | date:"Y-m-d"}}</span>
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong class="text-muted">End:</strong><br>
+                                    <span class="human-date" data-date="{{row.end_date|date:'Y-m-d'}}">{{row.end_date | date:"Y-m-d"}}</span>
+                                </div>
+                                <div class="col-12">
+                                    <strong class="text-muted">Next Event:</strong><br>
+                                    {% if row.next_event %}
+                                        <div class="next-event mt-1">
+                                            <i class="fas fa-calendar-alt mr-1"></i>
+                                            {{row.next_event}}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">
+                                            <i class="fas fa-calendar-times mr-1"></i>
+                                            No upcoming events
+                                        </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if row.total_engagements > 0 %}
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <i class="fas fa-chart-bar mr-1"></i>
+                                        {{row.total_engagements}} total engagements
+                                    </small>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Desktop Table Layout (Hidden on Mobile) -->
+            <div class="table-responsive d-none d-lg-block">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
+                            <th class="text-center" style="width: 40px;">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="selectAll">
+                                    <label class="custom-control-label" for="selectAll" title="Select All"></label>
+                                </div>
+                            </th>
                             <th>Name</th>
                             <th>Status</th>
                             <th>End Date (y-m-d)</th>
                             <th>Next Event</th>
                             <th>Start Date (y-m-d)</th>
-
                         </tr>
                     </thead>
                     <tfoot>
                         <tr>
+                            <th></th>
                             <th>Name</th>
                             <th>Status</th>
                             <th>End Date (y-m-d)</th>
                             <th>Next Event</th>
                             <th>Start Date (y-m-d)</th>
-
                         </tr>
                     </tfoot>
-                    <tbody>
-                        {% for row in table %}
-                        <tr>
-                            <td><a href="/profile/{{row.id}}">{{row.first_name}} {{row.last_name}}</a></td>
-                            <td>{{row.status}}</td>
-                            <td>{{row.end_date | date:"Y-m-d"}}</td>
-                            <td>{{row.next_event}}</td>
-                            <td>{{row.start_date | date:"Y-m-d"}}</td>
-                        </tr>
-                        {% endfor %}
-
-                    </tbody>
-                </table>
+                        <tbody id="employees-table-body">
+                            {% for row in table %}
+                            <tr class="employee-row" data-name="{{row.first_name}} {{row.last_name}}" data-status="{{row.status_type}}" data-engagements="{{row.current_engagements}}" data-start="{{row.start_date|date:'Y-m-d'}}" data-end="{{row.end_date|date:'Y-m-d'}}">
+                                <td class="text-center">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input row-checkbox" id="check-{{row.id}}" value="{{row.id}}">
+                                        <label class="custom-control-label" for="check-{{row.id}}"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="/profile/{{row.id}}" class="employee-name">
+                                        {{row.first_name}} {{row.last_name}}
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if row.status_type == 'Available' %}
+                                        <span class="status-badge status-available">
+                                            <i class="fas fa-check-circle status-icon"></i>
+                                            Available
+                                        </span>
+                                    {% elif row.status_type == 'Engaged' %}
+                                        <span class="status-badge status-engaged">
+                                            <i class="fas fa-briefcase status-icon"></i>
+                                            {{row.status}}
+                                        </span>
+                                    {% elif row.status_type == 'Training' %}
+                                        <span class="status-badge status-training">
+                                            <i class="fas fa-graduation-cap status-icon"></i>
+                                            {{row.status}}
+                                        </span>
+                                    {% elif row.status_type == 'Vacation' %}
+                                        <span class="status-badge status-vacation">
+                                            <i class="fas fa-umbrella-beach status-icon"></i>
+                                            {{row.status}}
+                                        </span>
+                                    {% else %}
+                                        <span class="status-badge" style="background: #e9ecef; color: #495057;">
+                                            <i class="fas fa-question-circle status-icon"></i>
+                                            {{row.status}}
+                                        </span>
+                                    {% endif %}
+                                    {% if row.total_engagements > 0 %}
+                                        <div class="mt-1">
+                                            <small class="text-muted">
+                                                <i class="fas fa-chart-bar mr-1"></i>
+                                                {{row.total_engagements}} total engagements
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                                <td class="human-date" data-date="{{row.end_date|date:'Y-m-d'}}">{{row.end_date | date:"Y-m-d"}}</td>
+                                <td>
+                                    {% if row.next_event %}
+                                        <div class="next-event">
+                                            <i class="fas fa-calendar-alt mr-1"></i>
+                                            {{row.next_event}}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">
+                                            <i class="fas fa-calendar-times mr-1"></i>
+                                            No upcoming events
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="human-date" data-date="{{row.start_date|date:'Y-m-d'}}">{{row.start_date | date:"Y-m-d"}}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Loading Overlay -->
+                <div class="loading-overlay" style="display: none;">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <div class="mt-2 text-muted">Processing your request...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
 </div>
 <!-- /.container-fluid -->
+
+<!-- End of Main Content -->
+
+<script>
+// Human-readable date formatting
+function formatHumanDate(dateString) {
+    if (!dateString || dateString === 'None') return 'Not set';
+    
+    const date = new Date(dateString + 'T00:00:00');
+    const today = new Date();
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    // Reset time for accurate comparison
+    today.setHours(0, 0, 0, 0);
+    tomorrow.setHours(0, 0, 0, 0);
+    yesterday.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    
+    const diffTime = date - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    let humanText = '';
+    let className = '';
+    
+    if (diffDays === 0) {
+        humanText = 'Today';
+        className = 'text-danger font-weight-bold';
+    } else if (diffDays === 1) {
+        humanText = 'Tomorrow';
+        className = 'text-warning font-weight-bold';
+    } else if (diffDays === -1) {
+        humanText = 'Yesterday';
+        className = 'text-muted';
+    } else if (diffDays > 1 && diffDays <= 7) {
+        humanText = `In ${diffDays} days`;
+        className = 'text-info';
+    } else if (diffDays < -1 && diffDays >= -7) {
+        humanText = `${Math.abs(diffDays)} days ago`;
+        className = 'text-muted';
+    } else {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        humanText = date.toLocaleDateString('en-US', options);
+        className = diffDays > 0 ? 'text-primary' : 'text-secondary';
+    }
+    
+    return { text: humanText, className: className, originalDate: dateString };
+}
+
+// Apply human-readable formatting when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const dateElements = document.querySelectorAll('.human-date[data-date]');
+    
+    dateElements.forEach(element => {
+        const dateString = element.getAttribute('data-date');
+        const humanDate = formatHumanDate(dateString);
+        
+        if (humanDate.text !== dateString) {
+            element.innerHTML = `
+                <div class="${humanDate.className}">${humanDate.text}</div>
+                <small class="date-relative">${humanDate.originalDate}</small>
+            `;
+        }
+    });
+    
+    // Add urgency classes to next events based on timing
+    const nextEventElements = document.querySelectorAll('.next-event');
+    nextEventElements.forEach(element => {
+        const text = element.textContent.toLowerCase();
+        if (text.includes('today') || text.includes('tomorrow')) {
+            element.classList.add('urgent');
+        } else if (text.includes('next week') || text.includes('soon')) {
+            element.classList.add('soon');
+        }
+    });
+});
+
+// Enhanced filter management for Employees
+function clearAllFilters() {
+    document.getElementById('nameFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('availabilityFilter').value = '';
+    document.getElementById('engagementFilter').value = '';
+    
+    // Show all rows (both desktop and mobile)
+    document.querySelectorAll('#employees-table-body tr, .employee-card').forEach(function(row) {
+        row.style.display = '';
+    });
+    
+    updateFilterStatus();
+    updateResultsCount();
+}
+
+// Update filter status display
+function updateFilterStatus() {
+    const activeFilters = [];
+    const nameFilter = document.getElementById('nameFilter').value;
+    const statusFilter = document.getElementById('statusFilter').value;
+    const availabilityFilter = document.getElementById('availabilityFilter').value;
+    const engagementFilter = document.getElementById('engagementFilter').value;
+    
+    if (nameFilter) activeFilters.push('Name');
+    if (statusFilter) activeFilters.push('Status');
+    if (availabilityFilter) activeFilters.push('Availability');
+    if (engagementFilter) activeFilters.push('Workload');
+    
+    const statusElement = document.getElementById('active-filters-count');
+    if (activeFilters.length === 0) {
+        statusElement.textContent = 'No active filters';
+        statusElement.className = 'text-muted small';
+    } else {
+        statusElement.innerHTML = `${activeFilters.length} active filter${activeFilters.length > 1 ? 's' : ''}: <span class="text-primary">${activeFilters.join(', ')}</span>`;
+        statusElement.className = 'text-info small';
+    }
+}
+
+// Update results count
+function updateResultsCount() {
+    // Count only desktop rows (since mobile cards are duplicates of the same data)
+    const visibleDesktopRows = document.querySelectorAll('#employees-table-body tr[style=""], #employees-table-body tr:not([style*="display: none"])');
+    const totalRows = document.querySelectorAll('#employees-table-body tr').length;
+    
+    const count = visibleDesktopRows.length;
+    
+    const countElement = document.getElementById('filter-results-count');
+    if (count < totalRows) {
+        countElement.textContent = `${count} of ${totalRows} results`;
+        countElement.style.display = 'inline-block';
+        countElement.className = 'badge badge-info ml-2';
+    } else {
+        countElement.style.display = 'none';
+    }
+}
+
+// Bulk operations
+function updateBulkActions() {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    const bulkActions = document.querySelector('.bulk-actions');
+    const selectedCount = document.getElementById('selected-count');
+    
+    // Count unique selected values to avoid double counting (desktop + mobile checkboxes)
+    const uniqueValues = new Set();
+    checkboxes.forEach(checkbox => {
+        uniqueValues.add(checkbox.value);
+    });
+    const actualCount = uniqueValues.size;
+    
+    if (actualCount > 0) {
+        bulkActions.classList.add('show');
+        selectedCount.textContent = `${actualCount} selected`;
+    } else {
+        bulkActions.classList.remove('show');
+    }
+}
+
+function bulkUpdateStatus(status) {
+    const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+    const ids = [...new Set(Array.from(checkboxes).map(cb => cb.value))]; // Remove duplicates
+    
+    if (ids.length === 0) return;
+    
+    showLoadingOverlay();
+    
+    setTimeout(() => {
+        hideLoadingOverlay();
+        
+        if (typeof Fnon !== 'undefined') {
+            Fnon.Hint.Success(`Updated ${ids.length} employee${ids.length > 1 ? 's' : ''} to ${status} status.`, {
+                title: 'Bulk Update Complete',
+                position: 'center-top',
+                animation: 'slide-top',
+                callback: () => window.location.reload()
+            });
+        } else {
+            alert(`Updated ${ids.length} employee${ids.length > 1 ? 's' : ''} to ${status} status.`);
+            window.location.reload();
+        }
+    }, 1000);
+}
+
+function showLoadingOverlay() {
+    document.querySelector('.loading-overlay').style.display = 'flex';
+}
+
+function hideLoadingOverlay() {
+    document.querySelector('.loading-overlay').style.display = 'none';
+}
+
+// Enhanced filter form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const filterForm = document.getElementById('employees-filter-form');
+    if (filterForm) {
+        filterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nameFilter = document.getElementById('nameFilter').value.toLowerCase();
+            const statusFilter = document.getElementById('statusFilter').value;
+            const availabilityFilter = document.getElementById('availabilityFilter').value;
+            const engagementFilter = document.getElementById('engagementFilter').value;
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Filter both desktop rows and mobile cards
+            const elements = document.querySelectorAll('#employees-table-body tr, .employee-card');
+            
+            elements.forEach(function(element) {
+                const name = element.getAttribute('data-name').toLowerCase();
+                const status = element.getAttribute('data-status');
+                const engagements = parseInt(element.getAttribute('data-engagements'));
+                const startDate = new Date(element.getAttribute('data-start') + 'T00:00:00');
+                const endDate = new Date(element.getAttribute('data-end') + 'T00:00:00');
+                startDate.setHours(0, 0, 0, 0);
+                endDate.setHours(0, 0, 0, 0);
+                
+                let show = true;
+                
+                // Name filter
+                if (nameFilter && !name.includes(nameFilter)) show = false;
+                
+                // Status filter
+                if (statusFilter && status !== statusFilter) show = false;
+                
+                // Availability filter
+                if (availabilityFilter) {
+                    const daysDiff = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+                    
+                    switch (availabilityFilter) {
+                        case 'available-now':
+                            if (status !== 'Available') show = false;
+                            break;
+                        case 'ending-soon':
+                            if (daysDiff > 7 || daysDiff < 0) show = false;
+                            break;
+                        case 'starting-soon':
+                            const startDaysDiff = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+                            if (startDaysDiff > 7 || startDaysDiff < 0) show = false;
+                            break;
+                    }
+                }
+                
+                // Engagement filter
+                if (engagementFilter) {
+                    switch (engagementFilter) {
+                        case 'active':
+                            if (engagements === 0) show = false;
+                            break;
+                        case 'none':
+                            if (engagements > 0) show = false;
+                            break;
+                        case 'multiple':
+                            if (engagements <= 1) show = false;
+                            break;
+                    }
+                }
+                
+                element.style.display = show ? '' : 'none';
+            });
+            
+            updateFilterStatus();
+            updateResultsCount();
+        });
+    }
+    
+    // Handle select all checkbox
+    const selectAllCheckbox = document.getElementById('selectAll');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(checkbox => {
+                if (!checkbox.closest('tr, .employee-card').style.display.includes('none')) {
+                    checkbox.checked = this.checked;
+                }
+            });
+            updateBulkActions();
+        });
+    }
+    
+    // Handle individual checkboxes
+    document.addEventListener('change', function(e) {
+        if (e.target.classList.contains('row-checkbox')) {
+            updateBulkActions();
+            
+            // Update select all checkbox state
+            const selectAllCheckbox = document.getElementById('selectAll');
+            if (selectAllCheckbox) {
+                const allCheckboxes = document.querySelectorAll('.row-checkbox');
+                const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => 
+                    !cb.closest('tr, .employee-card').style.display.includes('none')
+                );
+                const checkedVisibleCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
+                
+                if (checkedVisibleCheckboxes.length === 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (checkedVisibleCheckboxes.length === visibleCheckboxes.length) {
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.indeterminate = false;
+                } else {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = true;
+                }
+            }
+        }
+    });
+    
+    // Handle filter input changes for real-time status updates
+    ['nameFilter', 'statusFilter', 'availabilityFilter', 'engagementFilter'].forEach(id => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.addEventListener('input', updateFilterStatus);
+            element.addEventListener('change', updateFilterStatus);
+        }
+    });
+    
+    // Initialize filter status
+    updateFilterStatus();
+    updateResultsCount();
+});
+</script>
 
 {% endblock %}

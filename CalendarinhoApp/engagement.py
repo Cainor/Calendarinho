@@ -35,20 +35,61 @@ def EngagementCreate(request):
 
 @login_required
 def EngagementsTable(request):
-    engs = Engagement.objects.all()
-    table = []
-    row = {}
-    for eng in engs:
-        row["engID"] = eng.id
-        row["name"] = eng.name
-        row["clientName"] = eng.client
-        row["serviceType"] = eng.service_type
-        row["endDate"] = eng.end_date
-        row["startDate"] = eng.start_date
-        table.append(row.copy())
-
+    # Use optimized service function for better performance
+    from .service import get_enhanced_engagement_data
+    from .forms import AdvancedEngagementFilterForm
+    
+    # Initialize filter form
+    filter_form = AdvancedEngagementFilterForm(request.GET or None)
+    
+    # Get enhanced engagement data with optimized queries
+    data = get_enhanced_engagement_data()
+    
+    # If this is an AJAX request for filtered data, return JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from .api_filters import apply_engagement_filters, paginate_data
+        
+        filters = {}
+        if filter_form.is_valid():
+            filters = {k: v for k, v in filter_form.cleaned_data.items() if v is not None and v != ''}
+        
+        # Apply filters
+        filtered_engagements = apply_engagement_filters(data['engagements'], filters)
+        
+        # Sort options
+        sort_by = request.GET.get('sort_by', 'priority_score')
+        sort_order = request.GET.get('sort_order', 'desc')
+        
+        if sort_by in ['name', 'clientName', 'startDate', 'endDate', 'priority_score', 'risk_score']:
+            reverse_sort = sort_order == 'desc'
+            filtered_engagements.sort(
+                key=lambda x: x.get(sort_by, ''), 
+                reverse=reverse_sort
+            )
+        
+        # Pagination
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 25))
+        
+        paginated_data = paginate_data(filtered_engagements, page, per_page)
+        
+        return JsonResponse({
+            'success': True,
+            'engagements': paginated_data['data'],
+            'pagination': paginated_data['pagination'],
+            'summary': {
+                'total_filtered': len(filtered_engagements),
+                'total_unfiltered': len(data['engagements']),
+                'engagement_stats': data['engagement_stats'],
+                'filters_applied': len([k for k, v in filters.items() if v])
+            }
+        })
+    
     context = {
-        'table': table
+        'table': data['engagements'],
+        'engagement_stats': data['engagement_stats'],
+        'filter_form': filter_form,
+        'total_engagements': len(data['engagements'])
     }
     return render(request, "CalendarinhoApp/EngagementsTable.html", context)
 
@@ -62,7 +103,7 @@ def engagement(request, eng_id):
             # Create Comment object but don't save to database yet
             new_comment = comment_form.save(commit=False)
             # Assign the current engagement to the comment
-            new_comment.eng = engagement
+            new_comment.engagement = engagement
             # Assign the current user to the comment
             new_comment.user = request.user
             # Save the comment to the database
@@ -89,7 +130,7 @@ def deleteMyComment(request, commentID):
         return not_found(request)
     if(comment.user == request.user or request.user.user_type == "M"):
         comment.delete()
-        return HttpResponseRedirect("/engagement/"+str(comment.eng.id))
+        return HttpResponseRedirect("/engagement/"+str(comment.engagement.id))
     else:
         return not_found(request)
 
@@ -401,7 +442,7 @@ def notifyEngagedEmployees(empsBefore, empsAfter, engagement, request):
 
 def notifyNewComment(comment, request):
     user = comment.user
-    engagement = comment.eng
+    engagement = comment.engagement
     employees = engagement.employees.exclude(id=user.id)
     context = {
         'message': f'New comment on your engagement by {user.get_full_name()}.',

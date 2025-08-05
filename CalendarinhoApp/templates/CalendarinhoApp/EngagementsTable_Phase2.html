@@ -1,4 +1,4 @@
-﻿{% extends 'CalendarinhoApp/BaseNew.html' %}
+{% extends 'CalendarinhoApp/BaseNew.html' %}
 {% load static %}
 
 
@@ -24,15 +24,16 @@
     }
     
     .status-future {
-        background: #dee2e6;
+        background: linear-gradient(135deg, #3498db, #2980b9);
     }
     
     .status-ongoing {
-        background: #dee2e6;
+        background: linear-gradient(135deg, #e74c3c, #c0392b);
+        animation: pulse 2s infinite;
     }
     
     .status-past {
-        background: #dee2e6;
+        background: linear-gradient(135deg, #95a5a6, #7f8c8d);
     }
     
     /* Engagement Name */
@@ -50,8 +51,21 @@
     .engagement-name:hover {
         color: #4e73df;
         text-decoration: none;
+        transform: translateX(2px);
     }
     
+    .engagement-icon {
+        width: 28px;
+        height: 28px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.75rem;
+        flex-shrink: 0;
+    }
     
     /* Client and Service Tags */
     .client-tag {
@@ -59,10 +73,9 @@
         align-items: center;
         gap: 0.25rem;
         padding: 0.375rem 0.75rem;
-        background: #f8f9fa;
-        color: #495057;
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        border-radius: 1rem;
         font-size: 0.8rem;
         font-weight: 600;
         text-decoration: none;
@@ -70,9 +83,9 @@
     }
     
     .client-tag:hover {
-        color: #495057;
+        color: white;
         text-decoration: none;
-        background: #e9ecef;
+        transform: scale(1.05);
     }
     
     .service-tag {
@@ -80,10 +93,9 @@
         align-items: center;
         gap: 0.25rem;
         padding: 0.375rem 0.75rem;
-        background: #f8f9fa;
-        color: #495057;
-        border: 1px solid #dee2e6;
-        border-radius: 0.375rem;
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        border-radius: 1rem;
         font-size: 0.8rem;
         font-weight: 600;
     }
@@ -116,13 +128,13 @@
     
     /* Table Enhancements */
     .table th {
-        background: #f8f9fa;
-        color: #495057;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
         font-weight: 600;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         font-size: 0.85rem;
-        border: 1px solid #dee2e6;
+        border: none;
         padding: 1rem 0.75rem;
     }
     
@@ -133,6 +145,7 @@
     
     .table tbody tr:hover {
         background-color: #f8f9fc;
+        transform: translateY(-1px);
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
     
@@ -142,14 +155,196 @@
         border-top: 1px solid #e3e6f0;
     }
     
-    /* Filter Enhancements */
-    .filter-form {
-        background: #f8f9fa;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
+    /* Enhanced Filter Styling */
+    .enhanced-filter-form {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        border: 1px solid #e3e6f0;
+        box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
     }
     
+    .filter-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #5a5c69;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filter-select {
+        border-radius: 0.5rem;
+        border: 1px solid #d1d3e2;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .filter-select:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25), 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .custom-date-range {
+        background: rgba(78, 115, 223, 0.05);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1rem;
+        border: 1px dashed #4e73df;
+    }
+    
+    .filter-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .active-filter-badge {
+        background: #4e73df;
+        color: white;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+
+    /* Mobile Card Layout */
+    .mobile-cards-container {
+        padding: 0.5rem;
+    }
+    
+    .engagement-card {
+        transition: all 0.2s ease;
+    }
+    
+    .engagement-card .card {
+        border-left: 4px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .engagement-card .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .mobile-status {
+        width: 8px;
+        height: 40px;
+        border-radius: 4px;
+        flex-shrink: 0;
+    }
+    
+    /* Bulk Operations */
+    .bulk-actions {
+        transition: all 0.3s ease;
+    }
+    
+    .bulk-actions.show {
+        display: flex !important;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        border-radius: 0.5rem;
+    }
+    
+    .loading-spinner {
+        text-align: center;
+    }
+    
+    .card-body {
+        position: relative;
+    }
+    
+    /* Filter Results Count */
+    #filter-results-count {
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Skeleton Loading States */
+    .skeleton {
+        background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+        background-size: 200% 100%;
+        animation: skeleton-loading 1.5s infinite;
+    }
+    
+    @keyframes skeleton-loading {
+        0% { background-position: 200% 0; }
+        100% { background-position: -200% 0; }
+    }
+    
+    .skeleton-row {
+        height: 60px;
+        margin-bottom: 0.5rem;
+        border-radius: 0.5rem;
+    }
+    
+    .skeleton-card {
+        height: 200px;
+        margin-bottom: 1rem;
+        border-radius: 0.75rem;
+    }
+    
+    /* Responsive Improvements */
+    @media (max-width: 991.98px) {
+        .enhanced-filter-form {
+            padding: 1rem;
+        }
+        
+        .mobile-cards-container {
+            padding: 0;
+        }
+        
+        .engagement-card .card {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-label {
+            font-size: 0.8rem;
+        }
+        
+        .bulk-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+        
+        .bulk-actions .btn-group {
+            display: flex;
+            justify-content: space-around;
+        }
+        
+        .custom-date-range {
+            padding: 0.75rem;
+        }
+        
+        .engagement-card .row .col-6 {
+            margin-bottom: 0.75rem;
+        }
+    }
+
     @keyframes pulse {
         0%, 100% { opacity: 1; }
         50% { opacity: 0.5; }
@@ -175,16 +370,16 @@
             </h1>
             <p class="mb-0 text-muted">Track project timelines, client relationships, and service delivery</p>
         </div>
-        <div class="d-flex align-items-center">
-            <span class="badge badge-pill mr-3" style="background: #fff3cd; color: #856404; padding: 0.5rem 1rem;">
+        <div class="d-flex gap-2 align-items-center">
+            <span class="badge badge-pill" style="background: #fff3cd; color: #856404; padding: 0.5rem 1rem;">
                 <i class="fas fa-project-diagram mr-1"></i>
                 {{engagement_stats.total}} Total Engagements
             </span>
-            <span class="badge badge-pill mr-3" style="background: #d4edda; color: #155724; padding: 0.5rem 1rem;">
+            <span class="badge badge-pill" style="background: #d4edda; color: #155724; padding: 0.5rem 1rem;">
                 <i class="fas fa-play-circle mr-1"></i>
                 {{engagement_stats.ongoing}} Ongoing
             </span>
-            <span class="badge badge-pill mr-3" style="background: #cce5ff; color: #004085; padding: 0.5rem 1rem;">
+            <span class="badge badge-pill" style="background: #cce5ff; color: #004085; padding: 0.5rem 1rem;">
                 <i class="fas fa-clock mr-1"></i>
                 {{engagement_stats.future}} Upcoming
             </span>
@@ -248,9 +443,7 @@
                         </label>
                         <select class="form-control filter-select" id="clientFilter" name="clientFilter">
                             <option value="">All Clients</option>
-                            {% for row in table %}
-                                <option value="{{row.clientName}}">{{row.clientName}}</option>
-                            {% endfor %}
+                            <!-- Options will be populated by JavaScript -->
                         </select>
                     </div>
                     
@@ -261,9 +454,7 @@
                         </label>
                         <select class="form-control filter-select" id="serviceFilter" name="serviceFilter">
                             <option value="">All Services</option>
-                            {% for row in table %}
-                                <option value="{{row.serviceType}}">{{row.serviceType}}</option>
-                            {% endfor %}
+                            <!-- Options will be populated by JavaScript -->
                         </select>
                     </div>
                     
@@ -303,12 +494,15 @@
                 <div class="row">
                     <div class="col-12">
                         <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
-                            <div class="d-flex flex-wrap">
-                                <button type="submit" class="btn btn-primary btn-sm mr-2">
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="submit" class="btn btn-primary btn-sm">
                                     <i class="fas fa-filter mr-1"></i>Apply Filters
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllFilters()">
                                     <i class="fas fa-times mr-1"></i>Clear All
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="saveFilterPreset()">
+                                    <i class="fas fa-save mr-1"></i>Save Preset
                                 </button>
                             </div>
                             <div class="filter-status text-muted small">
@@ -337,6 +531,7 @@
                                 
                                 <h6 class="card-title mb-2">
                                     <a href="/engagement/{{row.engID}}" class="engagement-name text-decoration-none">
+                                        <i class="fas fa-handshake mr-2 text-primary"></i>
                                         {{row.name}}
                                     </a>
                                 </h6>
@@ -407,17 +602,17 @@
                                 <th><i class="fas fa-clock mr-2"></i>Duration</th>
                             </tr>
                         </thead>
-                    <tfoot>
-                        <tr>
-                            <th></th>
-                            <th>Engagement</th>
-                            <th>Client</th>
-                            <th>Service Type</th>
-                            <th>Start Date</th>
-                            <th>End Date</th>
-                            <th>Duration</th>
-                        </tr>
-                    </tfoot>
+                        <tfoot>
+                            <tr>
+                                <th></th>
+                                <th>Engagement</th>
+                                <th>Client</th>
+                                <th>Service Type</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Duration</th>
+                            </tr>
+                        </tfoot>
                         <tbody id="engagements-table-body">
                             {% for row in table %}
                             <tr class="engagement-row" data-start="{{row.startDate|date:'Y-m-d'}}" data-end="{{row.endDate|date:'Y-m-d'}}" data-client="{{row.clientName}}" data-service="{{row.serviceType}}" data-status="{{row.status}}">
@@ -430,7 +625,13 @@
                                 <td class="engagement-status">
                                     <div class="status-indicator" data-start="{{row.startDate|date:'Y-m-d'}}" data-end="{{row.endDate|date:'Y-m-d'}}"></div>
                                     <a href="/engagement/{{row.engID}}" class="engagement-name">
-                                        <div>{{row.name}}</div>
+                                        <div class="engagement-icon">
+                                            <i class="fas fa-handshake"></i>
+                                        </div>
+                                        <div>
+                                            <div>{{row.name}}</div>
+                                            <small class="text-muted">ID: {{row.engID}}</small>
+                                        </div>
                                     </a>
                                 </td>
                                 <td>
@@ -471,7 +672,7 @@
                                 </td>
                             </tr>
                             {% endfor %}
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
                 
@@ -580,24 +781,288 @@
         });
     }
     
+    // Enhanced filter management
+    function clearAllFilters() {
+        // Clear all filter inputs
+        document.getElementById('dateFilter').value = 'all';
+        document.getElementById('clientFilter').value = '';
+        document.getElementById('serviceFilter').value = '';
+        document.getElementById('dateRangeFilter').value = '';
+        document.getElementById('startDateFilter').value = '';
+        document.getElementById('endDateFilter').value = '';
+        
+        // Hide custom date range
+        document.querySelector('.custom-date-range').style.display = 'none';
+        
+        // Show all rows (both desktop and mobile)
+        document.querySelectorAll('#engagements-table-body tr, .engagement-card').forEach(function(row) {
+            row.style.display = '';
+        });
+        
+        // Update filter status
+        updateFilterStatus();
+        updateResultsCount();
+    }
+    
+    // Update filter status display
+    function updateFilterStatus() {
+        const activeFilters = [];
+        const dateFilter = document.getElementById('dateFilter').value;
+        const clientFilter = document.getElementById('clientFilter').value;
+        const serviceFilter = document.getElementById('serviceFilter').value;
+        const dateRangeFilter = document.getElementById('dateRangeFilter').value;
+        
+        if (dateFilter !== 'all') activeFilters.push('Timeline');
+        if (clientFilter) activeFilters.push('Client');
+        if (serviceFilter) activeFilters.push('Service');
+        if (dateRangeFilter) activeFilters.push('Date Range');
+        
+        const statusElement = document.getElementById('active-filters-count');
+        if (activeFilters.length === 0) {
+            statusElement.textContent = 'No active filters';
+            statusElement.className = 'text-muted small';
+        } else {
+            statusElement.innerHTML = `${activeFilters.length} active filter${activeFilters.length > 1 ? 's' : ''}: <span class="text-primary">${activeFilters.join(', ')}</span>`;
+            statusElement.className = 'text-info small';
+        }
+    }
+    
+    // Update results count
+    function updateResultsCount() {
+        const visibleDesktopRows = document.querySelectorAll('#engagements-table-body tr[style=""], #engagements-table-body tr:not([style*="display: none"])');
+        const visibleMobileCards = document.querySelectorAll('.engagement-card[style=""], .engagement-card:not([style*="display: none"])');
+        
+        // Use desktop count as primary, mobile as fallback
+        const count = visibleDesktopRows.length || visibleMobileCards.length;
+        const totalRows = document.querySelectorAll('#engagements-table-body tr, .engagement-card').length;
+        
+        const countElement = document.getElementById('filter-results-count');
+        if (count < totalRows) {
+            countElement.textContent = `${count} of ${totalRows} results`;
+            countElement.style.display = 'inline-block';
+            countElement.className = 'badge badge-info ml-2';
+        } else {
+            countElement.style.display = 'none';
+        }
+    }
+    
+    // Save filter preset
+    function saveFilterPreset() {
+        const preset = {
+            dateFilter: document.getElementById('dateFilter').value,
+            clientFilter: document.getElementById('clientFilter').value,
+            serviceFilter: document.getElementById('serviceFilter').value,
+            dateRangeFilter: document.getElementById('dateRangeFilter').value,
+            startDateFilter: document.getElementById('startDateFilter').value,
+            endDateFilter: document.getElementById('endDateFilter').value
+        };
+        
+        const presetName = prompt('Enter a name for this filter preset:');
+        if (presetName) {
+            const presets = JSON.parse(localStorage.getItem('engagement-filter-presets') || '{}');
+            presets[presetName] = preset;
+            localStorage.setItem('engagement-filter-presets', JSON.stringify(presets));
+            
+            // Show success message
+            if (typeof Fnon !== 'undefined') {
+                Fnon.Hint.Success(`Filter preset "${presetName}" saved successfully!`, {
+                    title: 'Preset Saved',
+                    position: 'center-top',
+                    animation: 'slide-top'
+                });
+            }
+        }
+    }
+    
+    // Bulk operations
+    function updateBulkActions() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const bulkActions = document.querySelector('.bulk-actions');
+        const selectedCount = document.getElementById('selected-count');
+        
+        if (checkboxes.length > 0) {
+            bulkActions.classList.add('show');
+            selectedCount.textContent = `${checkboxes.length} selected`;
+        } else {
+            bulkActions.classList.remove('show');
+        }
+    }
+    
+    function bulkUpdateStatus(status) {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+        
+        if (ids.length === 0) return;
+        
+        showLoadingOverlay();
+        
+        // Here you would make an AJAX call to update the status
+        // For now, we'll simulate the operation
+        setTimeout(() => {
+            hideLoadingOverlay();
+            
+            if (typeof Fnon !== 'undefined') {
+                Fnon.Hint.Success(`Updated ${ids.length} engagement${ids.length > 1 ? 's' : ''} to ${status} status.`, {
+                    title: 'Bulk Update Complete',
+                    position: 'center-top',
+                    animation: 'slide-top',
+                    callback: () => window.location.reload()
+                });
+            } else {
+                alert(`Updated ${ids.length} engagement${ids.length > 1 ? 's' : ''} to ${status} status.`);
+                window.location.reload();
+            }
+        }, 1500);
+    }
+    
+    function bulkDelete() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const ids = Array.from(checkboxes).map(cb => cb.value);
+        
+        if (ids.length === 0) return;
+        
+        if (!confirm(`Are you sure you want to delete ${ids.length} engagement${ids.length > 1 ? 's' : ''}? This action cannot be undone.`)) {
+            return;
+        }
+        
+        showLoadingOverlay();
+        
+        // Here you would make an AJAX call to delete the engagements
+        // For now, we'll simulate the operation
+        setTimeout(() => {
+            hideLoadingOverlay();
+            
+            if (typeof Fnon !== 'undefined') {
+                Fnon.Hint.Success(`Deleted ${ids.length} engagement${ids.length > 1 ? 's' : ''}.`, {
+                    title: 'Bulk Delete Complete',
+                    position: 'center-top',
+                    animation: 'slide-top',
+                    callback: () => window.location.reload()
+                });
+            } else {
+                alert(`Deleted ${ids.length} engagement${ids.length > 1 ? 's' : ''}.`);
+                window.location.reload();
+            }
+        }, 1500);
+    }
+    
+    function showLoadingOverlay() {
+        document.querySelector('.loading-overlay').style.display = 'flex';
+    }
+    
+    function hideLoadingOverlay() {
+        document.querySelector('.loading-overlay').style.display = 'none';
+    }
+    
+    // Add skeleton loading for better perceived performance
+    function showSkeletonLoading() {
+        const tableBody = document.getElementById('engagements-table-body');
+        const mobileContainer = document.querySelector('.mobile-cards-container');
+        
+        // Desktop skeleton
+        if (tableBody) {
+            tableBody.innerHTML = Array(5).fill().map(() => `
+                <tr>
+                    <td colspan="7"><div class="skeleton skeleton-row"></div></td>
+                </tr>
+            `).join('');
+        }
+        
+        // Mobile skeleton
+        if (mobileContainer) {
+            mobileContainer.innerHTML = Array(3).fill().map(() => `
+                <div class="skeleton skeleton-card mb-3"></div>
+            `).join('');
+        }
+    }
+    
+    // Enhanced loading states
+    function showLoadingState(message = 'Processing...') {
+        const overlay = document.querySelector('.loading-overlay');
+        const messageElement = overlay.querySelector('.mt-2');
+        if (messageElement) {
+            messageElement.textContent = message;
+        }
+        overlay.style.display = 'flex';
+    }
+    
+    function hideLoadingState() {
+        document.querySelector('.loading-overlay').style.display = 'none';
+    }
+    
+    // Populate filter dropdown options with unique values
+    function populateFilterOptions() {
+        const clientSelect = document.getElementById('clientFilter');
+        const serviceSelect = document.getElementById('serviceFilter');
+        
+        // Get unique clients and services from the data
+        const clients = new Set();
+        const services = new Set();
+        
+        document.querySelectorAll('#engagements-table-body tr, .engagement-card').forEach(element => {
+            const client = element.getAttribute('data-client');
+            const service = element.getAttribute('data-service');
+            if (client) clients.add(client);
+            if (service) services.add(service);
+        });
+        
+        // Clear existing options (except "All" option)
+        clientSelect.innerHTML = '<option value="">All Clients</option>';
+        serviceSelect.innerHTML = '<option value="">All Services</option>';
+        
+        // Add unique options
+        Array.from(clients).sort().forEach(client => {
+            const option = document.createElement('option');
+            option.value = client;
+            option.textContent = client;
+            clientSelect.appendChild(option);
+        });
+        
+        Array.from(services).sort().forEach(service => {
+            const option = document.createElement('option');
+            option.value = service;
+            option.textContent = service;
+            serviceSelect.appendChild(option);
+        });
+    }
+    
+    // Legacy function for backward compatibility
+    function clearFilters() {
+        clearAllFilters();
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
         // Set filter from URL param if present
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('filter') === 'future') {
             document.getElementById('dateFilter').value = 'future';
         }
+        
+        // Enhanced filter form submission
         document.getElementById('engagements-filter-form').addEventListener('submit', function(e) {
             e.preventDefault();
+            
             const dateFilter = document.getElementById('dateFilter').value;
-            const clientFilter = document.getElementById('clientFilter').value.toLowerCase();
-            const serviceFilter = document.getElementById('serviceFilter').value.toLowerCase();
+            const clientFilter = document.getElementById('clientFilter').value;
+            const serviceFilter = document.getElementById('serviceFilter').value;
+            const dateRangeFilter = document.getElementById('dateRangeFilter').value;
+            const startDateFilter = document.getElementById('startDateFilter').value;
+            const endDateFilter = document.getElementById('endDateFilter').value;
+            
             const today = new Date();
-            document.querySelectorAll('#engagements-table-body tr').forEach(function(row) {
-                const start = parseDate(row.getAttribute('data-start'));
-                const end = parseDate(row.getAttribute('data-end'));
-                const client = row.getAttribute('data-client').toLowerCase();
-                const service = row.getAttribute('data-service').toLowerCase();
+            today.setHours(0, 0, 0, 0);
+            
+            // Filter both desktop rows and mobile cards
+            const elements = document.querySelectorAll('#engagements-table-body tr, .engagement-card');
+            
+            elements.forEach(function(element) {
+                const start = parseDate(element.getAttribute('data-start'));
+                const end = parseDate(element.getAttribute('data-end'));
+                const client = element.getAttribute('data-client');
+                const service = element.getAttribute('data-service');
                 let show = true;
+                
+                // Timeline filter
                 if (dateFilter === 'future') {
                     show = start > today;
                 } else if (dateFilter === 'ongoing') {
@@ -605,11 +1070,121 @@
                 } else if (dateFilter === 'past') {
                     show = end < today;
                 }
-                if (clientFilter && !client.includes(clientFilter)) show = false;
-                if (serviceFilter && !service.includes(serviceFilter)) show = false;
-                row.style.display = show ? '' : 'none';
+                
+                // Client filter
+                if (clientFilter && client !== clientFilter) show = false;
+                
+                // Service filter
+                if (serviceFilter && service !== serviceFilter) show = false;
+                
+                // Date range filter
+                if (dateRangeFilter && dateRangeFilter !== 'custom') {
+                    const now = new Date();
+                    let rangeStart = new Date(now);
+                    let rangeEnd = new Date(now);
+                    
+                    switch (dateRangeFilter) {
+                        case 'this-week':
+                            rangeStart.setDate(now.getDate() - now.getDay());
+                            rangeEnd.setDate(rangeStart.getDate() + 6);
+                            break;
+                        case 'this-month':
+                            rangeStart.setDate(1);
+                            rangeEnd.setMonth(rangeEnd.getMonth() + 1, 0);
+                            break;
+                        case 'next-week':
+                            rangeStart.setDate(now.getDate() + (7 - now.getDay()));
+                            rangeEnd.setDate(rangeStart.getDate() + 6);
+                            break;
+                        case 'next-month':
+                            rangeStart.setMonth(rangeStart.getMonth() + 1, 1);
+                            rangeEnd.setMonth(rangeEnd.getMonth() + 2, 0);
+                            break;
+                    }
+                    
+                    rangeStart.setHours(0, 0, 0, 0);
+                    rangeEnd.setHours(23, 59, 59, 999);
+                    
+                    if (!(start >= rangeStart && start <= rangeEnd) && !(end >= rangeStart && end <= rangeEnd)) {
+                        show = false;
+                    }
+                }
+                
+                // Custom date range filter
+                if (dateRangeFilter === 'custom' && (startDateFilter || endDateFilter)) {
+                    if (startDateFilter) {
+                        const customStart = new Date(startDateFilter + 'T00:00:00');
+                        if (start < customStart) show = false;
+                    }
+                    if (endDateFilter) {
+                        const customEnd = new Date(endDateFilter + 'T23:59:59');
+                        if (end > customEnd) show = false;
+                    }
+                }
+                
+                element.style.display = show ? '' : 'none';
             });
+            
+            updateFilterStatus();
+            updateResultsCount();
         });
+        
+        // Handle date range filter changes
+        document.getElementById('dateRangeFilter').addEventListener('change', function() {
+            const customDateRange = document.querySelector('.custom-date-range');
+            if (this.value === 'custom') {
+                customDateRange.style.display = 'block';
+            } else {
+                customDateRange.style.display = 'none';
+            }
+            updateFilterStatus();
+        });
+        
+        // Handle select all checkbox
+        document.getElementById('selectAll').addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('.row-checkbox');
+            checkboxes.forEach(checkbox => {
+                if (!checkbox.closest('tr, .engagement-card').style.display.includes('none')) {
+                    checkbox.checked = this.checked;
+                }
+            });
+            updateBulkActions();
+        });
+        
+        // Handle individual checkboxes
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                updateBulkActions();
+                
+                // Update select all checkbox state
+                const allCheckboxes = document.querySelectorAll('.row-checkbox');
+                const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => 
+                    !cb.closest('tr, .engagement-card').style.display.includes('none')
+                );
+                const checkedVisibleCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
+                
+                const selectAllCheckbox = document.getElementById('selectAll');
+                if (checkedVisibleCheckboxes.length === 0) {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = false;
+                } else if (checkedVisibleCheckboxes.length === visibleCheckboxes.length) {
+                    selectAllCheckbox.checked = true;
+                    selectAllCheckbox.indeterminate = false;
+                } else {
+                    selectAllCheckbox.checked = false;
+                    selectAllCheckbox.indeterminate = true;
+                }
+            }
+        });
+        
+        // Handle filter input changes for real-time status updates
+        ['dateFilter', 'clientFilter', 'serviceFilter', 'dateRangeFilter', 'startDateFilter', 'endDateFilter'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('change', updateFilterStatus);
+            }
+        });
+        
         // Auto-apply filter if set from URL
         if (urlParams.get('filter') === 'future') {
             document.getElementById('engagements-filter-form').dispatchEvent(new Event('submit'));
@@ -674,57 +1249,6 @@
         // Set engagement status indicators (both desktop and mobile)
         setEngagementStatus();
         
-        // Handle select all checkbox
-        const selectAllCheckbox = document.getElementById('selectAll');
-        if (selectAllCheckbox) {
-            selectAllCheckbox.addEventListener('change', function() {
-                const checkboxes = document.querySelectorAll('.row-checkbox');
-                checkboxes.forEach(checkbox => {
-                    if (!checkbox.closest('tr, .engagement-card').style.display.includes('none')) {
-                        checkbox.checked = this.checked;
-                    }
-                });
-                updateBulkActions();
-            });
-        }
-        
-        // Handle individual checkboxes
-        document.addEventListener('change', function(e) {
-            if (e.target.classList.contains('row-checkbox')) {
-                updateBulkActions();
-                
-                // Update select all checkbox state
-                const selectAllCheckbox = document.getElementById('selectAll');
-                if (selectAllCheckbox) {
-                    const allCheckboxes = document.querySelectorAll('.row-checkbox');
-                    const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => 
-                        !cb.closest('tr, .engagement-card').style.display.includes('none')
-                    );
-                    const checkedVisibleCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
-                    
-                    if (checkedVisibleCheckboxes.length === 0) {
-                        selectAllCheckbox.checked = false;
-                        selectAllCheckbox.indeterminate = false;
-                    } else if (checkedVisibleCheckboxes.length === visibleCheckboxes.length) {
-                        selectAllCheckbox.checked = true;
-                        selectAllCheckbox.indeterminate = false;
-                    } else {
-                        selectAllCheckbox.checked = false;
-                        selectAllCheckbox.indeterminate = true;
-                    }
-                }
-            }
-        });
-        
-        // Handle filter input changes for real-time status updates
-        ['dateFilter', 'clientFilter', 'serviceFilter', 'dateRangeFilter'].forEach(id => {
-            const element = document.getElementById(id);
-            if (element) {
-                element.addEventListener('input', updateFilterStatus);
-                element.addEventListener('change', updateFilterStatus);
-            }
-        });
-        
         // Initialize filter status
         updateFilterStatus();
         updateResultsCount();
@@ -732,228 +1256,5 @@
         // Populate unique client and service options
         populateFilterOptions();
     });
-    
-    // Populate filter dropdown options with unique values
-    function populateFilterOptions() {
-        const clientSelect = document.getElementById('clientFilter');
-        const serviceSelect = document.getElementById('serviceFilter');
-        
-        // Get unique clients and services from the data
-        const clients = new Set();
-        const services = new Set();
-        
-        document.querySelectorAll('#engagements-table-body tr, .engagement-card').forEach(element => {
-            const client = element.getAttribute('data-client');
-            const service = element.getAttribute('data-service');
-            if (client) clients.add(client);
-            if (service) services.add(service);
-        });
-        
-        // Clear existing options (except "All" option)
-        clientSelect.innerHTML = '<option value="">All Clients</option>';
-        serviceSelect.innerHTML = '<option value="">All Services</option>';
-        
-        // Add unique options
-        Array.from(clients).sort().forEach(client => {
-            const option = document.createElement('option');
-            option.value = client;
-            option.textContent = client;
-            clientSelect.appendChild(option);
-        });
-        
-        Array.from(services).sort().forEach(service => {
-            const option = document.createElement('option');
-            option.value = service;
-            option.textContent = service;
-            serviceSelect.appendChild(option);
-        });
-    }
-    
-    // Clear all filters function
-    function clearAllFilters() {
-        document.getElementById('dateFilter').value = 'all';
-        document.getElementById('clientFilter').value = '';
-        document.getElementById('serviceFilter').value = '';
-        document.getElementById('dateRangeFilter').value = '';
-        
-        // Show all rows (both desktop and mobile)
-        document.querySelectorAll('#engagements-table-body tr, .engagement-card').forEach(function(row) {
-            row.style.display = '';
-        });
-        
-        updateFilterStatus();
-        updateResultsCount();
-    }
-    
-    // Update filter status display
-    function updateFilterStatus() {
-        const activeFilters = [];
-        const dateFilter = document.getElementById('dateFilter').value;
-        const clientFilter = document.getElementById('clientFilter').value;
-        const serviceFilter = document.getElementById('serviceFilter').value;
-        const dateRangeFilter = document.getElementById('dateRangeFilter').value;
-        
-        if (dateFilter && dateFilter !== 'all') activeFilters.push('Timeline');
-        if (clientFilter) activeFilters.push('Client');
-        if (serviceFilter) activeFilters.push('Service');
-        if (dateRangeFilter) activeFilters.push('Date Range');
-        
-        const statusElement = document.getElementById('active-filters-count');
-        if (activeFilters.length === 0) {
-            statusElement.textContent = 'No active filters';
-            statusElement.className = 'text-muted small';
-        } else {
-            statusElement.innerHTML = `${activeFilters.length} active filter${activeFilters.length > 1 ? 's' : ''}: <span class="text-primary">${activeFilters.join(', ')}</span>`;
-            statusElement.className = 'text-info small';
-        }
-    }
-    
-    // Update results count
-    function updateResultsCount() {
-        // Count only desktop rows (since mobile cards are duplicates of the same data)
-        const visibleDesktopRows = document.querySelectorAll('#engagements-table-body tr[style=""], #engagements-table-body tr:not([style*="display: none"])');
-        const totalRows = document.querySelectorAll('#engagements-table-body tr').length;
-        
-        const count = visibleDesktopRows.length;
-        
-        const countElement = document.getElementById('filter-results-count');
-        if (count < totalRows) {
-            countElement.textContent = `${count} of ${totalRows} results`;
-            countElement.style.display = 'inline-block';
-            countElement.className = 'badge badge-info ml-2';
-        } else {
-            countElement.style.display = 'none';
-        }
-    }
-    
-    // Bulk operations
-    function updateBulkActions() {
-        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-        const bulkActions = document.querySelector('.bulk-actions');
-        const selectedCount = document.getElementById('selected-count');
-        
-        if (checkboxes.length > 0) {
-            bulkActions.classList.add('show');
-            selectedCount.textContent = `${checkboxes.length} selected`;
-        } else {
-            bulkActions.classList.remove('show');
-        }
-    }
-    
-    function bulkUpdateStatus(status) {
-        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-        const ids = Array.from(checkboxes).map(cb => cb.value);
-        
-        if (ids.length === 0) return;
-        
-        showLoadingOverlay();
-        
-        setTimeout(() => {
-            hideLoadingOverlay();
-            
-            if (typeof Fnon !== 'undefined') {
-                Fnon.Hint.Success(`Updated ${ids.length} engagement${ids.length > 1 ? 's' : ''} to ${status} status.`, {
-                    title: 'Bulk Update Complete',
-                    position: 'center-top',
-                    animation: 'slide-top',
-                    callback: () => window.location.reload()
-                });
-            } else {
-                alert(`Updated ${ids.length} engagement${ids.length > 1 ? 's' : ''} to ${status} status.`);
-                window.location.reload();
-            }
-        }, 1000);
-    }
-    
-    function bulkDelete() {
-        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
-        const ids = Array.from(checkboxes).map(cb => cb.value);
-        
-        if (ids.length === 0) return;
-        
-        if (!confirm(`Are you sure you want to delete ${ids.length} engagement${ids.length > 1 ? 's' : ''}? This action cannot be undone.`)) {
-            return;
-        }
-        
-        showLoadingOverlay();
-        
-        setTimeout(() => {
-            hideLoadingOverlay();
-            
-            if (typeof Fnon !== 'undefined') {
-                Fnon.Hint.Success(`Deleted ${ids.length} engagement${ids.length > 1 ? 's' : ''}.`, {
-                    title: 'Bulk Delete Complete',
-                    position: 'center-top',
-                    animation: 'slide-top',
-                    callback: () => window.location.reload()
-                });
-            } else {
-                alert(`Deleted ${ids.length} engagement${ids.length > 1 ? 's' : ''}.`);
-                window.location.reload();
-            }
-        }, 1000);
-    }
-    
-    function showLoadingOverlay() {
-        document.querySelector('.loading-overlay').style.display = 'flex';
-    }
-    
-    function hideLoadingOverlay() {
-        document.querySelector('.loading-overlay').style.display = 'none';
-    }
 </script>
-<style>
-    /* Enhanced Filter Form */
-    .filter-form .form-control {
-        min-width: 140px;
-        border-radius: 0.375rem;
-        border: 1px solid #ced4da;
-        transition: all 0.2s ease;
-    }
-    
-    .filter-form .form-control:focus {
-        border-color: #4e73df;
-        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
-    }
-    
-    .filter-form label {
-        font-size: 0.9rem;
-        margin-bottom: 0;
-    }
-    
-    .filter-form .btn {
-        padding: 0.5rem 1rem;
-        border-radius: 0.375rem;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-    
-    .filter-form .btn:hover {
-        /* Removed upward animation */
-    }
-    
-    .filter-form .form-group {
-        margin-right: 1rem;
-    }
-    
-    @media (max-width: 768px) {
-        .filter-form {
-            padding: 0.75rem;
-        }
-        
-        .filter-form .d-flex {
-            flex-direction: column;
-            gap: 1rem !important;
-        }
-        
-        .filter-form .form-group {
-            margin-right: 0;
-            width: 100%;
-        }
-        
-        .filter-form .form-control {
-            min-width: 100%;
-        }
-    }
-</style>
 {% endblock %}

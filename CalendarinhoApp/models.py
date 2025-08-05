@@ -28,9 +28,64 @@ class Client(models.Model):
         return self.engagements.filter(start_date__lte=today, end_date__gte=today).count()
     
     def count_working_employees(self):
+        """Count employees currently working on client engagements (optimized)"""
         today = timezone.now().date()
         ongoing_engagements = self.engagements.filter(start_date__lte=today, end_date__gte=today)
         return sum(eng.working_employees() for eng in ongoing_engagements)
+    
+    def get_engagement_history_summary(self):
+        """Get summary of engagement history for this client"""
+        today = timezone.now().date()
+        engagements = self.engagements.all()
+        
+        summary = {
+            'total_engagements': engagements.count(),
+            'completed_engagements': engagements.filter(end_date__lt=today).count(),
+            'ongoing_engagements': engagements.filter(start_date__lte=today, end_date__gte=today).count(),
+            'upcoming_engagements': engagements.filter(start_date__gt=today).count(),
+            'total_duration_days': sum((eng.end_date - eng.start_date).days + 1 for eng in engagements),
+        }
+        
+        # Calculate average engagement duration
+        if summary['total_engagements'] > 0:
+            summary['avg_duration_days'] = round(summary['total_duration_days'] / summary['total_engagements'], 1)
+        else:
+            summary['avg_duration_days'] = 0
+        
+        # Find first and last engagement dates
+        first_engagement = engagements.order_by('start_date').first()
+        last_engagement = engagements.order_by('-end_date').first()
+        
+        summary['first_engagement_date'] = first_engagement.start_date if first_engagement else None
+        summary['last_engagement_date'] = last_engagement.end_date if last_engagement else None
+        
+        return summary
+    
+    def get_activity_score(self):
+        """Calculate a client activity score based on recent engagement activity"""
+        today = timezone.now().date()
+        
+        # Weight recent activity more heavily
+        score = 0
+        
+        # Current engagements (highest weight)
+        current_count = self.count_current_engagements()
+        score += current_count * 10
+        
+        # Recent engagements (last 90 days)
+        recent_engagements = self.engagements.filter(
+            end_date__gte=today - timezone.timedelta(days=90)
+        ).count()
+        score += recent_engagements * 5
+        
+        # Upcoming engagements (next 90 days)
+        upcoming_engagements = self.engagements.filter(
+            start_date__gt=today,
+            start_date__lte=today + timezone.timedelta(days=90)
+        ).count()
+        score += upcoming_engagements * 3
+        
+        return score
 
     def get_vulnerability_summary(self):
         """Get vulnerability summary for all client engagements using optimized database queries"""
@@ -216,6 +271,65 @@ class Engagement(models.Model):
         if total_vulns == 0:
             return 100  # No vulnerabilities means 100% remediation
         return round((summary['total_fixed'] / total_vulns) * 100, 2)
+    
+    @classmethod
+    def get_ongoing_engagements(cls):
+        """Get all currently ongoing engagements with optimized queries"""
+        today = timezone.now().date()
+        return cls.objects.select_related('client', 'service_type').prefetch_related(
+            'employees', 'vulnerabilities'
+        ).filter(
+            start_date__lte=today,
+            end_date__gte=today
+        )
+    
+    @classmethod
+    def get_upcoming_engagements(cls, days=30):
+        """Get engagements starting within the next N days"""
+        today = timezone.now().date()
+        future_date = today + datetime.timedelta(days=days)
+        return cls.objects.select_related('client', 'service_type').prefetch_related(
+            'employees'
+        ).filter(
+            start_date__gt=today,
+            start_date__lte=future_date
+        ).order_by('start_date')
+    
+    def get_team_utilization(self):
+        """Calculate the current team utilization for this engagement"""
+        today = timezone.now().date()
+        if not (self.start_date <= today <= self.end_date):
+            return 0
+        
+        total_employees = self.employees.count()
+        if total_employees == 0:
+            return 0
+        
+        # Count employees who are not on leave today
+        available_employees = 0
+        for emp in self.employees.all():
+            if not emp.overlapCheck(today, today):  # No overlap means available
+                available_employees += 1
+        
+        return round((available_employees / total_employees) * 100, 2)
+    
+    def get_status_display(self):
+        """Get human-readable status for the engagement"""
+        today = timezone.now().date()
+        if self.start_date > today:
+            days_until = (self.start_date - today).days
+            return f"Starts in {days_until} days"
+        elif self.start_date <= today <= self.end_date:
+            days_left = (self.end_date - today).days
+            if days_left == 0:
+                return "Ends today"
+            elif days_left == 1:
+                return "Ends tomorrow"
+            else:
+                return f"{days_left} days remaining"
+        else:
+            days_ago = (today - self.end_date).days
+            return f"Completed {days_ago} days ago"
 
 
 class Comment(models.Model):

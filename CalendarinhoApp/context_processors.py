@@ -42,3 +42,26 @@ def service_form(request):
     return {
         'service_form' : ServiceForm()
     }
+
+def global_stats(request):
+    """Provide global statistics to all templates using optimized service functions"""
+    if not request.user.is_authenticated:
+        return {}
+    
+    try:
+        from .service import get_dashboard_summary
+        
+        # Use optimized dashboard summary function
+        dashboard_data = get_dashboard_summary()
+        
+        return {
+            'global_stats': {
+                'employees': dashboard_data['employees'],
+                'engagements': dashboard_data['engagements'],
+                'clients': dashboard_data['clients'],
+                'utilization_rate': dashboard_data['utilization']
+            }
+        }
+    except Exception:
+        # Return empty dict if there's any error to prevent template rendering issues
+        return {}

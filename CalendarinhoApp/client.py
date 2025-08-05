@@ -3,6 +3,7 @@ from .models import Engagement, Client
 from .forms import *
 from django.contrib.auth.decorators import login_required
 import logging
+import datetime
 from django.http import JsonResponse
 from django.conf import settings
 
@@ -43,18 +44,61 @@ def client(request, cli_id):
 
 @login_required
 def ClientsTable(request):
-    clients = Client.objects.all()
-    table = []
-    row = {}
-    for cli in clients:
-        row["cliID"] = cli.id
-        row["name"] = cli.name
-        row["acronym"] = cli.acronym
-        row["code"] = cli.code
-        table.append(row.copy())
-
+    # Use optimized service function for better performance
+    from .service import get_enhanced_client_data
+    from .forms import AdvancedClientFilterForm
+    
+    # Initialize filter form
+    filter_form = AdvancedClientFilterForm(request.GET or None)
+    
+    # Get enhanced client data with optimized queries
+    data = get_enhanced_client_data()
+    
+    # If this is an AJAX request for filtered data, return JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from .api_filters import apply_client_filters, paginate_data
+        
+        filters = {}
+        if filter_form.is_valid():
+            filters = {k: v for k, v in filter_form.cleaned_data.items() if v is not None and v != ''}
+        
+        # Apply filters
+        filtered_clients = apply_client_filters(data['clients'], filters)
+        
+        # Sort options
+        sort_by = request.GET.get('sort_by', 'name')
+        sort_order = request.GET.get('sort_order', 'asc')
+        
+        if sort_by in ['name', 'activity_level', 'risk_score', 'total_engagements']:
+            reverse_sort = sort_order == 'desc'
+            filtered_clients.sort(
+                key=lambda x: x.get(sort_by, ''), 
+                reverse=reverse_sort
+            )
+        
+        # Pagination
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 25))
+        
+        paginated_data = paginate_data(filtered_clients, page, per_page)
+        
+        return JsonResponse({
+            'success': True,
+            'clients': paginated_data['data'],
+            'pagination': paginated_data['pagination'],
+            'summary': {
+                'total_filtered': len(filtered_clients),
+                'total_unfiltered': len(data['clients']),
+                'client_stats': data['client_stats'],
+                'filters_applied': len([k for k, v in filters.items() if v])
+            }
+        })
+    
     context = {
-        'table': table
+        'table': data['clients'],
+        'client_stats': data['client_stats'],
+        'filter_form': filter_form,
+        'total_clients': len(data['clients'])
     }
     return render(request, "CalendarinhoApp/ClientsTable.html", context)
 

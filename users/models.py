@@ -173,6 +173,184 @@ class CustomUser(AbstractUser):
 
     def getEmployees():
         return CustomUser.objects.filter(user_type="E")
+    
+    @classmethod
+    def get_employee_statistics(cls):
+        """Get comprehensive employee statistics"""
+        today = datetime.date.today()
+        employees = cls.objects.exclude(is_active=False)
+        
+        stats = {
+            'total': employees.count(),
+            'managers': employees.filter(user_type='M').count(),
+            'employees': employees.filter(user_type='E').count(),
+            'available': 0,
+            'engaged': 0,
+            'training': 0,
+            'vacation': 0,
+            'by_utilization': {
+                'high': 0,  # >80%
+                'medium': 0,  # 40-80%
+                'low': 0   # <40%
+            }
+        }
+        
+        for emp in employees:
+            status = emp.currentStatus()[0]
+            if status == 'Available':
+                stats['available'] += 1
+            elif status == 'Engaged':
+                stats['engaged'] += 1
+            elif status == 'Training':
+                stats['training'] += 1
+            elif status == 'Vacation':
+                stats['vacation'] += 1
+            
+            # Calculate utilization categorization
+            utilization = emp.get_utilization_rate(30)
+            if utilization >= 80:
+                stats['by_utilization']['high'] += 1
+            elif utilization >= 40:
+                stats['by_utilization']['medium'] += 1
+            else:
+                stats['by_utilization']['low'] += 1
+        
+        return stats
+    
+    def get_status_display(self):
+        """Get enhanced status display with better formatting"""
+        empstat = self.currentStatus()
+        status_type = empstat[0] if empstat else "Available"
+        status_detail = empstat[1] if len(empstat) > 1 else ""
+        
+        if status_type == "Available":
+            return {
+                'type': 'Available',
+                'label': 'Available',
+                'class': 'success',
+                'icon': '✓'
+            }
+        elif status_type == "Engaged":
+            return {
+                'type': 'Engaged',
+                'label': f'Engaged: {status_detail}',
+                'class': 'primary',
+                'icon': '🔧'
+            }
+        elif status_type == "Training":
+            return {
+                'type': 'Training',
+                'label': f'Training: {status_detail}',
+                'class': 'info',
+                'icon': '📚'
+            }
+        elif status_type == "Vacation":
+            return {
+                'type': 'Vacation',
+                'label': f'Vacation: {status_detail}',
+                'class': 'warning',
+                'icon': '🏖️'
+            }
+        else:
+            return {
+                'type': status_type,
+                'label': f'{status_type}: {status_detail}' if status_detail else status_type,
+                'class': 'secondary',
+                'icon': '❓'
+            }
+    
+    def get_workload_summary(self):
+        """Get comprehensive workload summary"""
+        today = datetime.date.today()
+        
+        current_engagements = self.engagements.filter(
+            start_date__lte=today, end_date__gte=today
+        )
+        
+        upcoming_engagements = self.engagements.filter(
+            start_date__gt=today
+        ).order_by('start_date')[:3]  # Next 3 upcoming
+        
+        recent_leaves = self.get_recent_leaves(30)
+        
+        return {
+            'current_engagements': list(current_engagements.values(
+                'id', 'name', 'client__name', 'start_date', 'end_date'
+            )),
+            'upcoming_engagements': list(upcoming_engagements.values(
+                'id', 'name', 'client__name', 'start_date', 'end_date'
+            )),
+            'recent_leaves': list(recent_leaves.values(
+                'leave_type', 'start_date', 'end_date', 'note'
+            )),
+            'utilization_rate': self.get_utilization_rate(30),
+            'total_engagements': self.engagements.count()
+        }
+    
+    def get_availability_status(self, date=None):
+        """Get detailed availability status for a specific date"""
+        if date is None:
+            date = datetime.date.today()
+        
+        # Check if employee has conflicts on this date
+        has_conflict = self.overlapCheck(date, date)
+        
+        if not has_conflict:
+            return {
+                'available': True,
+                'status': 'Available',
+                'details': None
+            }
+        
+        # Find what's causing the conflict
+        from CalendarinhoApp.models import Leave, Engagement
+        
+        # Check leaves first
+        leaves = Leave.objects.filter(
+            employee_id=self.id,
+            start_date__lte=date,
+            end_date__gte=date
+        )
+        
+        if leaves.exists():
+            leave = leaves.first()
+            return {
+                'available': False,
+                'status': leave.leave_type,
+                'details': {
+                    'type': 'leave',
+                    'description': leave.note,
+                    'start_date': leave.start_date,
+                    'end_date': leave.end_date
+                }
+            }
+        
+        # Check engagements
+        engagements = Engagement.objects.filter(
+            employees=self.id,
+            start_date__lte=date,
+            end_date__gte=date
+        )
+        
+        if engagements.exists():
+            engagement = engagements.first()
+            return {
+                'available': False,
+                'status': 'Engaged',
+                'details': {
+                    'type': 'engagement',
+                    'name': engagement.name,
+                    'client': engagement.client.name,
+                    'start_date': engagement.start_date,
+                    'end_date': engagement.end_date
+                }
+            }
+        
+        return {
+            'available': False,
+            'status': 'Unknown',
+            'details': None
+        }
         
     def countSrv(self, service_id):
         all_engagements = self.engagements.all()
@@ -192,3 +370,47 @@ class CustomUser(AbstractUser):
             noDays += countDays
 
         return noDays
+    
+    def get_utilization_rate(self, days=30):
+        """Calculate employee utilization rate over the last N days"""
+        end_date = datetime.date.today()
+        start_date = end_date - datetime.timedelta(days=days)
+        
+        engaged_days = self.countEngDays(start_date, end_date)
+        total_working_days = np.busday_count(start_date, end_date + datetime.timedelta(days=1), weekmask=settings.WORKING_DAYS)
+        
+        if total_working_days == 0:
+            return 0
+        return round((engaged_days / total_working_days) * 100, 2)
+    
+    def get_current_engagement(self):
+        """Get the current active engagement for this employee"""
+        from CalendarinhoApp.models import Engagement
+        today = datetime.date.today()
+        return Engagement.objects.filter(
+            employees=self.id,
+            start_date__lte=today,
+            end_date__gte=today
+        ).first()
+    
+    def get_upcoming_engagements(self, limit=5):
+        """Get upcoming engagements for this employee"""
+        from CalendarinhoApp.models import Engagement
+        today = datetime.date.today()
+        return Engagement.objects.filter(
+            employees=self.id,
+            start_date__gt=today
+        ).order_by('start_date')[:limit]
+    
+    def get_recent_leaves(self, days=90):
+        """Get recent leaves for this employee"""
+        from CalendarinhoApp.models import Leave
+        cutoff_date = datetime.date.today() - datetime.timedelta(days=days)
+        return Leave.objects.filter(
+            employee_id=self.id,
+            start_date__gte=cutoff_date
+        ).order_by('-start_date')
+    
+    def has_conflicts(self, start_date, end_date):
+        """Check if employee has any conflicts in the given date range"""
+        return self.overlapCheck(start_date, end_date)

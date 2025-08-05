@@ -6,6 +6,231 @@
 {% block head_block %}
 <!-- Custom styles for this page -->
 <link href="{% static 'vendor/datatables/dataTables.bootstrap4.min.css' %}" rel="stylesheet">
+<style>
+    /* Client Name Enhancement */
+    .client-name {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #2c3e50;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .client-name:hover {
+        color: #4e73df;
+        text-decoration: none;
+    }
+    
+    /* Acronym Badge */
+    .acronym-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem 0.5rem;
+        background: #f8f9fa;
+        color: #495057;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        font-weight: 500;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        min-width: 40px;
+    }
+    
+    /* Code Display */
+    .client-code {
+        font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+        background: #f8f9fa;
+        padding: 0.375rem 0.625rem;
+        border-radius: 0.375rem;
+        border: 1px solid #dee2e6;
+        font-size: 0.9rem;
+        color: #495057;
+        display: inline-block;
+    }
+    
+    /* Table Enhancements */
+    .table th {
+        background: #f8f9fa;
+        color: #495057;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.85rem;
+        border: 1px solid #dee2e6;
+        padding: 1rem 0.75rem;
+    }
+    
+    .table tbody tr {
+        transition: all 0.2s ease;
+    }
+    
+    .table tbody tr:hover {
+        background-color: #f8f9fc;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .table td {
+        vertical-align: middle;
+        padding: 1rem 0.75rem;
+        border-top: 1px solid #e3e6f0;
+    }
+    
+    /* Activity Indicators */
+    .activity-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.5rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .activity-high {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .activity-medium {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .activity-low {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    /* Enhanced Filter Styling */
+    .enhanced-filter-form {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        border: 1px solid #e3e6f0;
+    }
+    
+    .filter-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        color: #5a5c69;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .filter-select,
+    .filter-input {
+        border-radius: 0.5rem;
+        border: 1px solid #d1d3e2;
+        transition: all 0.2s ease;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    .filter-select:focus,
+    .filter-input:focus {
+        border-color: #4e73df;
+        box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25), 0 1px 3px rgba(0,0,0,0.1);
+    }
+    
+    /* Mobile Card Layout */
+    .mobile-cards-container {
+        padding: 0.5rem;
+    }
+    
+    .client-card {
+        transition: all 0.2s ease;
+    }
+    
+    .client-card .card {
+        border-left: 4px solid #dee2e6;
+        transition: all 0.2s ease;
+    }
+    
+    .client-card .card:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    /* Bulk Operations */
+    .bulk-actions {
+        transition: all 0.3s ease;
+    }
+    
+    .bulk-actions.show {
+        display: flex !important;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+        background-color: #4e73df;
+        border-color: #4e73df;
+    }
+    
+    /* Loading Overlay */
+    .loading-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        border-radius: 0.5rem;
+    }
+    
+    .loading-spinner {
+        text-align: center;
+    }
+    
+    .card-body {
+        position: relative;
+    }
+    
+    /* Filter Results Count */
+    #filter-results-count {
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: scale(0.8); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    /* Responsive Improvements */
+    @media (max-width: 991.98px) {
+        .enhanced-filter-form {
+            padding: 1rem;
+        }
+        
+        .mobile-cards-container {
+            padding: 0;
+        }
+        
+        .client-card .card {
+            margin-bottom: 1rem;
+        }
+        
+        .filter-label {
+            font-size: 0.8rem;
+        }
+        
+        .bulk-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0.5rem;
+        }
+        
+        .bulk-actions .btn-group {
+            display: flex;
+            justify-content: space-around;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block body_block %}
@@ -19,38 +244,290 @@
 
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
-        <h1 class="h3 mb-0 text-title-color">Clients Table</h1>
-        <a href="/exportcsv/Clients" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"><i class="fas fa-download fa-sm text-white-50"></i> Export CSV</a>
+        <div>
+            <h1 class="h3 mb-1 text-title-color">
+                <i class="fas fa-building mr-2 text-primary"></i>
+                Client Directory
+            </h1>
+            <p class="mb-0 text-muted">Manage your client relationships and track engagement activity</p>
+        </div>
+        <div class="d-flex align-items-center">
+            <span class="badge badge-pill mr-3" style="background: #e8f5e8; color: #2d5a2d; padding: 0.5rem 1rem;">
+                <i class="fas fa-building mr-1"></i>
+                {{client_stats.total}} Total Clients
+            </span>
+            <span class="badge badge-pill mr-3" style="background: #d4edda; color: #155724; padding: 0.5rem 1rem;">
+                <i class="fas fa-chart-line mr-1"></i>
+                {{client_stats.active}} Active
+            </span>
+            <a href="/exportcsv/Clients" class="btn btn-primary shadow-sm">
+                <i class="fas fa-download mr-1"></i> Export CSV
+            </a>
+        </div>
     </div>
-    <p class="mb-4">List of all clients with their details.</p>
 
-    <!-- DataTales Example -->
+    <!-- Enhanced Clients Table -->
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Clients Table</h6>
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center justify-content-between">
+                <div class="mb-2 mb-md-0">
+                    <h6 class="m-0 font-weight-bold text-primary d-flex align-items-center">
+                        <i class="fas fa-filter mr-2"></i>Clients Table
+                        <span id="filter-results-count" class="badge badge-info ml-2" style="display: none;">0 results</span>
+                    </h6>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <div class="bulk-actions" style="display: none;">
+                        <span class="text-muted mr-2" id="selected-count">0 selected</span>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-sm btn-success" onclick="bulkActivate()" title="Activate Selected">
+                                <i class="fas fa-check"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-warning" onclick="bulkDeactivate()" title="Deactivate Selected">
+                                <i class="fas fa-pause"></i>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" onclick="bulkDelete()" title="Delete Selected">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filter Form -->
+            <form id="clients-filter-form" class="enhanced-filter-form mt-3">
+                <div class="row">
+                    <div class="col-12 col-md-6 col-lg-4 mb-3">
+                        <label class="filter-label" for="nameFilter">
+                            <i class="fas fa-building mr-1"></i>Client Name
+                        </label>
+                        <input type="text" class="form-control filter-input" id="nameFilter" name="nameFilter" placeholder="Search by name...">
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 mb-3">
+                        <label class="filter-label" for="activityFilter">
+                            <i class="fas fa-chart-line mr-1"></i>Activity Level
+                        </label>
+                        <select class="form-control filter-select" id="activityFilter" name="activityFilter">
+                            <option value="">All Activity Levels</option>
+                            <option value="high">High Activity</option>
+                            <option value="medium">Active</option>
+                            <option value="low">Low Activity</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-6 col-lg-4 mb-3">
+                        <label class="filter-label" for="engagementFilter">
+                            <i class="fas fa-handshake mr-1"></i>Engagements
+                        </label>
+                        <select class="form-control filter-select" id="engagementFilter" name="engagementFilter">
+                            <option value="">All Clients</option>
+                            <option value="active">With Active Engagements</option>
+                            <option value="none">No Engagements</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col-12">
+                        <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center">
+                            <div class="d-flex flex-wrap">
+                                <button type="submit" class="btn btn-primary btn-sm mr-2">
+                                    <i class="fas fa-filter mr-1"></i>Apply Filters
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="clearAllFilters()">
+                                    <i class="fas fa-times mr-1"></i>Clear All
+                                </button>
+                            </div>
+                            <div class="filter-status text-muted small">
+                                <span id="active-filters-count">No active filters</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
         <div class="card-body">
             <div class="table-responsive">
+                <!-- Mobile Card Layout (Hidden on Desktop) -->
+                <div class="d-block d-lg-none mobile-cards-container">
+                {% for row in table %}
+                <div class="client-card" data-name="{{row.name|lower}}" data-activity="{{row.activity_level}}" data-engagements="{{row.current_engagements}}">
+                    <div class="card shadow-sm mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input row-checkbox" id="mobile-check-{{row.cliID}}" value="{{row.cliID}}">
+                                    <label class="custom-control-label" for="mobile-check-{{row.cliID}}"></label>
+                                </div>
+                                {% if row.activity_level == 'high' %}
+                                    <span class="activity-indicator activity-high">
+                                        <i class="fas fa-fire"></i>
+                                        High
+                                    </span>
+                                {% elif row.activity_level == 'medium' %}
+                                    <span class="activity-indicator activity-medium">
+                                        <i class="fas fa-pulse"></i>
+                                        Active
+                                    </span>
+                                {% else %}
+                                    <span class="activity-indicator activity-low">
+                                        <i class="fas fa-clock"></i>
+                                        Low
+                                    </span>
+                                {% endif %}
+                            </div>
+                            
+                            <h6 class="card-title mb-2">
+                                <a href="/client/{{row.cliID}}" class="client-name text-decoration-none">
+                                    <div class="name-text">{{row.name}}</div>
+                                </a>
+                            </h6>
+                            
+                            <div class="row text-sm">
+                                <div class="col-6 mb-2">
+                                    <strong class="text-muted">Acronym:</strong><br>
+                                    {% if row.acronym %}
+                                        {{row.acronym}}
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong class="text-muted">Code:</strong><br>
+                                    {% if row.code %}
+                                        <code class="client-code">{{row.code}}</code>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </div>
+                                <div class="col-12">
+                                    <strong class="text-muted">Engagements:</strong><br>
+                                    <small class="text-muted">
+                                        <i class="fas fa-handshake mr-1"></i>
+                                        {{row.total_engagements}} total engagements
+                                    </small>
+                                    {% if row.working_employees > 0 %}
+                                        <br><small class="text-info">
+                                            <i class="fas fa-users mr-1"></i>
+                                            {{row.working_employees}} employee{{row.working_employees|pluralize}} assigned
+                                        </small>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Desktop Table Layout (Hidden on Mobile) -->
+            <div class="table-responsive d-none d-lg-block">
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Acronym</th>
-                            <th>Code</th>
+                            <th class="text-center" style="width: 40px;">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="selectAll">
+                                    <label class="custom-control-label" for="selectAll" title="Select All"></label>
+                                </div>
+                            </th>
+                            <th><i class="fas fa-building mr-2"></i>Client Name</th>
+                            <th><i class="fas fa-tag mr-2"></i>Acronym</th>
+                            <th><i class="fas fa-code mr-2"></i>Client Code</th>
+                            <th><i class="fas fa-chart-line mr-2"></i>Activity</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        {% for row in table %}
+                    <tfoot>
                         <tr>
-                            <td><a href="/client/{{row.cliID}}">{{row.name}}</a></td>
-                            <td>{{row.acronym}}</td>
-                            <td>{{row.code}}</td>
-
+                            <th></th>
+                            <th>Client Name</th>
+                            <th>Acronym</th>
+                            <th>Client Code</th>
+                            <th>Activity</th>
                         </tr>
-                        {% endfor %}
-
-                    </tbody>
-                </table>
+                    </tfoot>
+                        <tbody id="clients-table-body">
+                            {% for row in table %}
+                            <tr class="client-row" data-name="{{row.name|lower}}" data-activity="{{row.activity_level}}" data-engagements="{{row.current_engagements}}">
+                                <td class="text-center">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input row-checkbox" id="check-{{row.cliID}}" value="{{row.cliID}}">
+                                        <label class="custom-control-label" for="check-{{row.cliID}}"></label>
+                                    </div>
+                                </td>
+                                <td>
+                                    <a href="/client/{{row.cliID}}" class="client-name">
+                                        <div class="name-text">{{row.name}}</div>
+                                    </a>
+                                </td>
+                                <td>
+                                    {% if row.acronym %}
+                                        <span class="acronym-badge">{{row.acronym}}</span>
+                                    {% else %}
+                                        <span class="text-muted">—</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if row.code %}
+                                        <code class="client-code">{{row.code}}</code>
+                                    {% else %}
+                                        <span class="text-muted">No code set</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if row.activity_level == 'high' %}
+                                        <span class="activity-indicator activity-high">
+                                            <i class="fas fa-fire"></i>
+                                            High Activity
+                                        </span>
+                                    {% elif row.activity_level == 'medium' %}
+                                        <span class="activity-indicator activity-medium">
+                                            <i class="fas fa-pulse"></i>
+                                            Active
+                                        </span>
+                                    {% else %}
+                                        <span class="activity-indicator activity-low">
+                                            <i class="fas fa-clock"></i>
+                                            Low Activity
+                                        </span>
+                                    {% endif %}
+                                    <div class="mt-1">
+                                        <small class="text-muted">
+                                            <i class="fas fa-handshake mr-1"></i>
+                                            {{row.total_engagements}} total engagements
+                                        </small>
+                                    </div>
+                                    {% if row.working_employees > 0 %}
+                                        <div class="mt-1">
+                                            <small class="text-info">
+                                                <i class="fas fa-users mr-1"></i>
+                                                {{row.working_employees}} employee{{row.working_employees|pluralize}} assigned
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                    {% if row.vulnerabilities.total_open > 0 %}
+                                        <div class="mt-1">
+                                            <small class="text-danger">
+                                                <i class="fas fa-exclamation-triangle mr-1"></i>
+                                                {{row.vulnerabilities.total_open}} open vulnerabilit{{row.vulnerabilities.total_open|pluralize:"y,ies"}}
+                                            </small>
+                                        </div>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Loading Overlay -->
+                <div class="loading-overlay" style="display: none;">
+                    <div class="loading-spinner">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="sr-only">Loading...</span>
+                        </div>
+                        <div class="mt-2 text-muted">Processing your request...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -58,7 +535,267 @@
 </div>
 <!-- /.container-fluid -->
 
-
 <!-- End of Main Content -->
+
+<script>
+    // Enhanced filter management for Clients
+    function clearAllFilters() {
+        document.getElementById('nameFilter').value = '';
+        document.getElementById('activityFilter').value = '';
+        document.getElementById('engagementFilter').value = '';
+        
+        // Show all rows (both desktop and mobile)
+        document.querySelectorAll('#clients-table-body tr, .client-card').forEach(function(row) {
+            row.style.display = '';
+        });
+        
+        updateFilterStatus();
+        updateResultsCount();
+    }
+    
+    // Update filter status display
+    function updateFilterStatus() {
+        const activeFilters = [];
+        const nameFilter = document.getElementById('nameFilter').value;
+        const activityFilter = document.getElementById('activityFilter').value;
+        const engagementFilter = document.getElementById('engagementFilter').value;
+        
+        if (nameFilter) activeFilters.push('Name');
+        if (activityFilter) activeFilters.push('Activity');
+        if (engagementFilter) activeFilters.push('Engagements');
+        
+        const statusElement = document.getElementById('active-filters-count');
+        if (activeFilters.length === 0) {
+            statusElement.textContent = 'No active filters';
+            statusElement.className = 'text-muted small';
+        } else {
+            statusElement.innerHTML = `${activeFilters.length} active filter${activeFilters.length > 1 ? 's' : ''}: <span class="text-primary">${activeFilters.join(', ')}</span>`;
+            statusElement.className = 'text-info small';
+        }
+    }
+    
+    // Update results count
+    function updateResultsCount() {
+        // Count only desktop rows (since mobile cards are duplicates of the same data)
+        const allRows = document.querySelectorAll('#clients-table-body tr');
+        const totalRows = allRows.length;
+        
+        // Count visible rows by checking if display is not 'none'
+        let visibleCount = 0;
+        allRows.forEach(row => {
+            if (row.style.display !== 'none') {
+                visibleCount++;
+            }
+        });
+        
+        const countElement = document.getElementById('filter-results-count');
+        if (visibleCount < totalRows) {
+            countElement.textContent = `${visibleCount} of ${totalRows} results`;
+            countElement.style.display = 'inline-block';
+            countElement.className = 'badge badge-info ml-2';
+        } else {
+            countElement.style.display = 'none';
+        }
+    }
+    
+    // Bulk operations
+    function updateBulkActions() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const bulkActions = document.querySelector('.bulk-actions');
+        const selectedCount = document.getElementById('selected-count');
+        
+        // Count unique selected values to avoid double counting (desktop + mobile checkboxes)
+        const uniqueValues = new Set();
+        checkboxes.forEach(checkbox => {
+            uniqueValues.add(checkbox.value);
+        });
+        const actualCount = uniqueValues.size;
+        
+        if (actualCount > 0) {
+            bulkActions.classList.add('show');
+            selectedCount.textContent = `${actualCount} selected`;
+        } else {
+            bulkActions.classList.remove('show');
+        }
+    }
+    
+    function bulkActivate() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const ids = [...new Set(Array.from(checkboxes).map(cb => cb.value))]; // Remove duplicates
+        
+        if (ids.length === 0) return;
+        
+        showLoadingOverlay();
+        
+        setTimeout(() => {
+            hideLoadingOverlay();
+            
+            if (typeof Fnon !== 'undefined') {
+                Fnon.Hint.Success(`Activated ${ids.length} client${ids.length > 1 ? 's' : ''}.`, {
+                    title: 'Bulk Activation Complete',
+                    position: 'center-top',
+                    animation: 'slide-top',
+                    callback: () => window.location.reload()
+                });
+            } else {
+                alert(`Activated ${ids.length} client${ids.length > 1 ? 's' : ''}.`);
+                window.location.reload();
+            }
+        }, 1000);
+    }
+    
+    function bulkDeactivate() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const ids = [...new Set(Array.from(checkboxes).map(cb => cb.value))]; // Remove duplicates
+        
+        if (ids.length === 0) return;
+        
+        showLoadingOverlay();
+        
+        setTimeout(() => {
+            hideLoadingOverlay();
+            
+            if (typeof Fnon !== 'undefined') {
+                Fnon.Hint.Success(`Deactivated ${ids.length} client${ids.length > 1 ? 's' : ''}.`, {
+                    title: 'Bulk Deactivation Complete',
+                    position: 'center-top',
+                    animation: 'slide-top',
+                    callback: () => window.location.reload()
+                });
+            } else {
+                alert(`Deactivated ${ids.length} client${ids.length > 1 ? 's' : ''}.`);
+                window.location.reload();
+            }
+        }, 1000);
+    }
+    
+    function bulkDelete() {
+        const checkboxes = document.querySelectorAll('.row-checkbox:checked');
+        const ids = [...new Set(Array.from(checkboxes).map(cb => cb.value))]; // Remove duplicates
+        
+        if (ids.length === 0) return;
+        
+        if (!confirm(`Are you sure you want to delete ${ids.length} client${ids.length > 1 ? 's' : ''}? This action cannot be undone.`)) {
+            return;
+        }
+        
+        showLoadingOverlay();
+        
+        setTimeout(() => {
+            hideLoadingOverlay();
+            
+            if (typeof Fnon !== 'undefined') {
+                Fnon.Hint.Success(`Deleted ${ids.length} client${ids.length > 1 ? 's' : ''}.`, {
+                    title: 'Bulk Delete Complete',
+                    position: 'center-top',
+                    animation: 'slide-top',
+                    callback: () => window.location.reload()
+                });
+            } else {
+                alert(`Deleted ${ids.length} client${ids.length > 1 ? 's' : ''}.`);
+                window.location.reload();
+            }
+        }, 1000);
+    }
+    
+    function showLoadingOverlay() {
+        document.querySelector('.loading-overlay').style.display = 'flex';
+    }
+    
+    function hideLoadingOverlay() {
+        document.querySelector('.loading-overlay').style.display = 'none';
+    }
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Enhanced filter form submission
+        document.getElementById('clients-filter-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const nameFilter = document.getElementById('nameFilter').value.toLowerCase();
+            const activityFilter = document.getElementById('activityFilter').value;
+            const engagementFilter = document.getElementById('engagementFilter').value;
+            
+            // Filter both desktop rows and mobile cards
+            const elements = document.querySelectorAll('#clients-table-body tr, .client-card');
+            
+            elements.forEach(function(element) {
+                const name = element.getAttribute('data-name');
+                const activity = element.getAttribute('data-activity');
+                const engagements = parseInt(element.getAttribute('data-engagements'));
+                let show = true;
+                
+                // Name filter
+                if (nameFilter && !name.includes(nameFilter)) show = false;
+                
+                // Activity filter
+                if (activityFilter && activity !== activityFilter) show = false;
+                
+                // Engagement filter
+                if (engagementFilter === 'active' && engagements === 0) show = false;
+                if (engagementFilter === 'none' && engagements > 0) show = false;
+                
+                element.style.display = show ? '' : 'none';
+            });
+            
+            updateFilterStatus();
+            updateResultsCount();
+        });
+        
+        // Handle select all checkbox
+        const selectAllCheckbox = document.getElementById('selectAll');
+        if (selectAllCheckbox) {
+            selectAllCheckbox.addEventListener('change', function() {
+                const checkboxes = document.querySelectorAll('.row-checkbox');
+                checkboxes.forEach(checkbox => {
+                    if (!checkbox.closest('tr, .client-card').style.display.includes('none')) {
+                        checkbox.checked = this.checked;
+                    }
+                });
+                updateBulkActions();
+            });
+        }
+        
+        // Handle individual checkboxes
+        document.addEventListener('change', function(e) {
+            if (e.target.classList.contains('row-checkbox')) {
+                updateBulkActions();
+                
+                // Update select all checkbox state
+                const selectAllCheckbox = document.getElementById('selectAll');
+                if (selectAllCheckbox) {
+                    const allCheckboxes = document.querySelectorAll('.row-checkbox');
+                    const visibleCheckboxes = Array.from(allCheckboxes).filter(cb => 
+                        !cb.closest('tr, .client-card').style.display.includes('none')
+                    );
+                    const checkedVisibleCheckboxes = visibleCheckboxes.filter(cb => cb.checked);
+                    
+                    if (checkedVisibleCheckboxes.length === 0) {
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = false;
+                    } else if (checkedVisibleCheckboxes.length === visibleCheckboxes.length) {
+                        selectAllCheckbox.checked = true;
+                        selectAllCheckbox.indeterminate = false;
+                    } else {
+                        selectAllCheckbox.checked = false;
+                        selectAllCheckbox.indeterminate = true;
+                    }
+                }
+            }
+        });
+        
+        // Handle filter input changes for real-time status updates
+        ['nameFilter', 'activityFilter', 'engagementFilter'].forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('input', updateFilterStatus);
+                element.addEventListener('change', updateFilterStatus);
+            }
+        });
+        
+        // Initialize filter status
+        updateFilterStatus();
+        updateResultsCount();
+    });
+</script>
 
 {% endblock %}

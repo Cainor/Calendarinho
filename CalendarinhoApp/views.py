@@ -21,42 +21,54 @@ def not_found(request, exception=None):
 
 @login_required
 def Dashboard(request):
-    emps = Employee.objects.exclude(is_active=False)
-    state = {'avalible': 0, 'engaged': 0, 'training': 0, 'vacation': 0}
-    for emp in emps:
-        empstat = emp.currentStatus()[0]
-        if empstat == 'Available':
-            state['avalible'] += 1
-        elif empstat == 'Engaged':
-            state['engaged'] += 1
-        elif empstat == 'Training':
-            state['training'] += 1
-        elif empstat == 'Vacation':
-            state['vacation'] += 1
-    engs = Engagement.objects.all()
+    # Use optimized service functions for better performance
+    from .service import get_dashboard_summary
+    
+    # Get optimized statistics
+    dashboard_stats = get_dashboard_summary()
+    
+    # Legacy engagement progress data (keep for compatibility)
+    engs = Engagement.objects.select_related('client').filter(
+        start_date__lte=datetime.date.today(),
+        end_date__gte=datetime.date.today()
+    )
     engsTable = []
     cliTable = {}
-    singleEng = {}
+    
     for eng in engs:
         precent = eng.days_left_percentage()
-        print(precent)
         if precent != "Nope":
-            singleEng['engid'] = eng.id
-            singleEng['engName'] = eng.name
-            singleEng['precent'] = precent
-            engsTable.append(singleEng.copy())
+            singleEng = {
+                'engid': eng.id,
+                'engName': eng.name,
+                'precent': precent
+            }
+            engsTable.append(singleEng)
             cliTable[eng.client] = eng.client.count_current_engagements()
+    
     engsTable = sorted(engsTable, key=lambda i: i['precent'])
     cliTable = {k: v for k, v in sorted(cliTable.items(), key=lambda item: item[1], reverse=True)}
-    statistics = {}
-    today = datetime.date.today()
-    statistics['upcomingEngagements'] = Engagement.objects.filter(start_date__gt=today).count()
-    statistics['ongoingEngagements'] = Engagement.objects.filter(start_date__lte=today, end_date__gte=today).count()
-    statistics['availabilityPercentage'] = overlapPrecentage(request)
-    statistics['numberOfEmployees'] = emps.count()
-    statistics['pieChartStatus'] = state
-    statistics['engagementsBars'] = engsTable
-    statistics['cliBars'] = cliTable
+    
+    # Enhanced statistics with optimized data
+    statistics = {
+        'upcomingEngagements': dashboard_stats['engagements']['upcoming'],
+        'ongoingEngagements': dashboard_stats['engagements']['ongoing'],
+        'completedEngagements': dashboard_stats['engagements']['completed'],
+        'availabilityPercentage': overlapPrecentage(request),
+        'numberOfEmployees': dashboard_stats['employees']['total'],
+        'teamUtilization': dashboard_stats['utilization'],
+        'activeClients': dashboard_stats['clients']['active'],
+        'totalClients': dashboard_stats['clients']['total'],
+        'pieChartStatus': {
+            'available': dashboard_stats['employees']['available'],
+            'engaged': dashboard_stats['employees']['engaged'],
+            'training': dashboard_stats['employees']['training'],
+            'vacation': dashboard_stats['employees']['vacation']
+        },
+        'engagementsBars': engsTable,
+        'cliBars': cliTable
+    }
+    
     context = {'statistics': statistics}
     form = EmployeeOverlapForm()
     context.update({"form": form})

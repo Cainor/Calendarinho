@@ -20,57 +20,62 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def EmployeesTable(request):
-    emps = Employee.objects.exclude(is_active=False)
-    table = []
-    for emp in emps:
-        row = {}
-        empstat = emp.currentStatus()
-        row["id"] = emp.id
-        row["first_name"] = emp.first_name
-        row["last_name"] = emp.last_name
-        if empstat[0] == "Available":
-            row["status"] = empstat[0]
-        else:
-            row["status"] = f"{empstat[0]}: {empstat[1]}"
-        row["end_date"] = empstat[2]
-        empnextev = emp.nextEvent()
-        print(f"emp.nextEvent() for {emp.first_name} {emp.last_name}: {empnextev}")
-        if empnextev:
-            if isinstance(empnextev, (tuple, list)):
-                event = empnextev[0] if len(empnextev) > 0 else None
-                start_date = empnextev[1] if len(empnextev) > 1 else ""
-                if hasattr(event, 'leave_type'):
-                    leave = event
-                    if leave.leave_type == "Work from Home":
-                        nextev_desc = "Work from Home"
-                    else:
-                        nextev_desc = f"Leave: {leave.leave_type}"
-                    if hasattr(leave, 'note') and leave.note:
-                        nextev_desc += f" - {leave.note}"
-                    row["next_event"] = nextev_desc
-                    row["start_date"] = leave.start_date
-                elif hasattr(event, 'name'):
-                    row["next_event"] = str(event.name)
-                    row["start_date"] = start_date
-                elif isinstance(event, str):
-                    row["next_event"] = event
-                    row["start_date"] = start_date
-                elif event:
-                    row["next_event"] = str(event)
-                    row["start_date"] = start_date
-                else:
-                    row["next_event"] = "No upcoming event"
-                    row["start_date"] = ""
-            else:
-                row["next_event"] = str(empnextev)
-                row["start_date"] = ""
-        else:
-            row["next_event"] = "No upcoming event"
-            row["start_date"] = ""
-        table.append(row)
-
+    # Use optimized service function for better performance
+    from .service import get_enhanced_employee_data
+    from .forms import AdvancedEmployeeFilterForm
+    
+    # Initialize filter form
+    filter_form = AdvancedEmployeeFilterForm(request.GET or None)
+    
+    # Get enhanced employee data with optimized queries
+    data = get_enhanced_employee_data()
+    
+    # If this is an AJAX request for filtered data, return JSON
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        from .api_filters import apply_employee_filters, paginate_data
+        
+        filters = {}
+        if filter_form.is_valid():
+            filters = {k: v for k, v in filter_form.cleaned_data.items() if v is not None and v != ''}
+        
+        # Apply filters
+        filtered_employees = apply_employee_filters(data['employees'], filters)
+        
+        # Sort options
+        sort_by = request.GET.get('sort_by', 'full_name')
+        sort_order = request.GET.get('sort_order', 'asc')
+        
+        if sort_by in ['full_name', 'status_type', 'utilization_rate', 'current_engagements']:
+            reverse_sort = sort_order == 'desc'
+            filtered_employees.sort(
+                key=lambda x: x.get(sort_by, ''), 
+                reverse=reverse_sort
+            )
+        
+        # Pagination
+        page = int(request.GET.get('page', 1))
+        per_page = int(request.GET.get('per_page', 25))
+        
+        paginated_data = paginate_data(filtered_employees, page, per_page)
+        
+        return JsonResponse({
+            'success': True,
+            'employees': paginated_data['data'],
+            'pagination': paginated_data['pagination'],
+            'summary': {
+                'total_filtered': len(filtered_employees),
+                'total_unfiltered': len(data['employees']),
+                'employee_counts': data['employee_counts'],
+                'filters_applied': len([k for k, v in filters.items() if v])
+            }
+        })
+    
     context = {
-        'table': table
+        'table': data['employees'],
+        'employee_counts': data['employee_counts'],
+        'utilization_rate': data['utilization_rate'],
+        'filter_form': filter_form,
+        'total_employees': len(data['employees'])
     }
     return render(request, "CalendarinhoApp/EmployeesTable.html", context)
 

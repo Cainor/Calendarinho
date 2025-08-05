@@ -7,6 +7,7 @@ from django.forms import widgets
 from .models import Comment, Service, Report, Leave, Engagement, Client, Vulnerability
 from django.contrib.auth import password_validation
 from django.core.exceptions import ValidationError
+from users.models import CustomUser as Employee
 
 
 
@@ -361,3 +362,498 @@ class ClientForm(forms.ModelForm): #Leave form for main page
     class Meta:
         model = Client
         fields = '__all__'
+
+
+# Advanced Filtering Forms for Phase 2 Backend Features
+
+class AdvancedEmployeeFilterForm(forms.Form):
+    """Advanced filtering form for employees table"""
+    
+    STATUS_CHOICES = [
+        ('', 'All Statuses'),
+        ('Available', 'Available'),
+        ('Engaged', 'Engaged'),
+        ('Training', 'Training'),
+        ('Vacation', 'Vacation'),
+    ]
+    
+    AVAILABILITY_CHOICES = [
+        ('', 'All Availability'),
+        ('available', 'Available'),
+        ('unavailable', 'Unavailable'),
+        ('partially_available', 'Partially Available'),
+    ]
+    
+    USER_TYPE_CHOICES = [
+        ('', 'All User Types'),
+        ('E', 'Employee'),
+        ('M', 'Manager'),
+    ]
+    
+    # Text search filters
+    search = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Search by name...',
+        })
+    )
+    
+    # Dropdown filters
+    status = forms.ChoiceField(
+        choices=STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    availability = forms.ChoiceField(
+        choices=AVAILABILITY_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    user_type = forms.ChoiceField(
+        choices=USER_TYPE_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    # Range filters
+    min_utilization = forms.DecimalField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Min %',
+            'step': '0.1'
+        })
+    )
+    
+    max_utilization = forms.DecimalField(
+        required=False,
+        min_value=0,
+        max_value=100,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Max %',
+            'step': '0.1'
+        })
+    )
+    
+    min_engagements = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Min'
+        })
+    )
+    
+    max_engagements = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Max'
+        })
+    )
+    
+    # Date filters
+    next_event_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    next_event_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+
+
+class AdvancedClientFilterForm(forms.Form):
+    """Advanced filtering form for clients table"""
+    
+    ACTIVITY_CHOICES = [
+        ('', 'All Activity Levels'),
+        ('high', 'High Activity'),
+        ('medium', 'Medium Activity'),
+        ('low', 'Low Activity'),
+    ]
+    
+    RISK_CHOICES = [
+        ('', 'All Risk Levels'),
+        ('high', 'High Risk'),
+        ('medium', 'Medium Risk'),
+        ('low', 'Low Risk'),
+        ('none', 'No Risk'),
+    ]
+    
+    # Text search filters
+    search = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Search by name or acronym...',
+        })
+    )
+    
+    # Dropdown filters
+    activity_level = forms.ChoiceField(
+        choices=ACTIVITY_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    risk_level = forms.ChoiceField(
+        choices=RISK_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    # Boolean filters
+    has_open_vulnerabilities = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    has_active_engagements = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    # Range filters
+    min_engagements = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Min'
+        })
+    )
+    
+    max_engagements = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Max'
+        })
+    )
+    
+    min_risk_score = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Min Score'
+        })
+    )
+    
+    max_risk_score = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Max Score'
+        })
+    )
+    
+    # Date filters
+    last_engagement_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    last_engagement_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+
+
+class AdvancedEngagementFilterForm(forms.Form):
+    """Advanced filtering form for engagements table"""
+    
+    STATUS_CHOICES = [
+        ('', 'All Statuses'),
+        ('ongoing', 'Ongoing'),
+        ('future', 'Upcoming'),
+        ('completed', 'Completed'),
+    ]
+    
+    PRIORITY_CHOICES = [
+        ('', 'All Priorities'),
+        ('high', 'High Priority'),
+        ('medium', 'Medium Priority'),
+        ('low', 'Low Priority'),
+    ]
+    
+    # Text search filters
+    search = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Search by name or client...',
+        })
+    )
+    
+    # Dropdown filters
+    status = forms.ChoiceField(
+        choices=STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    priority = forms.ChoiceField(
+        choices=PRIORITY_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    client = forms.ModelChoiceField(
+        queryset=Client.objects.all(),
+        required=False,
+        empty_label='All Clients',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    service_type = forms.ModelChoiceField(
+        queryset=Service.objects.all(),
+        required=False,
+        empty_label='All Services',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    # Employee filter with autocomplete
+    employee = forms.ModelChoiceField(
+        queryset=Employee.objects.filter(is_active=True),
+        required=False,
+        empty_label='All Employees',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    # Boolean filters
+    has_vulnerabilities = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    ending_soon = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+    
+    # Range filters
+    min_duration = forms.IntegerField(
+        required=False,
+        min_value=1,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Min days'
+        })
+    )
+    
+    max_duration = forms.IntegerField(
+        required=False,
+        min_value=1,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Max days'
+        })
+    )
+    
+    min_risk_score = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Min Score'
+        })
+    )
+    
+    max_risk_score = forms.IntegerField(
+        required=False,
+        min_value=0,
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Max Score'
+        })
+    )
+    
+    # Date filters
+    start_date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    start_date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    end_date_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    end_date_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+
+
+class BulkActionForm(forms.Form):
+    """Form for bulk actions on multiple items"""
+    
+    ACTION_CHOICES = [
+        ('', 'Select Action'),
+        ('delete', 'Delete Selected'),
+        ('update_status', 'Update Status'),
+        ('export', 'Export Selected'),
+    ]
+    
+    VULNERABILITY_STATUS_CHOICES = [
+        ('Open', 'Open'),
+        ('Fixed', 'Fixed'),
+    ]
+    
+    action = forms.ChoiceField(
+        choices=ACTION_CHOICES,
+        required=True,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    selected_items = forms.CharField(
+        widget=forms.HiddenInput(),
+        required=True
+    )
+    
+    # For status updates
+    new_status = forms.ChoiceField(
+        choices=VULNERABILITY_STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    # For confirmation
+    confirm = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
+
+class VulnerabilityFilterForm(forms.Form):
+    """Advanced filtering form for vulnerabilities"""
+    
+    SEVERITY_CHOICES = [
+        ('', 'All Severities'),
+        ('Critical', 'Critical'),
+        ('High', 'High'),
+        ('Medium', 'Medium'),
+        ('Low', 'Low'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('', 'All Statuses'),
+        ('Open', 'Open'),
+        ('Fixed', 'Fixed'),
+    ]
+    
+    # Text search filters
+    search = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Search by title or description...',
+        })
+    )
+    
+    # Dropdown filters
+    severity = forms.ChoiceField(
+        choices=SEVERITY_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    status = forms.ChoiceField(
+        choices=STATUS_CHOICES,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    engagement = forms.ModelChoiceField(
+        queryset=Engagement.objects.all(),
+        required=False,
+        empty_label='All Engagements',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    created_by = forms.ModelChoiceField(
+        queryset=Employee.objects.filter(is_active=True),
+        required=False,
+        empty_label='All Creators',
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    # Date filters
+    created_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    created_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    fixed_from = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    fixed_to = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    # Boolean filters
+    overdue_only = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )

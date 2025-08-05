@@ -535,19 +535,111 @@ function clearFile() {
     document.getElementById('selectedFile').classList.add('d-none');
 }
 
+// Function to update statistics dynamically
+function updateStatistics() {
+    // Count vulnerabilities by status and severity from current DOM
+    const allVulns = document.querySelectorAll('.vulnerability-item');
+    let stats = {
+        critical_open: 0, critical_fixed: 0,
+        high_open: 0, high_fixed: 0,
+        medium_open: 0, medium_fixed: 0,
+        low_open: 0, low_fixed: 0
+    };
+    
+    allVulns.forEach(vuln => {
+        const status = vuln.getAttribute('data-status');
+        const severity = vuln.getAttribute('data-severity');
+        
+        if (severity && status) {
+            const key = `${severity}_${status}`;
+            if (stats.hasOwnProperty(key)) {
+                stats[key]++;
+            }
+        }
+    });
+    
+    // Calculate totals
+    const totalOpen = stats.critical_open + stats.high_open + stats.medium_open + stats.low_open;
+    const totalFixed = stats.critical_fixed + stats.high_fixed + stats.medium_fixed + stats.low_fixed;
+    const totalVulns = totalOpen + totalFixed;
+    const fixRate = totalVulns > 0 ? Math.round((totalFixed / totalVulns) * 100) : 100;
+    
+    // Update DOM elements
+    try {
+        // Update severity stats
+        const criticalElement = document.querySelector('.stats-item .stats-number.text-danger');
+        if (criticalElement) criticalElement.textContent = stats.critical_open;
+        
+        const highElement = document.querySelector('.stats-item .stats-number[style*="color: #f6c23e"]');
+        if (highElement) highElement.textContent = stats.high_open;
+        
+        const mediumElement = document.querySelector('.stats-item .stats-number.text-info');
+        if (mediumElement) mediumElement.textContent = stats.medium_open;
+        
+        const lowElement = document.querySelector('.stats-item .stats-number.text-success');
+        if (lowElement) lowElement.textContent = stats.low_open;
+        
+        // Update fixed counts
+        const fixedElements = document.querySelectorAll('.stats-sublabel .text-success');
+        if (fixedElements.length >= 4) {
+            fixedElements[0].parentNode.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${stats.critical_fixed} Fixed`;
+            fixedElements[1].parentNode.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${stats.high_fixed} Fixed`;
+            fixedElements[2].parentNode.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${stats.medium_fixed} Fixed`;
+            fixedElements[3].parentNode.innerHTML = `<i class="fas fa-check-circle text-success"></i> ${stats.low_fixed} Fixed`;
+        }
+        
+        // Update totals
+        const totalOpenElement = document.querySelector('.border-left-danger .stats-number');
+        if (totalOpenElement) totalOpenElement.textContent = totalOpen;
+        
+        const totalFixedElement = document.querySelector('.border-left-success .stats-number');
+        if (totalFixedElement) totalFixedElement.textContent = totalFixed;
+        
+        // Update fix rate - find the stats-item that contains "Fix Rate" label
+        const fixRateLabels = document.querySelectorAll('.stats-label');
+        let fixRateElement = null;
+        
+        fixRateLabels.forEach(label => {
+            if (label.textContent.trim() === 'Fix Rate') {
+                fixRateElement = label.parentNode.querySelector('.stats-number');
+            }
+        });
+        
+        if (fixRateElement) {
+            fixRateElement.textContent = fixRate + '%';
+            // Update color based on fix rate
+            if (fixRate >= 80) {
+                fixRateElement.style.color = '#1cc88a';
+            } else if (fixRate >= 50) {
+                fixRateElement.style.color = '#f6c23e';
+            } else {
+                fixRateElement.style.color = '#e74a3b';
+            }
+        }
+    } catch (error) {
+        console.log('Error updating statistics:', error);
+    }
+}
+
 // Vulnerability management functions
 function toggleVulnStatus(vulnId) {
     const checkbox = document.getElementById('status-' + vulnId);
     const vulnerabilityItem = checkbox.closest('.vulnerability-item');
     
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    
     fetch(`/vulnerability/${vulnId}/toggle-status/`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-            'Content-Type': 'application/json',
+            'X-CSRFToken': csrfToken ? csrfToken.value : '',
         },
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
         if (data.success) {
             const label = checkbox.nextElementSibling;
@@ -559,15 +651,39 @@ function toggleVulnStatus(vulnId) {
                 label.textContent = 'Open';
             }
             vulnerabilityItem.setAttribute('data-status', data.status.toLowerCase());
-            // Refresh statistics
-            location.reload();
+            
+            // Update statistics dynamically without page reload
+            try {
+                updateStatistics();
+            } catch (statsError) {
+                console.warn('Error updating statistics:', statsError);
+                // Continue with success feedback even if stats update fails
+            }
+            
+            // Show success feedback
+            if (typeof Fnon !== 'undefined' && Fnon.Success && Fnon.Success.Dark) {
+                Fnon.Success.Dark({
+                    title: 'Status Updated!',
+                    message: `Vulnerability marked as ${data.status.toLowerCase()}`,
+                    autoClose: 2000
+                });
+            } else {
+                console.log('Fnon not available, showing simple success message');
+                // Fallback to simple notification
+                const successMsg = document.createElement('div');
+                successMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#28a745;color:white;padding:15px;border-radius:5px;z-index:9999;';
+                successMsg.textContent = `Vulnerability marked as ${data.status.toLowerCase()}`;
+                document.body.appendChild(successMsg);
+                setTimeout(() => successMsg.remove(), 2000);
+            }
         } else {
-            alert('Error updating vulnerability status');
+            alert('Error updating vulnerability status: ' + (data.error || 'Unknown error'));
             checkbox.checked = !checkbox.checked;
         }
     })
     .catch(error => {
-        console.error('Error:', error);
+        console.error('Toggle status error:', error);
+        alert('Error updating vulnerability status: ' + error.message);
         checkbox.checked = !checkbox.checked;
     });
 }
@@ -575,47 +691,85 @@ function toggleVulnStatus(vulnId) {
 function updateVulnTitle(vulnId, newTitle) {
     if (!newTitle.trim()) return;
     
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+    
     fetch(`/vulnerability/${vulnId}/update-title/`, {
         method: 'POST',
         headers: {
-            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'X-CSRFToken': csrfToken ? csrfToken.value : '',
             'Content-Type': 'application/json',
         },
         body: JSON.stringify({title: newTitle})
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
     .then(data => {
-        if (!data.success) {
-            alert('Error updating vulnerability title');
+        if (data.success) {
+            // Show success feedback
+            if (typeof Fnon !== 'undefined' && Fnon.Success && Fnon.Success.Dark) {
+                Fnon.Success.Dark({
+                    title: 'Success!',
+                    message: 'Vulnerability title updated successfully',
+                    autoClose: 2000
+                });
+            } else {
+                console.log('Fnon not available, showing simple success message');
+                // Fallback to simple notification
+                const successMsg = document.createElement('div');
+                successMsg.style.cssText = 'position:fixed;top:20px;right:20px;background:#28a745;color:white;padding:15px;border-radius:5px;z-index:9999;';
+                successMsg.textContent = 'Vulnerability title updated successfully';
+                document.body.appendChild(successMsg);
+                setTimeout(() => successMsg.remove(), 2000);
+            }
+        } else {
+            alert('Error updating vulnerability title: ' + (data.error || 'Unknown error'));
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Title update error:', error);
+        alert('Error updating vulnerability title: ' + error.message);
+    });
 }
 
 function deleteVuln(vulnId) {
-    Fnon.Ask.Dark({
-        title: 'Delete Vulnerability',
-        message: 'Are you sure you want to delete this vulnerability? This action cannot be undone.',
-        callback: (result) => {
-            if (result) {
-                fetch(`/vulnerability/${vulnId}/delete/`, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                    },
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error deleting vulnerability');
-                    }
-                })
-                .catch(error => console.error('Error:', error));
+    if (typeof Fnon !== 'undefined' && Fnon.Ask && Fnon.Ask.Dark) {
+        Fnon.Ask.Dark({
+            title: 'Delete Vulnerability',
+            message: 'Are you sure you want to delete this vulnerability? This action cannot be undone.',
+            callback: (result) => {
+                if (result) {
+                    performDelete(vulnId);
+                }
             }
+        });
+    } else {
+        // Fallback to native confirm
+        if (confirm('Are you sure you want to delete this vulnerability? This action cannot be undone.')) {
+            performDelete(vulnId);
         }
-    });
+    }
+}
+
+function performDelete(vulnId) {
+    fetch(`/vulnerability/${vulnId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error deleting vulnerability');
+        }
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 // Filter functions
@@ -643,15 +797,22 @@ function filterReports(type) {
 
 // Report deletion confirmation
 function DeleteConfirmation(uuid) {
-    Fnon.Ask.Dark({
-        title: 'Delete Report',
-        message: 'Are you sure you want to delete this report? All associated vulnerabilities will also be deleted.',
-        callback: (result) => {
-            if (result) {
-                document.location = "/delete/" + uuid;
+    if (typeof Fnon !== 'undefined' && Fnon.Ask && Fnon.Ask.Dark) {
+        Fnon.Ask.Dark({
+            title: 'Delete Report',
+            message: 'Are you sure you want to delete this report? All associated vulnerabilities will also be deleted.',
+            callback: (result) => {
+                if (result) {
+                    document.location = "/delete/" + uuid;
+                }
             }
+        });
+    } else {
+        // Fallback to native confirm
+        if (confirm('Are you sure you want to delete this report? All associated vulnerabilities will also be deleted.')) {
+            document.location = "/delete/" + uuid;
         }
-    });
+    }
 }
 
 // Handle separate vulnerability form
