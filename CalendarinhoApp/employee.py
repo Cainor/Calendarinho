@@ -188,19 +188,16 @@ def overlap(request):
     cedate = datetime.datetime.strptime(str(edate), "%Y-%m-%d")
 
     if (cedate >= csdate):
+        # Calculate total days in the selected period
+        total_days = (cedate - csdate).days + 1
+        
         for emp in emps:
-            # Calculate busy days for this employee regardless of availability
+            # Calculate busy days for this employee
             busy_days_count = calculate_busy_days(emp, sdate, edate)
             
-            if (not emp.overlapCheck(sdate, edate)):
-                # Employee is available (no complete overlap)
-                avalibleEmps["emp"].append(
-                    emp.first_name + " " + emp.last_name)
-                avalibleEmps["id"].append(emp.id)
-                avalibleEmps["busy_days"].append(busy_days_count)
-            else:
-                # Employee has conflicts but might be partially available
-                # Include them in results to show partial availability
+            # Only include employees who are not completely unavailable
+            # If busy days equals total period days, they are completely unavailable
+            if busy_days_count < total_days:
                 avalibleEmps["emp"].append(
                     emp.first_name + " " + emp.last_name)
                 avalibleEmps["id"].append(emp.id)
