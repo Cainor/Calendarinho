@@ -41,7 +41,9 @@ def Dashboard(request):
             singleEng = {
                 'engid': eng.id,
                 'engName': eng.name,
-                'precent': precent
+                'precent': precent,
+                'start_date': eng.start_date,
+                'end_date': eng.end_date
             }
             engsTable.append(singleEng)
             cliTable[eng.client] = eng.client.count_current_engagements()

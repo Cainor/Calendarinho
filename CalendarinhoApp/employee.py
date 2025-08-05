@@ -133,11 +133,55 @@ def EmployeesCal(request):
     return render(request, 'CalendarinhoApp/EmployeesCalendar.html', {'employees': emps, 'leaves': leaves, 'engagements': engagements, 'selectedEmps': selectedEmps})
 
 
+def calculate_busy_days(employee, start_date, end_date):
+    """Calculate the number of busy days for an employee in a given date range"""
+    from CalendarinhoApp.models import Leave, Engagement
+    
+    start_date_obj = datetime.datetime.strptime(str(start_date), "%Y-%m-%d").date()
+    end_date_obj = datetime.datetime.strptime(str(end_date), "%Y-%m-%d").date()
+    
+    busy_days = set()
+    
+    # Get all engagements for the employee in the date range
+    engagements = Engagement.objects.filter(
+        employees=employee.id,
+        start_date__lte=end_date_obj,
+        end_date__gte=start_date_obj
+    )
+    
+    # Get all leaves for the employee in the date range
+    leaves = Leave.objects.filter(
+        employee_id=employee.id,
+        start_date__lte=end_date_obj,
+        end_date__gte=start_date_obj
+    )
+    
+    # Add engagement days to busy_days set
+    for eng in engagements:
+        eng_start = max(start_date_obj, eng.start_date)
+        eng_end = min(end_date_obj, eng.end_date)
+        current_date = eng_start
+        while current_date <= eng_end:
+            busy_days.add(current_date)
+            current_date += timedelta(days=1)
+    
+    # Add leave days to busy_days set
+    for leave in leaves:
+        leave_start = max(start_date_obj, leave.start_date)
+        leave_end = min(end_date_obj, leave.end_date)
+        current_date = leave_start
+        while current_date <= leave_end:
+            busy_days.add(current_date)
+            current_date += timedelta(days=1)
+    
+    return len(busy_days)
+
 @login_required
 def overlap(request):
     emps = Employee.objects.order_by('first_name').exclude(is_active=False)
     avalibleEmps = {"emp": [],
-                    "id": []}
+                    "id": [],
+                    "busy_days": []}
     sdate = request.POST.get("Start_Date")
     edate = request.POST.get("End_Date")
     csdate = datetime.datetime.strptime(str(sdate), "%Y-%m-%d")
@@ -145,12 +189,23 @@ def overlap(request):
 
     if (cedate >= csdate):
         for emp in emps:
+            # Calculate busy days for this employee regardless of availability
+            busy_days_count = calculate_busy_days(emp, sdate, edate)
+            
             if (not emp.overlapCheck(sdate, edate)):
+                # Employee is available (no complete overlap)
                 avalibleEmps["emp"].append(
                     emp.first_name + " " + emp.last_name)
                 avalibleEmps["id"].append(emp.id)
+                avalibleEmps["busy_days"].append(busy_days_count)
             else:
-                pass
+                # Employee has conflicts but might be partially available
+                # Include them in results to show partial availability
+                avalibleEmps["emp"].append(
+                    emp.first_name + " " + emp.last_name)
+                avalibleEmps["id"].append(emp.id)
+                avalibleEmps["busy_days"].append(busy_days_count)
+        
         return JsonResponse(avalibleEmps)
     else:
         return render(request, "CalendarinhoApp/EasterEgg.html", {})

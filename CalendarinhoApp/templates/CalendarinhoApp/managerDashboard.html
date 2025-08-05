@@ -35,246 +35,1149 @@
     </div>
     <br>
 
-    <div class="row">
-        <!-- Employees Working Days Card -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-primary shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">All Employees Working Days
+    <!-- Enhanced Manager Metrics Row -->
+    <div class="row manager-metrics-row">
+        <!-- Working Days Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="manager-metric-card working-days-card celebration-card" data-metric="working-days">
+                <div class="metric-card-content">
+                    <div class="metric-icon">
+                        <div class="icon-circle bg-gradient-working-days">
+                            <i class="fas fa-calendar-day calendar-flip"></i>
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-title-color">{{allEmpDays}}</div>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-calendar-day fa-2x text-gray-300"></i>
+                    <div class="metric-info">
+                        <div class="metric-label">Total Working Days</div>
+                        <div class="metric-value counter-animate celebration-number" data-days="{{allEmpDays}}">{{allEmpDays}}</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator working">
+                                <i class="fas fa-business-time"></i> <span class="trend-text">{{allEmpDays}} productive day{{allEmpDays|pluralize}} logged!</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
+                <div class="metric-background-pattern"></div>
             </div>
         </div>
-    </div>
 
-    <!-- Estimated Cost Card -->
-    <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-success shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Estimated Cost
-                        </div>
-                        <div class="h5 mb-0 font-weight-bold text-title-color">{{allEmpDaysCost}} SAR</div>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+        <!-- Estimated Cost Card -->
         <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-dark shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Avalible
+            <div class="manager-metric-card cost-card money-card" data-metric="cost">
+                <div class="metric-card-content">
+                    <div class="metric-icon">
+                        <div class="icon-circle bg-gradient-cost">
+                            <i class="fas fa-dollar-sign money-bounce"></i>
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-title-color">for future use</div>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-wrench fa-2x text-gray-300"></i>
+                    <div class="metric-info">
+                        <div class="metric-label">Estimated Cost</div>
+                        <div class="metric-value counter-animate money-celebrate">{{allEmpDaysCost}}<span class="currency sparkle-currency">SAR</span></div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator cost">
+                                <i class="fas fa-piggy-bank"></i> <span class="trend-text">Investment in excellence!</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
+                <div class="metric-background-pattern"></div>
             </div>
         </div>
-    </div>
+
+        <!-- Future Expansion Card 1 -->
         <div class="col-xl-3 col-md-6 mb-4">
-        <div class="card border-left-dark shadow h-100 py-2">
-            <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                    <div class="col mr-2">
-                        <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">Avalible
+            <div class="manager-metric-card future-card">
+                <div class="metric-card-content">
+                    <div class="metric-icon">
+                        <div class="icon-circle bg-gradient-future">
+                            <i class="fas fa-chart-bar"></i>
                         </div>
-                        <div class="h5 mb-0 font-weight-bold text-title-color">for future use</div>
                     </div>
-                    <div class="col-auto">
-                        <i class="fas fa-wrench fa-2x text-gray-300"></i>
+                    <div class="metric-info">
+                        <div class="metric-label">Performance Metrics</div>
+                        <div class="metric-value coming-soon exciting-soon">🚀 Coming Soon</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator future">
+                                <i class="fas fa-magic"></i> <span class="trend-text">Amazing features brewing!</span>
+                            </span>
+                        </div>
                     </div>
                 </div>
+                <div class="metric-background-pattern"></div>
             </div>
         </div>
-    </div>
+
+        <!-- Future Expansion Card 2 -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="manager-metric-card future-card">
+                <div class="metric-card-content">
+                    <div class="metric-icon">
+                        <div class="icon-circle bg-gradient-future">
+                            <i class="fas fa-analytics"></i>
+                        </div>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-label">Advanced Reports</div>
+                        <div class="metric-value coming-soon exciting-soon">📊 Coming Soon</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator future">
+                                <i class="fas fa-sparkles"></i> <span class="trend-text">Innovation in progress!</span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="metric-background-pattern"></div>
+            </div>
+        </div>
     </div>
          
 
     
     <div class="row justify-content-start">
-        <!-- Employee Card 2-->
+        <!-- Enhanced Employee Chart -->
         <div class="col">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-start">
-                    <h6 class="m-0 font-weight-bold text-primary">Employees Working Days</h6>
-                </div>
-                <!-- Card Body -->
-                <div class="card-body" style="overflow-x: scroll">
-                    <!--Graphs-->
-                    <div class="container" style="position: relative;  width:1500px;">
-                                    <canvas id="myChart"></canvas>
-                                    <script>
-                                        
-                                        names=[];
-                                        {% for emp in empsNumDays%}
-                                            names.push('{{ emp.0 }}');
-                                        {% endfor %}
-
-                                        days=[];
-                                        {% for eng in empsNumDays%}
-                                            days.push('{{ eng.1 }}');
-                                        {% endfor %}
-
-                                        // backgroundcolor = [];
-                                        // bordercolor = [];
-                                        // for (i = 0; i < names.length; i++){
-                                        //     r = Math.floor * 255;
-                                        //     g = Math.floor * 255;
-                                        //     b = Math.floor * 255;
-                                        //     backgroundcolor.push('rgba('+r+', '+g+', '+b+', 0.7)');
-                                        //     bordercolor.push('rgba('+r+', '+g+', '+b+', 0.7)');
-                                        // }
-
-                                        var ctx = document.getElementById('myChart').getContext('2d');
-                                        var myChart = new Chart(ctx, {
-                                            type: 'bar',
-                                            data: {
-                                                labels: names,
-                                                datasets: [{
-                                                    label: 'Days',
-                                                    data: days,
-                                                    backgroundColor: [
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(53, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(53, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)'
-                                                    ],
-                                                    borderColor: [
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(53, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(53, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(75, 192, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(25, 159, 64, 1)',
-                                                        'rgba(211, 99, 12, 1)',
-                                                        'rgba(234, 16, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)',
-                                                        'rgba(34, 142, 192, 1)',
-                                                        'rgba(153, 102, 255, 1)',
-                                                        'rgba(255, 159, 64, 1)',
-                                                        'rgba(255, 99, 132, 1)',
-                                                        'rgba(54, 162, 235, 1)',
-                                                        'rgba(255, 206, 86, 1)'
-                                                    ],
-                                                    borderWidth: 1
-                                                }]
-                                            },
-                                            options: {
-                                                aspectRatio:0.75,
-                                                maintainAspectRatio: false,
-                                                responsive: true,
-                                                scales: {
-                                                    yAxes: [{
-                                                        ticks: {
-                                                            beginAtZero: true
-                                                        }
-                                                    }]
-                                                },
-                                                legend: {
-                                                    display: false
-                                                }
-                                            }
-                                        });
-                                    </script>
-                                
+            <div class="enhanced-manager-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-column chart-icon chart-icon-bounce"></i>
+                            <span class="title-text">Employee Working Days Analysis</span>
+                            <div class="analytics-sparkle">✨</div>
+                        </h3>
+                        <p class="chart-subtitle">Celebrating productivity across our amazing team! 📈</p>
                     </div>
-                    <!--End Graphs-->
+                    <div class="chart-controls">
+                        <div class="chart-stats">
+                            <div class="stat-item">
+                                <span class="stat-label">Total Days:</span>
+                                <span class="stat-value">{{allEmpDays}}</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Avg per Employee:</span>
+                                <span class="stat-value">{% widthratio allEmpDays 1 1 %}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="chart-body">
+                    <div class="chart-container">
+                        <div class="chart-wrapper" style="position: relative; width: 100%; min-width: 800px;">
+                            <canvas id="myChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+/* Manager Dashboard Specific Styles */
+.manager-metrics-row {
+    animation: slideInUp 0.6s ease-out;
+}
+
+.manager-metric-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    height: 100%;
+}
+
+.manager-metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+}
+
+.working-days-card::before {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.cost-card::before {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.future-card::before {
+    background: linear-gradient(135deg, #a8a8a8 0%, #d4d4d4 100%);
+}
+
+.manager-metric-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.bg-gradient-working-days {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-cost {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.bg-gradient-future {
+    background: linear-gradient(135deg, #a8a8a8 0%, #d4d4d4 100%);
+}
+
+.currency {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-left: 0.5rem;
+    opacity: 0.8;
+}
+
+.coming-soon {
+    font-size: 1.5rem !important;
+    color: #9ca3af;
+    font-style: italic;
+}
+
+.trend-indicator.working {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.trend-indicator.cost {
+    background: rgba(17, 153, 142, 0.1);
+    color: #11998e;
+}
+
+.trend-indicator.future {
+    background: rgba(156, 163, 175, 0.1);
+    color: #9ca3af;
+}
+
+/* Enhanced Manager Chart Card */
+.enhanced-manager-chart-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: 16px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.enhanced-manager-chart-card:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.enhanced-manager-chart-card .chart-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 2rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    overflow: hidden;
+}
+
+.chart-stats {
+    display: flex;
+    gap: 1.5rem;
+    align-items: center;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.stat-label {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+}
+
+.chart-container {
+    position: relative;
+    overflow-x: auto;
+    padding: 1rem;
+}
+
+.chart-wrapper {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Custom scrollbar for chart container */
+.chart-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.chart-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.chart-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 4px;
+}
+
+.chart-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+/* Responsive improvements for manager dashboard */
+@media (max-width: 768px) {
+    .chart-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+    }
+    
+    .chart-stats {
+        flex-direction: column;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .stat-item {
+        flex-direction: row;
+        justify-content: space-between;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+    
+    .chart-wrapper {
+        padding: 1rem;
+        min-width: 600px;
+    }
+    
+    .manager-metric-card {
+        padding: 1.5rem;
+    }
+    
+    .metric-card-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .chart-wrapper {
+        min-width: 500px;
+        padding: 0.75rem;
+    }
+    
+    .chart-title {
+        font-size: 1.25rem;
+    }
+    
+    .metric-value {
+        font-size: 2rem;
+    }
+}
+
+/* ===== MANAGER DASHBOARD DELIGHTFUL ENHANCEMENTS ===== */
+
+/* Calendar Animation */
+.calendar-flip {
+    animation: calendar-page-flip 3s ease-in-out infinite;
+}
+
+@keyframes calendar-page-flip {
+    0%, 90%, 100% { transform: rotateY(0deg); }
+    45% { transform: rotateY(180deg); }
+}
+
+.celebration-card:hover .calendar-flip {
+    animation: calendar-celebration 0.8s ease-out;
+}
+
+@keyframes calendar-celebration {
+    0%, 100% { 
+        transform: rotateY(0deg) scale(1);
+    }
+    25% { 
+        transform: rotateY(90deg) scale(1.1);
+    }
+    75% { 
+        transform: rotateY(270deg) scale(1.1);
+    }
+}
+
+/* Money Animations */
+.money-bounce {
+    animation: money-jump 2s ease-in-out infinite;
+}
+
+@keyframes money-jump {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50% { transform: translateY(-5px) scale(1.1); }
+}
+
+.money-card:hover .money-bounce {
+    animation: money-celebration 1s ease-out;
+}
+
+@keyframes money-celebration {
+    0%, 100% { 
+        transform: scale(1) rotate(0deg);
+    }
+    25% { 
+        transform: scale(1.2) rotate(10deg);
+    }
+    75% { 
+        transform: scale(1.2) rotate(-10deg);
+    }
+}
+
+.sparkle-currency {
+    position: relative;
+    animation: currency-glow 2s ease-in-out infinite;
+}
+
+@keyframes currency-glow {
+    0%, 100% { 
+        text-shadow: 0 0 5px rgba(17, 153, 142, 0.3);
+    }
+    50% { 
+        text-shadow: 0 0 15px rgba(17, 153, 142, 0.6),
+                     0 0 25px rgba(17, 153, 142, 0.4);
+    }
+}
+
+.money-celebrate:hover::after {
+    content: '💰';
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    font-size: 1.2rem;
+    animation: money-float 1s ease-out;
+}
+
+@keyframes money-float {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-30px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Exciting Coming Soon */
+.exciting-soon {
+    position: relative;
+    background: linear-gradient(45deg, #a8a8a8, #d4d4d4, #f0f0f0, #d4d4d4, #a8a8a8);
+    background-size: 400% 400%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: exciting-gradient 3s ease-in-out infinite, gentle-bounce 2s ease-in-out infinite;
+}
+
+@keyframes exciting-gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.exciting-soon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 110%;
+    transform: translateY(-50%);
+    width: 0;
+    height: 0;
+    border-left: 8px solid #d4d4d4;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    animation: arrow-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes arrow-pulse {
+    0%, 100% { opacity: 0.5; transform: translateY(-50%) translateX(0); }
+    50% { opacity: 1; transform: translateY(-50%) translateX(5px); }
+}
+
+/* Analytics Sparkle */
+.analytics-sparkle {
+    position: absolute;
+    top: -8px;
+    right: 15px;
+    font-size: 1.1em;
+    animation: analytics-twinkle 2.5s infinite;
+}
+
+@keyframes analytics-twinkle {
+    0%, 100% { 
+        opacity: 0.6;
+        transform: scale(1) rotate(0deg);
+    }
+    33% { 
+        opacity: 1;
+        transform: scale(1.3) rotate(120deg);
+    }
+    66% { 
+        opacity: 0.8;
+        transform: scale(0.9) rotate(240deg);
+    }
+}
+
+/* Enhanced Chart Hover Effects */
+.enhanced-manager-chart-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+}
+
+.chart-wrapper {
+    position: relative;
+}
+
+.chart-wrapper::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    right: -5px;
+    bottom: -5px;
+    background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    border-radius: 16px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.enhanced-manager-chart-card:hover .chart-wrapper::before {
+    opacity: 1;
+    animation: chart-glow 2s ease-in-out infinite;
+}
+
+@keyframes chart-glow {
+    0%, 100% { 
+        background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+    }
+    50% { 
+        background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.2), transparent);
+    }
+}
+
+/* Celebration Numbers */
+.celebration-number[data-days]:hover::before {
+    content: '🎆';
+    position: absolute;
+    top: -15px;
+    left: -15px;
+    font-size: 1.5rem;
+    animation: celebration-burst 1s ease-out;
+}
+
+@keyframes celebration-burst {
+    0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2) rotate(180deg);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.8) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Trend Text Enhancements */
+.trend-text {
+    display: inline-block;
+    animation: slide-in-right 0.6s ease-out;
+}
+
+@keyframes slide-in-right {
+    0% {
+        opacity: 0;
+        transform: translateX(-15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Counter Animation Enhancement */
+.counter-animate {
+    animation: count-up-manager 1s ease-out;
+}
+
+@keyframes count-up-manager {
+    0% {
+        transform: scale(0.5) rotateY(-90deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotateY(0deg);
+    }
+    100% {
+        transform: scale(1) rotateY(0deg);
+        opacity: 1;
+    }
+}
+
+/* Stats Section Enhancements */
+.stat-item {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.2) !important;
+}
+
+.stat-item:hover .stat-value::after {
+    content: '✨';
+    position: absolute;
+    top: -10px;
+    right: -15px;
+    font-size: 0.9rem;
+    animation: stat-twinkle 1s ease-out;
+}
+
+@keyframes stat-twinkle {
+    0%, 100% { 
+        opacity: 0;
+        transform: scale(0.5) rotate(0deg);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1) rotate(180deg);
+    }
+}
+
+/* Mobile Responsiveness for Delightful Elements */
+@media (max-width: 768px) {
+    .analytics-sparkle,
+    .celebration-number[data-days]:hover::before,
+    .money-celebrate:hover::after {
+        display: none;
+    }
+    
+    .exciting-soon::after {
+        display: none;
+    }
+    
+    .calendar-flip,
+    .money-bounce {
+        animation: none;
+    }
+}
+
+/* Accessibility: Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .calendar-flip,
+    .money-bounce,
+    .exciting-soon,
+    .analytics-twinkle,
+    .counter-animate,
+    .chart-glow,
+    .celebration-burst,
+    .slide-in-right,
+    .count-up-manager,
+    .stat-twinkle {
+        animation: none !important;
+    }
+    
+    .enhanced-manager-chart-card:hover,
+    .stat-item:hover {
+        transform: none !important;
+    }
+}
+
+</style>
+                    <script>
+                        // Enhanced Chart Configuration
+                        const names = [];
+                        {% for emp in empsNumDays%}
+                            names.push('{{ emp.0 }}');
+                        {% endfor %}
+
+                        const days = [];
+                        {% for eng in empsNumDays%}
+                            days.push({{ eng.1 }});
+                        {% endfor %}
+
+                        // Modern gradient colors
+                        const gradientColors = [
+                            { bg: 'rgba(102, 126, 234, 0.8)', border: 'rgba(102, 126, 234, 1)' },
+                            { bg: 'rgba(17, 153, 142, 0.8)', border: 'rgba(17, 153, 142, 1)' },
+                            { bg: 'rgba(250, 112, 154, 0.8)', border: 'rgba(250, 112, 154, 1)' },
+                            { bg: 'rgba(79, 172, 254, 0.8)', border: 'rgba(79, 172, 254, 1)' },
+                            { bg: 'rgba(245, 101, 101, 0.8)', border: 'rgba(245, 101, 101, 1)' },
+                            { bg: 'rgba(139, 92, 246, 0.8)', border: 'rgba(139, 92, 246, 1)' },
+                            { bg: 'rgba(251, 191, 36, 0.8)', border: 'rgba(251, 191, 36, 1)' },
+                            { bg: 'rgba(52, 211, 153, 0.8)', border: 'rgba(52, 211, 153, 1)' }
+                        ];
+
+                        const backgroundColors = [];
+                        const borderColors = [];
+                        
+                        for (let i = 0; i < names.length; i++) {
+                            const colorIndex = i % gradientColors.length;
+                            backgroundColors.push(gradientColors[colorIndex].bg);
+                            borderColors.push(gradientColors[colorIndex].border);
+                        }
+
+                        const ctx = document.getElementById('myChart').getContext('2d');
+                        
+                        // Create gradient backgrounds
+                        const chartGradients = backgroundColors.map((color, index) => {
+                            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                            gradient.addColorStop(0, borderColors[index]);
+                            gradient.addColorStop(1, color);
+                            return gradient;
+                        });
+                        
+                        const myChart = new Chart(ctx, {
+                            type: 'bar',
+                            data: {
+                                labels: names,
+                                datasets: [{
+                                    label: 'Working Days',
+                                    data: days,
+                                    backgroundColor: chartGradients,
+                                    borderColor: borderColors,
+                                    borderWidth: 2,
+                                    borderRadius: 8,
+                                    borderSkipped: false,
+                                    hoverBackgroundColor: borderColors,
+                                    hoverBorderColor: borderColors,
+                                    hoverBorderWidth: 3
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: {
+                                        display: false
+                                    },
+                                    tooltip: {
+                                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                                        titleColor: '#fff',
+                                        bodyColor: '#fff',
+                                        borderColor: 'rgba(102, 126, 234, 1)',
+                                        borderWidth: 1,
+                                        cornerRadius: 8,
+                                        padding: 12,
+                                        titleFont: {
+                                            size: 14,
+                                            weight: 'bold'
+                                        },
+                                        bodyFont: {
+                                            size: 13
+                                        },
+                                        callbacks: {
+                                            title: function(context) {
+                                                return context[0].label;
+                                            },
+                                            label: function(context) {
+                                                return `Working Days: ${context.parsed.y}`;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    x: {
+                                        display: true,
+                                        grid: {
+                                            display: false
+                                        },
+                                        ticks: {
+                                            color: '#6b7280',
+                                            font: {
+                                                size: 12,
+                                                weight: '500'
+                                            },
+                                            maxRotation: 45,
+                                            minRotation: 0
+                                        }
+                                    },
+                                    y: {
+                                        display: true,
+                                        beginAtZero: true,
+                                        grid: {
+                                            color: 'rgba(107, 114, 128, 0.1)',
+                                            drawBorder: false
+                                        },
+                                        ticks: {
+                                            color: '#6b7280',
+                                            font: {
+                                                size: 12,
+                                                weight: '500'
+                                            },
+                                            padding: 10
+                                        }
+                                    }
+                                },
+                                interaction: {
+                                    intersect: false,
+                                    mode: 'index'
+                                },
+                                animation: {
+                                    duration: 1000,
+                                    easing: 'easeOutQuart'
+                                },
+                                hover: {
+                                    animationDuration: 200
+                                }
+                            }
+                        });
+                        
+                        // Add hover effects
+                        ctx.canvas.addEventListener('mousemove', function(e) {
+                            const rect = ctx.canvas.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            const y = e.clientY - rect.top;
+                            
+                            const points = myChart.getElementsAtEventForMode(e, 'nearest', { intersect: true }, true);
+                            
+                            if (points.length) {
+                                ctx.canvas.style.cursor = 'pointer';
+                            } else {
+                                ctx.canvas.style.cursor = 'default';
+                            }
+                        });
+                        
+                        // ===== MANAGER DASHBOARD DELIGHTFUL ENHANCEMENTS =====
+                        
+                        // Chart interaction enhancements
+                        const chartContainer = document.querySelector('.chart-wrapper');
+                        let isChartHovered = false;
+                        
+                        // Add hover effects for chart
+                        if (chartContainer) {
+                            chartContainer.addEventListener('mouseenter', function() {
+                                isChartHovered = true;
+                                this.style.transform = 'scale(1.02)';
+                                this.style.transition = 'transform 0.3s ease';
+                            });
+                            
+                            chartContainer.addEventListener('mouseleave', function() {
+                                isChartHovered = false;
+                                this.style.transform = 'scale(1)';
+                            });
+                        }
+                        
+                        // Add celebration for high performance metrics
+                        function celebrateMetrics() {
+                            const workingDaysValue = parseInt('{{allEmpDays}}');
+                            const costValue = parseFloat('{{allEmpDaysCost}}'.replace(/[^0-9.-]+/g, ''));
+                            
+                            // Celebrate if metrics are high
+                            if (workingDaysValue > 100) {
+                                setTimeout(() => {
+                                    createFloatingEmoji('🎆', '.celebration-card[data-metric="working-days"]');
+                                }, 1000);
+                            }
+                            
+                            if (costValue > 50000) {
+                                setTimeout(() => {
+                                    createFloatingEmoji('💰', '.money-card[data-metric="cost"]');
+                                }, 1500);
+                            }
+                        }
+                        
+                        // Create floating emoji animation
+                        function createFloatingEmoji(emoji, targetSelector) {
+                            const target = document.querySelector(targetSelector);
+                            if (!target) return;
+                            
+                            const rect = target.getBoundingClientRect();
+                            const floater = document.createElement('div');
+                            floater.textContent = emoji;
+                            floater.style.cssText = `
+                                position: fixed;
+                                left: ${rect.left + rect.width/2}px;
+                                top: ${rect.top + rect.height/2}px;
+                                font-size: 2rem;
+                                pointer-events: none;
+                                z-index: 1000;
+                                animation: float-celebration 3s ease-out forwards;
+                            `;
+                            
+                            document.body.appendChild(floater);
+                            setTimeout(() => floater.remove(), 3000);
+                        }
+                        
+                        // Add floating animation keyframes
+                        const floatingStyles = `
+                            @keyframes float-celebration {
+                                0% {
+                                    transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                                    opacity: 1;
+                                }
+                                50% {
+                                    transform: translate(-50%, -150%) scale(1.5) rotate(180deg);
+                                    opacity: 1;
+                                }
+                                100% {
+                                    transform: translate(-50%, -200%) scale(0.5) rotate(360deg);
+                                    opacity: 0;
+                                }
+                            }
+                            
+                            .metric-celebration {
+                                animation: metric-glow 2s ease-in-out;
+                            }
+                            
+                            @keyframes metric-glow {
+                                0%, 100% {
+                                    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
+                                }
+                                50% {
+                                    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.3),
+                                                0 0 50px rgba(102, 126, 234, 0.1);
+                                }
+                            }
+                        `;
+                        
+                        // Add styles to head
+                        const styleSheet = document.createElement('style');
+                        styleSheet.textContent = floatingStyles;
+                        document.head.appendChild(styleSheet);
+                        
+                        // Trigger celebrations on page load
+                        setTimeout(celebrateMetrics, 2000);
+                        
+                        // Add interactive tooltips for future cards
+                        const futureCards = document.querySelectorAll('.future-card');
+                        futureCards.forEach(card => {
+                            card.addEventListener('mouseenter', function() {
+                                const tooltip = document.createElement('div');
+                                tooltip.className = 'future-tooltip';
+                                tooltip.innerHTML = `
+                                    <div class="tooltip-content">
+                                        <span class="tooltip-emoji">🚀</span>
+                                        <span class="tooltip-text">Exciting features coming your way!</span>
+                                    </div>
+                                `;
+                                tooltip.style.cssText = `
+                                    position: absolute;
+                                    top: -60px;
+                                    left: 50%;
+                                    transform: translateX(-50%);
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    color: white;
+                                    padding: 0.75rem 1rem;
+                                    border-radius: 12px;
+                                    font-size: 0.9rem;
+                                    white-space: nowrap;
+                                    z-index: 1000;
+                                    animation: tooltip-appear 0.3s ease-out;
+                                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+                                `;
+                                
+                                const tooltipStyles = `
+                                    @keyframes tooltip-appear {
+                                        0% {
+                                            opacity: 0;
+                                            transform: translateX(-50%) translateY(10px) scale(0.8);
+                                        }
+                                        100% {
+                                            opacity: 1;
+                                            transform: translateX(-50%) translateY(0) scale(1);
+                                        }
+                                    }
+                                    .tooltip-content {
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 0.5rem;
+                                    }
+                                    .tooltip-emoji {
+                                        animation: tooltip-bounce 1s ease-in-out infinite;
+                                    }
+                                    @keyframes tooltip-bounce {
+                                        0%, 100% { transform: translateY(0); }
+                                        50% { transform: translateY(-3px); }
+                                    }
+                                `;
+                                
+                                if (!document.querySelector('#tooltip-styles')) {
+                                    const tooltipStyleSheet = document.createElement('style');
+                                    tooltipStyleSheet.id = 'tooltip-styles';
+                                    tooltipStyleSheet.textContent = tooltipStyles;
+                                    document.head.appendChild(tooltipStyleSheet);
+                                }
+                                
+                                this.style.position = 'relative';
+                                this.appendChild(tooltip);
+                            });
+                            
+                            card.addEventListener('mouseleave', function() {
+                                const tooltip = this.querySelector('.future-tooltip');
+                                if (tooltip) {
+                                    tooltip.style.animation = 'tooltip-disappear 0.2s ease-in forwards';
+                                    setTimeout(() => tooltip.remove(), 200);
+                                }
+                            });
+                        });
+                        
+                        // Add tooltip disappear animation
+                        const disappearAnimation = `
+                            @keyframes tooltip-disappear {
+                                0% {
+                                    opacity: 1;
+                                    transform: translateX(-50%) translateY(0) scale(1);
+                                }
+                                100% {
+                                    opacity: 0;
+                                    transform: translateX(-50%) translateY(-10px) scale(0.8);
+                                }
+                            }
+                        `;
+                        
+                        const disappearStyleSheet = document.createElement('style');
+                        disappearStyleSheet.textContent = disappearAnimation;
+                        document.head.appendChild(disappearStyleSheet);
+                        
+                        // Add chart data celebration
+                        myChart.options.onHover = function(event, elements) {
+                            if (elements.length > 0) {
+                                const element = elements[0];
+                                const dataIndex = element.index;
+                                const value = days[dataIndex];
+                                
+                                // Celebrate high performers
+                                if (value > 20) {
+                                    this.canvas.style.cursor = 'pointer';
+                                    
+                                    // Add subtle glow effect
+                                    const chartRect = this.canvas.getBoundingClientRect();
+                                    const glowElement = document.createElement('div');
+                                    glowElement.style.cssText = `
+                                        position: fixed;
+                                        left: ${chartRect.left}px;
+                                        top: ${chartRect.top}px;
+                                        width: ${chartRect.width}px;
+                                        height: ${chartRect.height}px;
+                                        background: radial-gradient(circle, rgba(102, 126, 234, 0.1) 0%, transparent 70%);
+                                        pointer-events: none;
+                                        border-radius: 12px;
+                                        z-index: -1;
+                                        animation: chart-highlight 1s ease-out;
+                                    `;
+                                    
+                                    document.body.appendChild(glowElement);
+                                    setTimeout(() => glowElement.remove(), 1000);
+                                }
+                            } else {
+                                this.canvas.style.cursor = 'default';
+                            }
+                        };
+                        
+                        // Add chart highlight animation
+                        const chartHighlightStyles = `
+                            @keyframes chart-highlight {
+                                0% {
+                                    opacity: 0;
+                                    transform: scale(0.95);
+                                }
+                                50% {
+                                    opacity: 1;
+                                    transform: scale(1.02);
+                                }
+                                100% {
+                                    opacity: 0;
+                                    transform: scale(1);
+                                }
+                            }
+                        `;
+                        
+                        const chartStyleSheet = document.createElement('style');
+                        chartStyleSheet.textContent = chartHighlightStyles;
+                        document.head.appendChild(chartStyleSheet);
+                        
+                        // Add page load welcome message
+                        setTimeout(() => {
+                            const welcomeMsg = document.createElement('div');
+                            welcomeMsg.innerHTML = `
+                                <div class="welcome-message">
+                                    <span class="welcome-emoji">📈</span>
+                                    <span class="welcome-text">Manager Dashboard Loaded!</span>
+                                    <span class="welcome-emoji">✨</span>
+                                </div>
+                            `;
+                            welcomeMsg.style.cssText = `
+                                position: fixed;
+                                top: 80px;
+                                right: 20px;
+                                background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+                                color: white;
+                                padding: 1rem 1.5rem;
+                                border-radius: 50px;
+                                font-weight: 600;
+                                z-index: 1000;
+                                animation: welcome-slide-in 3s ease-out forwards;
+                                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
+                            `;
+                            
+                            const welcomeStyles = `
+                                @keyframes welcome-slide-in {
+                                    0% {
+                                        transform: translateX(100%);
+                                        opacity: 0;
+                                    }
+                                    20%, 80% {
+                                        transform: translateX(0);
+                                        opacity: 1;
+                                    }
+                                    100% {
+                                        transform: translateX(100%);
+                                        opacity: 0;
+                                    }
+                                }
+                                .welcome-message {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 0.5rem;
+                                }
+                                .welcome-emoji {
+                                    animation: welcome-bounce 1s ease-in-out infinite alternate;
+                                }
+                                @keyframes welcome-bounce {
+                                    0% { transform: translateY(0); }
+                                    100% { transform: translateY(-3px); }
+                                }
+                            `;
+                            
+                            const welcomeStyleSheet = document.createElement('style');
+                            welcomeStyleSheet.textContent = welcomeStyles;
+                            document.head.appendChild(welcomeStyleSheet);
+                            
+                            document.body.appendChild(welcomeMsg);
+                            setTimeout(() => welcomeMsg.remove(), 3000);
+                        }, 1000);
+                    </script>
 
 {% endblock %}

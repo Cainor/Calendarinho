@@ -18,89 +18,106 @@
         <h1 class="h3 mb-0 text-title-color">Dashboard</h1>
     </div>
 
-    <!-- Content Row -->
-    <div class="row">
-
-        <!-- Earnings (Monthly) Card Example -->
+    <!-- Enhanced Metrics Row -->
+    <div class="row metrics-row">
+        <!-- Ongoing Engagements Card -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-primary shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Ongoing engagements
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-title-color">{{statistics.ongoingEngagements}}</div>
+            <div class="metric-card ongoing-card sparkle-container" data-metric="ongoing">
+                <div class="metric-card-content">
+                    <div class="metric-icon pulse-on-hover">
+                        <div class="icon-circle bg-gradient-ongoing">
+                            <i class="fas fa-sync-alt spinning-on-hover"></i>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-sync-alt fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-label">Ongoing Engagements</div>
+                        <div class="metric-value counter-animate">{{statistics.ongoingEngagements}}</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator positive">
+                                <i class="fas fa-fire"></i> <span class="trend-text">{{statistics.ongoingEngagements|add:0|pluralize:"Engagement is,Engagements are"}} in progress!</span>
+                            </span>
                         </div>
                     </div>
                 </div>
+                <div class="metric-background-pattern"></div>
+                <div class="sparkle-effect"></div>
             </div>
         </div>
 
-        <!-- Earnings (Monthly) Card Example -->
+        <!-- Upcoming Engagements Card -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <a href="/EngagementsTable?filter=future" style="text-decoration: none;">
-                <div class="card border-left-success shadow h-100 py-2 upcoming-card-hover" style="cursor:pointer; transition: box-shadow 0.2s;">
-                    <div class="card-body">
-                        <div class="row no-gutters align-items-center">
-                            <div class="col mr-2">
-                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Upcoming engagements</div>
-                                <div class="h5 mb-0 font-weight-bold text-title-color">{{statistics.upcomingEngagements}}</div>
-                            </div>
-                            <div class="col-auto">
-                                <i class="fas fa-handshake fa-2x text-gray-300"></i>
+            <a href="/EngagementsTable?filter=future" class="metric-link">
+                <div class="metric-card upcoming-card interactive-card celebration-trigger" data-celebration="upcoming">
+                    <div class="metric-card-content">
+                        <div class="metric-icon">
+                            <div class="icon-circle bg-gradient-upcoming">
+                                <i class="fas fa-handshake"></i>
                             </div>
                         </div>
+                        <div class="metric-info">
+                            <div class="metric-label">Upcoming Engagements</div>
+                            <div class="metric-value counter-animate celebration-number">{{statistics.upcomingEngagements}}</div>
+                            <div class="metric-trend">
+                                <span class="trend-indicator upcoming">
+                                    <i class="fas fa-calendar-heart"></i> <span class="trend-text">{{statistics.upcomingEngagements|add:0|pluralize:"Engagement ahead,Engagements ahead"}}!</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="metric-background-pattern"></div>
+                    <div class="interaction-hint">
+                        <i class="fas fa-external-link-alt"></i>
                     </div>
                 </div>
             </a>
         </div>
 
-        <!-- Earnings (Monthly) Card Example -->
+        <!-- Employee Utilization Card -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-info shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Employees Utilization
-                            </div>
-                            <div class="row no-gutters align-items-center">
-                                <div class="col-auto">
-                                    <div class="h5 mb-0 mr-3 font-weight-bold text-title-color">
-                                        {{statistics.availabilityPercentage}}</div>
-                                </div>
-                                <div class="col">
-                                    <div class="progress progress-sm mr-2">
-                                        <div class="progress-bar bg-info" role="progressbar" style="width: {{statistics.availabilityPercentage}}" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                </div>
-                            </div>
+            <div class="metric-card utilization-card percentage-card" data-metric="utilization">
+                <div class="metric-card-content">
+                    <div class="metric-icon">
+                        <div class="icon-circle bg-gradient-utilization">
+                            <i class="fas fa-running"></i>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-running fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-label">Employee Utilization</div>
+                        <div class="metric-value percentage-celebrate" data-percentage="{{statistics.availabilityPercentage}}">{{statistics.availabilityPercentage}}</div>
+                        <div class="utilization-progress">
+                            <div class="progress-container">
+                                <div class="progress-track">
+                                    <div class="progress-fill" style="width: {{statistics.availabilityPercentage}}" data-value="{{statistics.availabilityPercentage}}"></div>
+                                </div>
+                                <div class="progress-glow"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
+                <div class="metric-background-pattern"></div>
             </div>
         </div>
 
-        <!-- Pending Requests Card Example -->
+        <!-- Employee Count Card -->
         <div class="col-xl-3 col-md-6 mb-4">
-            <div class="card border-left-warning shadow h-100 py-2">
-                <div class="card-body">
-                    <div class="row no-gutters align-items-center">
-                        <div class="col mr-2">
-                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Number of Employees
-                            </div>
-                            <div class="h5 mb-0 font-weight-bold text-title-color">{{statistics.numberOfEmployees}}</div>
+            <div class="metric-card employees-card team-card" data-metric="employees">
+                <div class="metric-card-content">
+                    <div class="metric-icon">
+                        <div class="icon-circle bg-gradient-employees">
+                            <i class="fas fa-users"></i>
                         </div>
-                        <div class="col-auto">
-                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                    </div>
+                    <div class="metric-info">
+                        <div class="metric-label">Total Employees</div>
+                        <div class="metric-value">{{statistics.numberOfEmployees}}</div>
+                        <div class="metric-trend">
+                            <span class="trend-indicator stable team-pulse">
+                                <i class="fas fa-heart"></i> <span class="trend-text">{{statistics.numberOfEmployees}} awesome teammate{{statistics.numberOfEmployees|pluralize}}!</span>
+                            </span>
                         </div>
                     </div>
                 </div>
+                <div class="metric-background-pattern"></div>
             </div>
         </div>
     </div>
@@ -150,68 +167,148 @@
                 </div> {% endcomment %}
         {% endif %}
 
-        <div class="card shadow mb-4">
-            <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                <h6 class="m-0 font-weight-bold text-primary" id="BarsTitle">Ongoing Engagements</h6>
-                <input type="submit" value="Toggle View" class="btn-primary btn-sm" style="padding-right:15px; padding-left: 15px; padding-top: 2px; padding-bottom: 3px;" onclick="ToggleBarsButton()">
-            </div>
-            <div class="card-body" id="ToggleBarsView">
-                {% for eng in statistics.engagementsBars%}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar {% if eng.precent < 25 %}bg-warning{% elif eng.precent < 50 %}{% elif eng.precent < 75 %}bg-info{% elif eng.precent <= 100 %}bg-success{% endif %}" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
+        <div class="enhanced-chart-card">
+            <div class="chart-header">
+                <div class="chart-title-section">
+                    <h3 class="chart-title" id="BarsTitle">
+                        <i class="fas fa-chart-bar chart-icon"></i>
+                        <span class="title-text">Ongoing Engagements</span>
+                    </h3>
                 </div>
-                {% endfor %}
+                <div class="chart-controls">
+                    <button class="toggle-view-btn" onclick="ToggleBarsButton()">
+                        <i class="fas fa-exchange-alt"></i>
+                        <span class="btn-text">Toggle View</span>
+                    </button>
+                </div>
+            </div>
+            <div class="chart-body" id="ToggleBarsView">
+                <div class="engagement-progress-list">
+                    {% for eng in statistics.engagementsBars%}
+                    <a href="/engagement/{{eng.engid}}" class="engagement-item-link">
+                        <div class="engagement-item">
+                            <div class="engagement-header">
+                                <div class="engagement-info">
+                                    <span class="engagement-name">{{eng.engName}}</span>
+                                    <span class="engagement-dates">Start: {{eng.start_date|date:"M j, Y"}} - End: {{eng.end_date|date:"M j, Y"}}</span>
+                                </div>
+                                <div class="engagement-percentage">
+                                    <span class="percentage-value">{{eng.precent}}%</span>
+                                </div>
+                            </div>
+                            <div class="modern-progress-bar">
+                                <div class="progress-track">
+                                    <div class="progress-fill {% if eng.precent < 25 %}warning-fill{% elif eng.precent < 50 %}info-fill{% elif eng.precent < 75 %}primary-fill{% else %}success-fill{% endif %}" 
+                                         style="width: {{eng.precent}}%" 
+                                         data-percentage="{{eng.precent}}">
+                                    </div>
+                                </div>
+                                <div class="progress-indicators">
+                                    <span class="indicator" style="left: 25%"></span>
+                                    <span class="indicator" style="left: 50%"></span>
+                                    <span class="indicator" style="left: 75%"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 
-        <!-- Pie Chart -->
+        <!-- Enhanced Pie Chart -->
         <div class="col-xl-4 col-lg-5">
-            <div class="card shadow mb-4">
-                <!-- Card Header - Dropdown -->
-                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Employees Status</h6>
+            <div class="enhanced-chart-card pie-chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-pie chart-icon"></i>
+                            <span class="title-text">Team Status</span>
+                        </h3>
+                        <p class="chart-subtitle">Current workforce distribution</p>
+                    </div>
                 </div>
-                <!-- Card Body -->
-                <div class="card-body">
-                    <a href="EmployeesTable">
-                        <div class="chart-pie pt-4 pb-2">
-                            <canvas id="myPieChart"></canvas>
+                <div class="chart-body">
+                    <a href="EmployeesTable" class="chart-link">
+                        <div class="pie-chart-container">
+                            <div class="chart-wrapper">
+                                <canvas id="myPieChart"></canvas>
+                                <div class="chart-center-info">
+                                    <div class="total-employees">{{statistics.numberOfEmployees}}</div>
+                                    <div class="total-label">Total</div>
+                                </div>
+                            </div>
                         </div>
                     </a>
-                    <div class="mt-4 text-center small">
-                        <span class="mr-2">
-                            <i class="fas fa-circle" style="color:#46B39D"></i> Available
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle" style="color:#F0CA4D"></i> Engaged
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle" style="color:#006A94"></i> Training
-                        </span>
-                        <span class="mr-2">
-                            <i class="fas fa-circle" style="color:#E37B40"></i> Vacation
-                        </span>
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-color available-color"></div>
+                            <span class="legend-label">Available</span>
+                            <span class="legend-count">{{statistics.pieChartStatus.available}}</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color engaged-color"></div>
+                            <span class="legend-label">Engaged</span>
+                            <span class="legend-count">{{statistics.pieChartStatus.engaged}}</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color training-color"></div>
+                            <span class="legend-label">Training</span>
+                            <span class="legend-count">{{statistics.pieChartStatus.training}}</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color vacation-color"></div>
+                            <span class="legend-label">Vacation</span>
+                            <span class="legend-count">{{statistics.pieChartStatus.vacation}}</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Avaliblity Calculator-->
-            <div class="card shadow mb-4">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Avalibality Calculator</h6>
+            <!-- Enhanced Availability Calculator -->
+            <div class="enhanced-chart-card availability-calculator">
+                <div class="chart-header">
+                    <div class="chart-title-section">
+                        <h3 class="chart-title">
+                            <i class="fas fa-search-plus chart-icon"></i>
+                            <span class="title-text">Team Finder</span>
+                        </h3>
+                        <p class="chart-subtitle">Discover your available heroes for any mission!</p>
+                    </div>
                 </div>
-                <div class="card-body container">
-                    <div class="row">
-                        <div class="col-5">
-                            {{ form|crispy }} {% csrf_token %}
-                            <p id="errorMSG" style="color:red;"></p>
-                            <input id="checkAPI" type="submit" value="Submit">
+                <div class="chart-body">
+                    <div class="calculator-container">
+                        <div class="calculator-form">
+                            <div class="form-section">
+                                {{ form|crispy }}
+                                {% csrf_token %}
+                                <div class="error-message" id="errorMSG"></div>
+                                <button id="checkAPI" class="calculate-btn">
+                                    <i class="fas fa-search search-icon"></i>
+                                    <span class="btn-text">Find Available Employees</span>
+                                    <div class="btn-loading"></div>
+                                </button>
+                            </div>
                         </div>
-                        <div class="col-7">
-                            <b>Available Employees:</b>
-                            <ul id="listOfAvalibleEmps"></ul>
+                        <div class="results-section">
+                            <div class="results-header">
+                                <i class="fas fa-users"></i>
+                                <span>Available Employees</span>
+                            </div>
+                            <div class="results-container">
+                                <ul id="listOfAvalibleEmps" class="employee-list"></ul>
+                                <div class="empty-state friendly-empty" style="display: none;">
+                                    <div class="empty-icon-container">
+                                        <i class="fas fa-calendar-alt empty-icon"></i>
+                                        <div class="waiting-dots">
+                                            <span></span><span></span><span></span>
+                                        </div>
+                                    </div>
+                                    <p class="empty-title">Ready for the search!</p>
+                                    <p class="empty-subtitle">Pick your dates and I'll find your dream team ✨</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -228,97 +325,2330 @@
 
 <!-- Page level custom scripts -->
 <script>
-    var avalible = {{statistics.pieChartStatus.avalible}};
+    // Pie Chart Data
+    var available = {{statistics.pieChartStatus.available}};
     var engaged = {{statistics.pieChartStatus.engaged}};
     var training = {{statistics.pieChartStatus.training}};
     var vacation = {{statistics.pieChartStatus.vacation}};
+    
+    // Initialize Pie Chart
+    $(document).ready(function() {
+        var ctx = document.getElementById("myPieChart");
+        var myPieChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ["Available", "Engaged", "Training", "Vacation"],
+                datasets: [{
+                    data: [available, engaged, training, vacation],
+                    backgroundColor: ['#1cc88a', '#f6c23e', '#36b9cc', '#e74a3b'],
+                    hoverBorderColor: "rgba(234, 236, 244, 1)",
+                }],
+            },
+            options: {
+                maintainAspectRatio: false,
+                tooltips: {
+                    backgroundColor: "rgb(255,255,255)",
+                    bodyFontColor: "#858796",
+                    borderColor: '#dddfeb',
+                    borderWidth: 1,
+                    xPadding: 15,
+                    yPadding: 15,
+                    displayColors: false,
+                    caretPadding: 10,
+                },
+                legend: {
+                    display: false
+                },
+                cutoutPercentage: 80,
+            },
+        });
+    });
 </script>
 <script src="{% static 'js/demo/chart-area-demo.js' %}"></script>
-<script src="{% static 'js/demo/chart-pie-demo.js' %}"></script>
 <!--The following script is to make AJAX request to check the overlap-->
+<!--Enhanced AJAX script for availability calculator-->
 <script>
-    $(document).ready(function() {
-        $("#checkAPI").click(function(event) {
-            var date1 = new Date(document.getElementById("id_Start_Date").value);
-            var date2 = new Date(document.getElementById("id_End_Date").value);
-            if (date1 <= date2) {
-                $("#errorMSG").html("")
-                var token = '{{csrf_token}}';
-                $.ajax({
-                    headers: {
-                        "X-CSRFToken": token
-                    },
-                    type: "POST",
-                    url: "EmployeesCalendar/overlap/",
-                    data: {
-                        'Start_Date': $('#id_Start_Date').val(),
-                        'End_Date': $('#id_End_Date').val()
-                    },
-                    success: function(response) {
-                        $('#listOfAvalibleEmps').html("")
-                        if (response["emp"].length == 0) {
-                            $('#listOfAvalibleEmps').html("No employees are available at this period.")
-                        } else {
-                            for (var i = 0; i < response["emp"].length; i++) {
-                                $('#listOfAvalibleEmps').append("<li> <a href='/profile/" + response["id"][i] + "'>" + response["emp"][i] + "</a></li>");
-                            }
-                        }
-
+$(document).ready(function() {
+    // Enhanced availability calculator
+    $("#checkAPI").click(function(event) {
+        event.preventDefault();
+        
+        const startDate = new Date(document.getElementById("id_Start_Date").value);
+        const endDate = new Date(document.getElementById("id_End_Date").value);
+        const errorMsg = $("#errorMSG");
+        const resultsList = $('#listOfAvalibleEmps');
+        const submitBtn = $(this);
+        
+        // Clear previous results
+        errorMsg.html("").hide();
+        resultsList.html("");
+        
+        // Validation
+        if (!document.getElementById("id_Start_Date").value || !document.getElementById("id_End_Date").value) {
+            showError("Please select both start and end dates");
+            return false;
+        }
+        
+        if (startDate > endDate) {
+            showError("End date must be after start date");
+            return false;
+        }
+        
+        // Show loading state
+        submitBtn.addClass('loading').prop('disabled', true);
+        resultsList.html('<div class="loading-state"><i class="fas fa-spinner fa-spin"></i> Searching for available employees...</div>');
+        
+        const token = '{{csrf_token}}';
+        
+        $.ajax({
+            headers: {
+                "X-CSRFToken": token
+            },
+            type: "POST",
+            url: "EmployeesCalendar/overlap/",
+            data: {
+                'Start_Date': $('#id_Start_Date').val(),
+                'End_Date': $('#id_End_Date').val()
+            },
+            success: function(response) {
+                // Remove loading state
+                submitBtn.removeClass('loading').prop('disabled', false);
+                resultsList.html("");
+                
+                if (response["emp"].length == 0) {
+                    resultsList.html(`
+                        <div class="no-results">
+                            <div class="no-results-icon">
+                                <i class="fas fa-calendar-times"></i>
+                            </div>
+                            <p class="no-results-title">No employees available during this period</p>
+                            <div class="suggestion-box">
+                                <p class="suggestion-title">Suggestions:</p>
+                                <ul class="suggestion-list">
+                                    <li>• Try a different date range</li>
+                                    <li>• Consider partial availability</li>
+                                    <li>• Split the work across multiple people</li>
+                                </ul>
+                            </div>
+                        </div>
+                    `);
+                } else {
+                    // No limiting - show all employees
+                    const employees = response["emp"];
+                    const employeeIds = response["id"];
+                    const busyDaysData = response["busy_days"] || [];
+                    
+                    // Create array of employee data and sort by busy days (least busy first)
+                    const employeeData = employees.map((name, index) => ({
+                        name: name,
+                        id: employeeIds[index],
+                        busyDays: busyDaysData[index] || 0
+                    }));
+                    
+                    // Sort by busy days (ascending - least busy first)
+                    employeeData.sort((a, b) => a.busyDays - b.busyDays);
+                    
+                    const employeeCount = employees.length;
+                    const plural = employeeCount === 1 ? 'employee' : 'employees';
+                    
+                    let resultsHTML = `<div class="results-info">Found ${employeeCount} ${plural}</div>`;
+                    
+                    // Add filter controls at the top
+                    resultsHTML += `
+                        <div class="filter-controls">
+                            <label for="availability-filter">Filter by availability:</label>
+                            <select id="availability-filter" class="form-control">
+                                <option value="all">All employees</option>
+                                <option value="fully-available">Fully available only</option>
+                                <option value="partially-available">Partially available only</option>
+                            </select>
+                        </div>
+                    `;
+                    
+                    for (let i = 0; i < employeeData.length; i++) {
+                        const employee = employeeData[i];
+                        const isFullyAvailable = employee.busyDays === 0;
+                        const availabilityText = employee.busyDays > 0 ? `(Busy ${employee.busyDays} days during period)` : '(Fully available)';
+                        const availabilityClass = isFullyAvailable ? 'fully-available' : 'partially-available';
+                        
+                        resultsHTML += `
+                            <li class="employee-result-item ${availabilityClass}">
+                                <a href='/profile/${employee.id}' class="employee-link">
+                                    <div class="employee-info">
+                                        <i class="fas fa-user"></i>
+                                        <div class="employee-details">
+                                            <span class="employee-name">${employee.name}</span>
+                                            <span class="employee-availability">${availabilityText}</span>
+                                        </div>
+                                    </div>
+                                </a>
+                            </li>
+                        `;
                     }
-                });
-                return false; //<---- move it here
-            } else {
-                $('#listOfAvalibleEmps').html("")
-                $("#errorMSG").html("End date is before start date")
+                    
+                    resultsList.html(resultsHTML);
+                    
+                    // Add filter functionality
+                    $('#availability-filter').on('change', function() {
+                        const filterValue = $(this).val();
+                        $('.employee-result-item').each(function() {
+                            const availabilityText = $(this).find('.employee-availability').text();
+                            const isFullyAvailable = availabilityText.includes('Fully available');
+                            const isPartiallyAvailable = availabilityText.includes('Busy') && !isFullyAvailable;
+                            
+                            let show = true;
+                            if (filterValue === 'fully-available' && !isFullyAvailable) show = false;
+                            if (filterValue === 'partially-available' && !isPartiallyAvailable) show = false;
+                            
+                            $(this).toggle(show);
+                        });
+                    });
+                    
+                    // Results are ready to show
+                    $('.employee-result-item').css('opacity', 1);
+                }
+            },
+            error: function(xhr, status, error) {
+                // Remove loading state
+                submitBtn.removeClass('loading').prop('disabled', false);
+                showError("Unable to check availability. Please try again.");
+                resultsList.html(`
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Something went wrong. Please try again.</p>
+                    </div>
+                `);
             }
         });
-
+        
+        return false;
     });
+    
+    function showError(message) {
+        const errorMsg = $("#errorMSG");
+        errorMsg.html(message).show();
+        
+        // Auto-hide error after 5 seconds
+        setTimeout(() => {
+            errorMsg.fadeOut();
+        }, 5000);
+    }
+    
+    // Add date validation on change
+    $('#id_Start_Date, #id_End_Date').on('change', function() {
+        const errorMsg = $("#errorMSG");
+        errorMsg.fadeOut();
+    });
+    
+    // Initialize empty state
+    if ($('#listOfAvalibleEmps').is(':empty')) {
+        $('#listOfAvalibleEmps').html(`
+            <div class="empty-state friendly-empty">
+                <div class="empty-icon-container">
+                    <i class="fas fa-calendar-alt empty-icon"></i>
+                    <div class="waiting-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <p class="empty-title">Ready for the search!</p>
+                <p class="empty-subtitle">Pick your dates and I'll find your dream team ✨</p>
+            </div>
+        `);
+    }
+    
+    // ===== DELIGHTFUL JAVASCRIPT ENHANCEMENTS =====
+    
+    // Add sparkle effects to metric cards on hover
+    $('.sparkle-container').hover(
+        function() {
+            const sparkles = $(this).find('.sparkle-effect');
+            sparkles.css('display', 'block');
+        },
+        function() {
+            const sparkles = $(this).find('.sparkle-effect');
+            setTimeout(() => sparkles.css('display', 'none'), 1500);
+        }
+    );
+    
+    // Celebration animation for successful searches
+    function triggerCelebration() {
+        $('.magical-search-btn').addClass('success');
+        setTimeout(() => $('.magical-search-btn').removeClass('success'), 2000);
+        
+        // Create floating emojis
+        const emojis = ['🎉', '✨', '🚀', '🎆', '👏'];
+        const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        
+        const celebration = $('<div class="floating-celebration">' + randomEmoji + '</div>');
+        celebration.css({
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            fontSize: '2rem',
+            zIndex: 9999,
+            pointerEvents: 'none',
+            animation: 'celebrate-float 2s ease-out forwards'
+        });
+        
+        $('body').append(celebration);
+        setTimeout(() => celebration.remove(), 2000);
+    }
+    
+    // Add celebration keyframe animation
+    const celebrationStyle = `
+        @keyframes celebrate-float {
+            0% {
+                transform: translate(-50%, -50%) scale(0) rotate(0deg);
+                opacity: 1;
+            }
+            50% {
+                transform: translate(-50%, -70%) scale(1.5) rotate(180deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -90%) scale(0.5) rotate(360deg);
+                opacity: 0;
+            }
+        }
+    `;
+    
+    $('<style>').text(celebrationStyle).appendTo('head');
+    
+    // Enhanced success callback with celebration
+    function enhancedSuccessCallback(response) {
+        // Remove loading state
+        const submitBtn = $('#checkAPI');
+        const resultsList = $('#listOfAvalibleEmps');
+        
+        submitBtn.removeClass('loading').prop('disabled', false);
+        resultsList.html("");
+        
+        if (response["emp"].length == 0) {
+            // Show enhanced no results
+            resultsList.html(`
+                <div class="no-results magical-no-results">
+                    <div class="no-results-icon">
+                        <i class="fas fa-calendar-times"></i>
+                        <div class="disappointed-face">😔</div>
+                    </div>
+                    <p class="no-results-title">Oops! Everyone's busy during this time</p>
+                    <div class="suggestion-box">
+                        <p class="suggestion-title">💡 Try these instead:</p>
+                        <ul class="suggestion-list">
+                            <li>• Adjust your date range</li>
+                            <li>• Check for partial availability</li>
+                            <li>• Consider splitting the work</li>
+                        </ul>
+                    </div>
+                </div>
+            `);
+        } else {
+            // Trigger celebration for successful search
+            triggerCelebration();
+            
+            // Show success message with confetti
+            const employeeCount = response["emp"].length;
+            const plural = employeeCount === 1 ? 'hero' : 'heroes';
+            
+            let resultsHTML = `<div class="results-header-info celebration-success"><i class="fas fa-trophy"></i> 🎉 Found ${employeeCount} available ${plural}! <div class="confetti-burst"></div></div>`;
+            
+            for (let i = 0; i < response["emp"].length; i++) {
+                resultsHTML += `
+                    <li class="employee-result-item">
+                        <a href='/profile/${response["id"][i]}' class="employee-link">
+                            <div class="employee-info">
+                                <i class="fas fa-user-ninja"></i>
+                                <span class="employee-name">${response["emp"][i]}</span>
+                                <div class="hero-badge">🏆</div>
+                            </div>
+                            <i class="fas fa-arrow-right link-arrow"></i>
+                        </a>
+                    </li>
+                `;
+            }
+            
+            resultsList.html(resultsHTML);
+            
+            // Show results immediately
+            $('.employee-result-item').css('opacity', 1);
+        }
+    }
+    
+    // Add hover effects for metric cards
+    $('.metric-card').hover(
+        function() {
+            $(this).find('.metric-icon').addClass('pulse-active');
+        },
+        function() {
+            $(this).find('.metric-icon').removeClass('pulse-active');
+        }
+    );
+    
+    // Easter egg: Konami code for extra sparkles
+    let konamiCode = [];
+    const konami = [38, 38, 40, 40, 37, 39, 37, 39, 66, 65]; // Up, Up, Down, Down, Left, Right, Left, Right, B, A
+    
+    $(document).keydown(function(e) {
+        konamiCode.push(e.keyCode);
+        if (konamiCode.length > 10) konamiCode.shift();
+        
+        if (konamiCode.join(',') === konami.join(',')) {
+            // Easter egg activated!
+            $('body').addClass('party-mode');
+            
+            // Add party mode styles
+            const partyStyle = `
+                .party-mode {
+                    animation: rainbow-bg 3s linear infinite !important;
+                }
+                @keyframes rainbow-bg {
+                    0% { filter: hue-rotate(0deg); }
+                    100% { filter: hue-rotate(360deg); }
+                }
+                .party-mode .metric-card {
+                    animation: party-bounce 0.5s ease-in-out infinite alternate !important;
+                }
+                @keyframes party-bounce {
+                    0% { transform: translateY(0) scale(1); }
+                    100% { transform: translateY(-10px) scale(1.02); }
+                }
+            `;
+            
+            $('<style id="party-mode-styles">').text(partyStyle).appendTo('head');
+            
+            // Show party message
+            const partyMsg = $('<div class="party-message">🎉 PARTY MODE ACTIVATED! 🎉</div>');
+            partyMsg.css({
+                position: 'fixed',
+                top: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4)',
+                color: 'white',
+                padding: '1rem 2rem',
+                borderRadius: '50px',
+                fontSize: '1.2rem',
+                fontWeight: 'bold',
+                zIndex: 10000,
+                animation: 'party-message 3s ease-in-out'
+            });
+            
+            const partyAnimation = `
+                @keyframes party-message {
+                    0%, 100% { opacity: 0; transform: translateX(-50%) scale(0); }
+                    50% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+                }
+            `;
+            
+            $('<style>').text(partyAnimation).appendTo('head');
+            $('body').append(partyMsg);
+            
+            setTimeout(() => {
+                $('body').removeClass('party-mode');
+                $('#party-mode-styles').remove();
+                partyMsg.remove();
+            }, 5000);
+            
+            konamiCode = []; // Reset
+        }
+    });
+    
+    // Add smooth scroll to sections when clicking metrics
+    $('.metric-link').click(function(e) {
+        const target = $(this).attr('href');
+        if (target && target.startsWith('#')) {
+            e.preventDefault();
+            $('html, body').animate({
+                scrollTop: $(target).offset().top - 100
+            }, 600);
+        }
+    });
+    
+    // Add loading micro-animation improvements
+    $('.calculate-btn').click(function() {
+        $(this).find('.search-icon').addClass('searching');
+        setTimeout(() => {
+            $(this).find('.search-icon').removeClass('searching');
+        }, 2000);
+    });
+    
+    // Add CSS for new classes
+    const additionalStyles = `
+        .pulse-active {
+            animation: metric-pulse 1s ease-in-out !important;
+        }
+        @keyframes metric-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        .hero-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.8rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .employee-link:hover .hero-badge {
+            opacity: 1;
+            animation: badge-bounce 0.6s ease-out;
+        }
+        @keyframes badge-bounce {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(1.3) rotate(15deg); }
+        }
+        .searching {
+            animation: search-scan 2s linear infinite !important;
+        }
+        @keyframes search-scan {
+            0%, 100% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(90deg); }
+            50% { transform: scale(1.2) rotate(180deg); }
+            75% { transform: scale(1.1) rotate(270deg); }
+        }
+    `;
+    
+    $('<style>').text(additionalStyles).appendTo('head');
+    
+});
 </script>
 <script>
 currentType = 1;
 function ToggleBarsButton(){
-    Type1 =  `  {% for eng in statistics.engagementsBars%}
-                <h4 class="small font-weight-bold"><a href="/engagement/{{eng.engid}}" style="text-decoration: inherit; color: inherit">{{eng.engName}}</a><span class="float-right">{{eng.precent}}%</span></h4>
-                <div class="progress mb-4">
-                    <div class="progress-bar {% if eng.precent < 25 %}bg-warning{% elif eng.precent < 50 %}{% elif eng.precent < 75 %}bg-info{% elif eng.precent <= 100 %}bg-success{% endif %}" role="progressbar" style="width: {{eng.precent}}%" aria-valuenow="20" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-                {% endfor %}`;
+    const titleElement = document.getElementById("BarsTitle").querySelector('.title-text');
+    
+    Type1 = `<div class="engagement-progress-list">
+                {% for eng in statistics.engagementsBars%}
+                <a href="/engagement/{{eng.engid}}" class="engagement-item-link">
+                    <div class="engagement-item">
+                        <div class="engagement-header">
+                            <div class="engagement-info">
+                                <span class="engagement-name">{{eng.engName}}</span>
+                                <span class="engagement-dates">Start: {{eng.start_date|date:"M j, Y"}} - End: {{eng.end_date|date:"M j, Y"}}</span>
+                            </div>
+                            <div class="engagement-percentage">
+                                <span class="percentage-value">{{eng.precent}}%</span>
+                            </div>
+                        </div>
+                        <div class="modern-progress-bar">
+                            <div class="progress-track">
+                                <div class="progress-fill {% if eng.precent < 25 %}warning-fill{% elif eng.precent < 50 %}info-fill{% elif eng.precent < 75 %}primary-fill{% else %}success-fill{% endif %}" 
+                                     style="width: {{eng.precent}}%" 
+                                     data-percentage="{{eng.precent}}">
+                                </div>
+                            </div>
+                            <div class="progress-indicators">
+                                <span class="indicator" style="left: 25%"></span>
+                                <span class="indicator" style="left: 50%"></span>
+                                <span class="indicator" style="left: 75%"></span>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>`;
 
-    Type2 = `   <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+    Type2 = `<div class="modern-table-container">
+                <table class="modern-table">
                     <thead>
                         <tr>
-                            <th class="text-secondary">Name</th>
-                            <th class="text-secondary">Ongoing Engagements</th>
-                            <th class="text-secondary">Consultants Assigned</th>
+                            <th><i class="fas fa-building mr-2"></i>Client Name</th>
+                            <th><i class="fas fa-handshake mr-2"></i>Ongoing Engagements</th>
+                            <th><i class="fas fa-users mr-2"></i>Consultants Assigned</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for client,count in statistics.cliBars.items %}
-                        <tr>
-                            <td class="small font-weight-bold"><a href="/client/{{client.id}}" style="text-decoration: inherit; color: inherit">{{client.name}}</a></td>
-                            <td class="small font-weight-bold">{{count}}</td>
-                            <td class="small font-weight-bold">{{client.count_working_employees}}</td>
+                        <tr class="table-row">
+                            <td>
+                                <a href="/client/{{client.id}}" class="client-link">
+                                    <div class="client-info">
+                                        <span class="client-name">{{client.name}}</span>
+                                    </div>
+                                </a>
+                            </td>
+                            <td>
+                                <span class="engagement-count">{{count}}</span>
+                            </td>
+                            <td>
+                                <span class="consultant-count">{{client.count_working_employees}}</span>
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
-                </table>`
+                </table>
+            </div>`;
     
 
     document.getElementById("ToggleBarsView").innerHTML = currentType == 1 ? Type2 : Type1;
-    document.getElementById("BarsTitle").innerHTML = currentType == 1 ? "Ongoing Clients" : "Ongoing Engagements";
+    titleElement.textContent = currentType == 1 ? "Ongoing Clients" : "Ongoing Engagements";
     currentType = currentType == 1 ? 2 : 1;
 }
 </script>
 
 <style>
-    .upcoming-card-hover {
-        transition: box-shadow 0.2s, transform 0.2s;
+/* Enhanced Dashboard Styles */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --ongoing-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --upcoming-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    --utilization-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    --employees-gradient: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    --shadow-light: 0 2px 15px rgba(0, 0, 0, 0.08);
+    --shadow-medium: 0 8px 30px rgba(0, 0, 0, 0.12);
+    --shadow-heavy: 0 20px 40px rgba(0, 0, 0, 0.15);
+    --border-radius: 16px;
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Metrics Row Animations */
+.metrics-row {
+    animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
     }
-    .upcoming-card-hover:hover {
-        box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.15), 0 0.5rem 1rem rgba(40, 167, 69, 0.10);
-        transform: translateY(-2px) scale(1.02);
-        border-color: #28a745 !important;
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
-</style>
+}
+
+/* Enhanced Metric Cards */
+.metric-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: var(--border-radius);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-light);
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    height: 100%;
+}
+
+.metric-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--primary-gradient);
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.metric-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: var(--shadow-heavy);
+}
+
+.metric-card.ongoing-card::before {
+    background: var(--ongoing-gradient);
+}
+
+.metric-card.upcoming-card::before {
+    background: var(--upcoming-gradient);
+}
+
+.metric-card.utilization-card::before {
+    background: var(--utilization-gradient);
+}
+
+.metric-card.employees-card::before {
+    background: var(--employees-gradient);
+}
+
+/* Interactive Cards */
+.interactive-card {
+    cursor: pointer;
+    position: relative;
+}
+
+.interaction-hint {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    opacity: 0;
+    transition: var(--transition-smooth);
+    color: #667eea;
+    font-size: 1.2rem;
+}
+
+.interactive-card:hover .interaction-hint {
+    opacity: 1;
+    transform: translateX(-5px);
+}
+
+/* Metric Link */
+.metric-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.metric-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Metric Card Content */
+.metric-card-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Metric Icons */
+.metric-icon {
+    flex-shrink: 0;
+}
+
+.icon-circle {
+    width: 60px;
+    height: 60px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: var(--transition-smooth);
+}
+
+.bg-gradient-ongoing {
+    background: var(--ongoing-gradient);
+}
+
+.bg-gradient-upcoming {
+    background: var(--upcoming-gradient);
+}
+
+.bg-gradient-utilization {
+    background: var(--utilization-gradient);
+}
+
+.bg-gradient-employees {
+    background: var(--employees-gradient);
+}
+
+.metric-card:hover .icon-circle {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+}
+
+/* Metric Info */
+.metric-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.metric-label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.5rem;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1f2937;
+    line-height: 1;
+    margin-bottom: 0.75rem;
+}
+
+.metric-trend {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.trend-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    transition: var(--transition-smooth);
+}
+
+.trend-indicator.positive {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.trend-indicator.upcoming {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.trend-indicator.stable {
+    background: rgba(156, 163, 175, 0.1);
+    color: #6b7280;
+}
+
+/* Utilization Progress */
+.utilization-progress {
+    margin-top: 1rem;
+}
+
+.progress-container {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background: rgba(156, 163, 175, 0.2);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-track {
+    width: 100%;
+    height: 100%;
+    background: rgba(156, 163, 175, 0.2);
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--utilization-gradient);
+    border-radius: 4px;
+    transition: width 1s ease-out;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+.progress-glow {
+    position: absolute;
+    top: -2px;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    background: var(--utilization-gradient);
+    border-radius: 6px;
+    opacity: 0;
+    filter: blur(4px);
+    transition: var(--transition-smooth);
+}
+
+.metric-card:hover .progress-glow {
+    opacity: 0.3;
+}
+
+/* Background Pattern */
+.metric-background-pattern {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 120px;
+    height: 120px;
+    opacity: 0.05;
+    background-image: radial-gradient(circle at 50% 50%, #667eea 2px, transparent 2px);
+    background-size: 15px 15px;
+    pointer-events: none;
+}
+
+/* Enhanced Chart Cards */
+.enhanced-chart-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.enhanced-chart-card:hover {
+    box-shadow: var(--shadow-medium);
+    transform: translateY(-2px);
+}
+
+/* Chart Header */
+.chart-header {
+    padding: 1.5rem 2rem;
+    background: #f8f9fc;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+
+.chart-title-section {
+    flex: 1;
+}
+
+.chart-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.chart-icon {
+    font-size: 1.25rem;
+    opacity: 0.9;
+}
+
+.chart-subtitle {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    margin: 0.5rem 0 0;
+    font-weight: 400;
+}
+
+.chart-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.toggle-view-btn {
+    background: #667eea;
+    border: 1px solid #667eea;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 500;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+.toggle-view-btn:hover {
+    background: #5a6fd8;
+    border-color: #5a6fd8;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+/* Chart Body */
+.chart-body {
+    padding: 2rem;
+}
+
+/* Engagement Progress List */
+.engagement-progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.engagement-item-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.engagement-item-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+.engagement-item {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: var(--transition-smooth);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.engagement-item:hover {
+    background: white;
+    box-shadow: var(--shadow-light);
+}
+
+.engagement-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.engagement-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.engagement-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.engagement-dates {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.engagement-percentage {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.percentage-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+/* Modern Progress Bar */
+.modern-progress-bar {
+    position: relative;
+}
+
+.modern-progress-bar .progress-track {
+    width: 100%;
+    height: 12px;
+    background: rgba(156, 163, 175, 0.2);
+    border-radius: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-progress-bar .progress-fill {
+    height: 100%;
+    border-radius: 6px;
+    position: relative;
+    transition: width 1.5s ease-out;
+    overflow: hidden;
+}
+
+.progress-fill.warning-fill {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.progress-fill.info-fill {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+.progress-fill.primary-fill {
+    background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.progress-fill.success-fill {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+}
+
+
+.progress-indicators {
+    position: absolute;
+    top: -2px;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+}
+
+.progress-indicators .indicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 1px;
+}
+
+/* Pie Chart Enhancements */
+.pie-chart-card {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fc 100%);
+}
+
+.pie-chart-card .chart-header {
+    background: #f8f9fc;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.pie-chart-container {
+    position: relative;
+    padding: 2rem 0;
+}
+
+.chart-wrapper {
+    position: relative;
+    max-width: 300px;
+    margin: 0 auto;
+}
+
+.chart-center-info {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+}
+
+.total-employees {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1f2937;
+    line-height: 1;
+}
+
+.total-label {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+}
+
+.chart-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.chart-link:hover {
+    text-decoration: none;
+    color: inherit;
+}
+
+/* Chart Legend */
+.chart-legend {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    transition: var(--transition-smooth);
+}
+
+.legend-item:hover {
+    background: white;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-light);
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+.available-color {
+    background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+}
+
+.engaged-color {
+    background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
+}
+
+.training-color {
+    background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+}
+
+.vacation-color {
+    background: linear-gradient(135deg, #f87171 0%, #ef4444 100%);
+}
+
+.legend-label {
+    flex: 1;
+    font-weight: 500;
+    color: #374151;
+}
+
+.legend-count {
+    font-weight: 700;
+    color: #1f2937;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 0.25rem 0.5rem;
+    border-radius: 12px;
+    font-size: 0.875rem;
+}
+
+/* Availability Calculator */
+.availability-calculator {
+    background: linear-gradient(145deg, #ffffff 0%, #f8f9fc 100%);
+}
+
+.availability-calculator .chart-header {
+    background: #f8f9fc;
+    color: #374151;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.calculator-container {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+.form-section {
+    background: rgba(255, 255, 255, 0.8);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.calculate-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.calculate-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+}
+
+.calculate-btn:active {
+    transform: translateY(0);
+}
+
+.btn-loading {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.calculate-btn.loading .btn-loading {
+    opacity: 1;
+}
+
+.calculate-btn.loading span,
+.calculate-btn.loading i {
+    opacity: 0;
+}
+
+@keyframes spin {
+    to {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.results-section {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+.results-header {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.results-container {
+    padding: 1.5rem;
+    min-height: 200px;
+}
+
+.employee-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.employee-list li {
+    padding: 0.75rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    transition: var(--transition-smooth);
+}
+
+.employee-list li:hover {
+    background: rgba(102, 126, 234, 0.1);
+}
+
+.employee-list a {
+    text-decoration: none;
+    color: #374151;
+    font-weight: 500;
+}
+
+.employee-list a:hover {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.empty-state {
+    text-align: center;
+    color: #9ca3af;
+    padding: 2rem;
+}
+
+.empty-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 8px;
+    border-left: 4px solid #ef4444;
+    display: none;
+}
+
+.error-message:not(:empty) {
+    display: block;
+    animation: slideInDown 0.3s ease-out;
+}
+
+/* Enhanced Results Styling */
+.results-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    font-weight: 500;
+    font-size: 0.875rem;
+    text-align: center;
+}
+
+.results-header-info {
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+    color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    animation: slideInDown 0.3s ease-out;
+}
+
+.employee-result-item {
+    opacity: 1;
+    transition: all 0.3s ease;
+    margin-bottom: 0.5rem;
+}
+
+.employee-result-item.fully-available {
+    border-left: 4px solid #10b981;
+}
+
+.employee-result-item.fully-available .employee-link {
+    background: rgba(16, 185, 129, 0.05);
+    border: 1px solid rgba(16, 185, 129, 0.1);
+}
+
+.employee-result-item.fully-available .employee-link:hover {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: rgba(16, 185, 129, 0.2);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.15);
+}
+
+.employee-result-item.fully-available .employee-info i {
+    color: #10b981;
+}
+
+.employee-result-item.fully-available .employee-availability {
+    color: #059669;
+    font-weight: 500;
+}
+
+.employee-result-item.partially-available {
+    border-left: 4px solid #f59e0b;
+}
+
+.employee-result-item.partially-available .employee-link {
+    background: rgba(245, 158, 11, 0.05);
+    border: 1px solid rgba(245, 158, 11, 0.1);
+}
+
+.employee-result-item.partially-available .employee-link:hover {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.2);
+    box-shadow: 0 2px 8px rgba(245, 158, 11, 0.15);
+}
+
+.employee-result-item.partially-available .employee-info i {
+    color: #f59e0b;
+}
+
+.employee-result-item.partially-available .employee-availability {
+    color: #d97706;
+    font-weight: 500;
+}
+
+.employee-link {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #374151;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+
+.employee-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.employee-info i {
+    color: #667eea;
+    font-size: 1.1rem;
+}
+
+.employee-details {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.employee-name {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.employee-availability {
+    font-size: 0.875rem;
+    color: #6b7280;
+    font-weight: 400;
+}
+
+.filter-controls {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-radius: 8px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-controls label {
+    display: block;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.filter-controls select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    background: white;
+}
+
+
+.loading-state {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+.loading-state i {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #667eea;
+}
+
+.no-results {
+    text-align: center;
+    padding: 2rem;
+    color: #6b7280;
+}
+
+.no-results i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #f59e0b;
+}
+
+.no-results p {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: #374151;
+}
+
+.no-results small {
+    color: #9ca3af;
+}
+
+.error-state {
+    text-align: center;
+    padding: 2rem;
+    color: #ef4444;
+}
+
+.error-state i {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-state p {
+    font-weight: 600;
+    margin-bottom: 0;
+}
+
+@keyframes slideInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Modern Table Styles */
+.modern-table-container {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    overflow: hidden;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.modern-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.modern-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.modern-table th i {
+    opacity: 0.8;
+}
+
+.modern-table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.modern-table tbody tr:hover {
+    background: rgba(102, 126, 234, 0.05);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.modern-table td {
+    padding: 1rem;
+    vertical-align: middle;
+}
+
+.client-link {
+    text-decoration: none;
+    color: #374151;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.client-link:hover {
+    color: #667eea;
+    text-decoration: none;
+}
+
+.client-name {
+    font-size: 1rem;
+}
+
+.engagement-count,
+.consultant-count {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    display: inline-block;
+    min-width: 2rem;
+    text-align: center;
+}
+
+/* Form Enhancements */
+.form-section .form-control {
+    border-radius: 8px;
+    border: 2px solid #e5e7eb;
+    padding: 0.75rem;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+}
+
+.form-section .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.form-section label {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+    .calculator-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .modern-table-container {
+        overflow-x: auto;
+    }
+    
+    .modern-table {
+        min-width: 600px;
+    }
+}
+
+@media (max-width: 768px) {
+    .metric-card {
+        padding: 1.5rem;
+    }
+    
+    .metric-card-content {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .chart-header {
+        padding: 1.5rem;
+    }
+    
+    .chart-body {
+        padding: 1.5rem;
+    }
+    
+    .chart-legend {
+        grid-template-columns: 1fr;
+    }
+    
+    .engagement-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .form-section,
+    .results-section {
+        padding: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .metric-value {
+        font-size: 2rem;
+    }
+    
+    .chart-title {
+        font-size: 1.25rem;
+    }
+    
+    .engagement-item {
+        padding: 1rem;
+    }
+}
+
+/* ===== DELIGHTFUL ENHANCEMENTS ===== */
+
+/* Sparkle Effects */
+.sparkle-container {
+    position: relative;
+    overflow: visible;
+}
+
+.sparkle-effect {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 20px;
+    height: 20px;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sparkle-container:hover .sparkle-effect {
+    opacity: 1;
+    animation: sparkle 1.5s infinite;
+}
+
+@keyframes sparkle {
+    0%, 100% { 
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    50% { 
+        transform: scale(1) rotate(180deg);
+        opacity: 1;
+    }
+}
+
+.sparkle-effect::before {
+    content: '✨';
+    position: absolute;
+    font-size: 16px;
+    animation: twinkle 2s infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+}
+
+/* Icon Animations */
+.spinning-on-hover {
+    transition: transform 0.6s ease;
+}
+
+.pulse-on-hover:hover .spinning-on-hover {
+    transform: rotate(360deg);
+}
+
+.pulse-on-hover:hover {
+    animation: gentle-pulse 1s ease-in-out;
+}
+
+@keyframes gentle-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+.chart-icon-bounce {
+    animation: gentle-bounce 2s infinite;
+}
+
+@keyframes gentle-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.chart-icon-spin {
+    animation: gentle-spin 10s linear infinite;
+}
+
+@keyframes gentle-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.calculator-bounce {
+    animation: calculator-wiggle 3s infinite;
+}
+
+@keyframes calculator-wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(2deg); }
+    75% { transform: rotate(-2deg); }
+}
+
+/* Counter Animation */
+.counter-animate {
+    animation: count-up 0.8s ease-out;
+}
+
+@keyframes count-up {
+    0% {
+        transform: scale(0.8);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+/* Percentage Celebration */
+.percentage-celebrate[data-percentage] {
+    position: relative;
+}
+
+.percentage-celebrate[data-percentage]:hover::after {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 20px;
+    height: 20px;
+    background: radial-gradient(circle, #ffd700, #ff6b6b);
+    border-radius: 50%;
+    animation: percentage-celebration 1s ease-out;
+}
+
+@keyframes percentage-celebration {
+    0% {
+        transform: scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0);
+        opacity: 0;
+    }
+}
+
+/* Team Pulse */
+.team-pulse {
+    animation: heart-beat 2s infinite;
+}
+
+@keyframes heart-beat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Trend Text Animation */
+.trend-text {
+    display: inline-block;
+    animation: fade-in-up 0.6s ease-out;
+}
+
+@keyframes fade-in-up {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Title Enhancements */
+.title-text {
+    display: inline-block;
+    transition: all 0.3s ease;
+}
+
+.chart-title:hover .title-text {
+    transform: translateX(5px);
+}
+
+.progress-celebration {
+    position: absolute;
+    top: -5px;
+    right: 10px;
+    font-size: 1.2em;
+    animation: celebration-bounce 0.6s ease-out;
+}
+
+@keyframes celebration-bounce {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.3) rotate(10deg); }
+}
+
+.team-mood-indicator {
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    font-size: 1.1em;
+    animation: mood-sway 3s ease-in-out infinite;
+}
+
+@keyframes mood-sway {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+}
+
+.finder-magic {
+    position: absolute;
+    top: -5px;
+    right: 15px;
+    font-size: 1em;
+    animation: magic-twinkle 2s infinite;
+}
+
+@keyframes magic-twinkle {
+    0%, 100% { 
+        opacity: 0.6;
+        transform: scale(1);
+    }
+    50% { 
+        opacity: 1;
+        transform: scale(1.2);
+    }
+}
+
+/* Magical Buttons */
+.magical-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.magical-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+}
+
+.btn-sparkles {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 1px, transparent 1px);
+    background-size: 15px 15px;
+    animation: sparkles-appear 0.6s ease-out;
+}
+
+.magical-btn:hover .btn-sparkles {
+    opacity: 1;
+    animation: sparkles-move 1s ease-out infinite;
+}
+
+@keyframes sparkles-appear {
+    0% { opacity: 0; transform: translate(-50%, -50%) scale(0); }
+    100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+}
+
+@keyframes sparkles-move {
+    0%, 100% { background-position: 0 0; }
+    50% { background-position: 15px 15px; }
+}
+
+.magical-search-btn {
+    position: relative;
+    overflow: hidden;
+}
+
+.magical-search-btn:hover .search-icon {
+    animation: search-magic 0.6s ease-out;
+}
+
+@keyframes search-magic {
+    0%, 100% { transform: scale(1) rotate(0deg); }
+    50% { transform: scale(1.2) rotate(15deg); }
+}
+
+.success-sparkle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.8) 50%, transparent 70%);
+    animation: success-shine 1.5s ease-out;
+}
+
+.magical-search-btn.success .success-sparkle {
+    opacity: 1;
+}
+
+@keyframes success-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+/* Enhanced Empty States */
+.friendly-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #f8f9ff 0%, #e8f2ff 100%);
+    border-radius: 16px;
+    border: 2px dashed rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.friendly-empty::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.05) 0%, transparent 70%);
+    animation: gentle-pulse-bg 4s ease-in-out infinite;
+}
+
+@keyframes gentle-pulse-bg {
+    0%, 100% { transform: scale(1); opacity: 0.5; }
+    50% { transform: scale(1.1); opacity: 1; }
+}
+
+.empty-icon-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    color: #667eea;
+    animation: icon-float 3s ease-in-out infinite;
+}
+
+@keyframes icon-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+}
+
+.waiting-dots {
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+}
+
+.waiting-dots span {
+    width: 6px;
+    height: 6px;
+    background: #667eea;
+    border-radius: 50%;
+    animation: dots-bounce 1.4s ease-in-out infinite;
+}
+
+.waiting-dots span:nth-child(1) { animation-delay: 0s; }
+.waiting-dots span:nth-child(2) { animation-delay: 0.2s; }
+.waiting-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes dots-bounce {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px); }
+}
+
+.empty-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 2;
+}
+
+.empty-subtitle {
+    color: #6b7280;
+    font-size: 1rem;
+    position: relative;
+    z-index: 2;
+}
+
+/* Enhanced No Results */
+.magical-no-results {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: linear-gradient(135deg, #fef7f0 0%, #fdf2e9 100%);
+    border-radius: 16px;
+    border: 2px dashed rgba(251, 146, 60, 0.3);
+    position: relative;
+}
+
+.no-results-icon {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 1.5rem;
+}
+
+.no-results-icon i {
+    font-size: 3rem;
+    color: #f59e0b;
+    animation: disappointed-shake 2s ease-in-out infinite;
+}
+
+@keyframes disappointed-shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-3deg); }
+    75% { transform: rotate(3deg); }
+}
+
+.disappointed-face {
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 1.5rem;
+    animation: face-sway 3s ease-in-out infinite;
+}
+
+@keyframes face-sway {
+    0%, 100% { transform: rotate(-10deg); }
+    50% { transform: rotate(10deg); }
+}
+
+.no-results-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #92400e;
+    margin-bottom: 1.5rem;
+}
+
+.suggestion-box {
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    text-align: left;
+    max-width: 300px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.suggestion-title {
+    font-weight: 600;
+    color: #92400e;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.suggestion-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.suggestion-list li {
+    color: #6b7280;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.suggestion-list li:hover {
+    color: #374151;
+    transform: translateX(5px);
+}
+
+/* Success Celebration */
+.celebration-success {
+    position: relative;
+    background: linear-gradient(135deg, #10b981 0%, #34d399 100%) !important;
+    overflow: hidden;
+}
+
+.confetti-burst {
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+    width: 30px;
+    height: 30px;
+}
+
+.confetti-burst::before,
+.confetti-burst::after {
+    content: '🎉';
+    position: absolute;
+    font-size: 1.2rem;
+    animation: confetti-fall 2s ease-out infinite;
+}
+
+.confetti-burst::before {
+    animation-delay: 0s;
+    left: 0;
+}
+
+.confetti-burst::after {
+    animation-delay: 0.5s;
+    right: 0;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translateY(-10px) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(20px) rotate(360deg);
+        opacity: 0;
+    }
+}
+
+/* Loading State Enhancements */
+.loading-state {
+    animation: gentle-pulse 2s ease-in-out infinite;
+}
+
+.loading-state i {
+    animation: spin 1s linear infinite, color-shift 2s ease-in-out infinite;
+}
+
+@keyframes color-shift {
+    0%, 100% { color: #667eea; }
+    50% { color: #764ba2; }
+}
+
+/* Enhanced Error States */
+.error-state {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-radius: 16px;
+    padding: 2rem;
+    border: 2px dashed rgba(239, 68, 68, 0.3);
+}
+
+.error-state i {
+    animation: error-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes error-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Mobile Enhancements */
+@media (max-width: 768px) {
+    .sparkle-effect,
+    .team-mood-indicator,
+    .finder-magic,
+    .progress-celebration {
+        display: none; /* Hide decorative elements on mobile for performance */
+    }
+    
+    .friendly-empty,
+    .magical-no-results {
+        padding: 2rem 1rem;
+    }
+    
+    .empty-icon,
+    .no-results-icon i {
+        font-size: 2.5rem;
+    }
+    
+    .suggestion-box {
+        padding: 1rem;
+    }
+}
+
+/* Accessibility: Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+    .sparkle-container:hover .sparkle-effect,
+    .spinning-on-hover,
+    .chart-icon-bounce,
+    .chart-icon-spin,
+    .calculator-bounce,
+    .counter-animate,
+    .team-pulse,
+    .waiting-dots span,
+    .icon-float,
+    .disappointed-shake,
+    .confetti-fall,
+    .gentle-pulse {
+        animation: none !important;
+        transition: none !important;
+    }
+    
+    .pulse-on-hover:hover,
+    .magical-btn:hover,
+    .chart-title:hover .title-text {
+        transform: none !important;
+    }
+}
+
+}</style>
 {% endblock %}
