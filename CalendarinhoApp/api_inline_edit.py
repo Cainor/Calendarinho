@@ -789,8 +789,8 @@ def get_available_employees(request):
             except:
                 pass  # Continue without availability calculation
         
-        # Get active employees, excluding the current user if desired
-        employees = Employee.objects.filter(is_active=True).order_by('first_name', 'last_name')
+        # Get active employees
+        employees = Employee.objects.filter(is_active=True)
         employees_data = []
         
         for employee in employees:
@@ -831,6 +831,21 @@ def get_available_employees(request):
                 })
             
             employees_data.append(employee_data)
+        
+        # Sort employees by availability (most available first), then by name
+        def sort_key(emp):
+            # Primary sort: availability percentage (descending - most available first)
+            # For employees without availability info, treat as 0% available (least priority)
+            availability_pct = emp.get('availability', {}).get('availability_percentage', 0)
+            
+            # Secondary sort: by first name, last name (ascending)
+            first_name = emp.get('first_name', '').lower()
+            last_name = emp.get('last_name', '').lower()
+            
+            # Return tuple for sorting: negative availability for descending order, then names for ascending
+            return (-availability_pct, first_name, last_name)
+        
+        employees_data.sort(key=sort_key)
         
         return create_inline_edit_response(
             True,
