@@ -857,3 +857,248 @@ class VulnerabilityFilterForm(forms.Form):
         required=False,
         widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
     )
+
+
+# Inline Editing Forms for Backend Infrastructure
+
+class InlineEditVulnerabilityForm(forms.Form):
+    """Form for inline editing of vulnerability fields"""
+    
+    title = forms.CharField(
+        max_length=200,
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'maxlength': '200'
+        })
+    )
+    
+    description = forms.CharField(
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3
+        })
+    )
+    
+    severity = forms.ChoiceField(
+        choices=[
+            ('Critical', 'Critical'),
+            ('High', 'High'),
+            ('Medium', 'Medium'),
+            ('Low', 'Low'),
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    status = forms.ChoiceField(
+        choices=[
+            ('Open', 'Open'),
+            ('Fixed', 'Fixed'),
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        if title and len(title.strip()) < 3:
+            raise ValidationError("Title must be at least 3 characters long.")
+        return title
+    
+    def clean_description(self):
+        description = self.cleaned_data.get('description')
+        if description and len(description.strip()) < 10:
+            raise ValidationError("Description must be at least 10 characters long.")
+        return description
+
+
+class InlineEditEngagementForm(forms.Form):
+    """Form for inline editing of engagement fields"""
+    
+    name = forms.CharField(
+        max_length=200,
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'maxlength': '200'
+        })
+    )
+    
+    start_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    end_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    scope = forms.CharField(
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3
+        })
+    )
+    
+    service_type = forms.ModelChoiceField(
+        queryset=Service.objects.all(),
+        required=False,
+        empty_label=None,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name and len(name.strip()) < 5:
+            raise ValidationError("Engagement name must be at least 5 characters long.")
+        return name
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        
+        if start_date and end_date and start_date > end_date:
+            raise ValidationError("End date must be after start date.")
+        
+        return cleaned_data
+
+
+class InlineEditReportForm(forms.Form):
+    """Form for inline editing of report fields"""
+    
+    note = forms.CharField(
+        max_length=60,
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'maxlength': '60'
+        })
+    )
+    
+    report_type = forms.ChoiceField(
+        choices=[
+            ("Draft", "Draft"),
+            ("Final", "Final"),
+            ("Verification", "Verification")
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+
+class InlineEditLeaveForm(forms.Form):
+    """Form for inline editing of leave fields"""
+    
+    note = forms.CharField(
+        max_length=200,
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'maxlength': '200'
+        })
+    )
+    
+    start_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    end_date = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'type': 'date',
+            'class': 'form-control'
+        })
+    )
+    
+    leave_type = forms.ChoiceField(
+        choices=[
+            ("Training", "Training"),
+            ("Vacation", "Vacation"),
+            ("Work from Home", "Work from Home")
+        ],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        
+        if start_date and end_date and start_date > end_date:
+            raise ValidationError("End date must be after start date.")
+        
+        return cleaned_data
+
+
+class InlineEditClientForm(forms.Form):
+    """Form for inline editing of client fields"""
+    
+    name = forms.CharField(
+        max_length=200,
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'maxlength': '200'
+        })
+    )
+    
+    acronym = forms.CharField(
+        max_length=10,
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'maxlength': '10'
+        })
+    )
+    
+    code = forms.CharField(
+        max_length=4,
+        required=False,
+        strip=False,  # Don't strip spaces to preserve formatting
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'maxlength': '4'
+        })
+    )
+    
+    def clean_name(self):
+        name = self.cleaned_data.get('name')
+        if name and len(name.strip()) < 2:
+            raise ValidationError("Client name must be at least 2 characters long.")
+        return name
+    
+    def clean_acronym(self):
+        acronym = self.cleaned_data.get('acronym')
+        if acronym and not acronym.isalnum():
+            raise ValidationError("Acronym must contain only letters and numbers.")
+        return acronym
+    
+    def clean_code(self):
+        code = self.cleaned_data.get('code')
+        if code and not code.isdigit():
+            raise ValidationError("Client code must contain only numbers.")
+        return code

@@ -1,0 +1,646 @@
+/**
+ * Calendarinho Inline Edit Styles
+ * Modern, accessible, and mobile-responsive styling for inline editing
+ */
+
+/* =============================================================================
+   Base Inline Edit Styles
+   ============================================================================= */
+
+.inline-editable {
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 6px;
+    padding: 6px 12px;
+    min-height: 32px;
+    display: inline-block;
+    min-width: 60px;
+    background: linear-gradient(135deg, transparent 0%, rgba(78, 115, 223, 0.02) 100%);
+    border: 1px solid transparent;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.inline-editable:empty::before {
+    content: attr(data-placeholder);
+    color: #6c757d;
+    font-style: italic;
+}
+
+.inline-editable[data-placeholder]:empty::before {
+    content: attr(data-placeholder);
+}
+
+/* Hover States */
+.inline-editable:hover {
+    background: linear-gradient(135deg, rgba(78, 115, 223, 0.08) 0%, rgba(78, 115, 223, 0.12) 100%);
+    border-color: rgba(78, 115, 223, 0.3);
+    box-shadow: 
+        0 2px 8px rgba(78, 115, 223, 0.1),
+        0 0 0 1px rgba(78, 115, 223, 0.15);
+    transform: translateY(-1px);
+}
+
+.inline-editable:hover::after {
+    content: '✏️';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #4e73df;
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transform: scale(0);
+    animation: editIconPop 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes editIconPop {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+/* Active/Editing States */
+.inline-editing {
+    background: #ffffff;
+    border-color: #4e73df;
+    box-shadow: 
+        0 4px 16px rgba(78, 115, 223, 0.2),
+        0 0 0 3px rgba(78, 115, 223, 0.1);
+    transform: scale(1.02);
+    z-index: 100;
+}
+
+.inline-editing:hover::after {
+    display: none;
+}
+
+/* Loading States */
+.inline-loading {
+    opacity: 0.8;
+    pointer-events: none;
+    background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+}
+
+.inline-loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 8px;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    border: 2px solid #e3e6f0;
+    border-top: 2px solid #4e73df;
+    border-radius: 50%;
+    animation: inlineEditSpin 0.8s linear infinite;
+}
+
+@keyframes inlineEditSpin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+}
+
+/* Success and Error States */
+.inline-success {
+    border-color: #1cc88a !important;
+    background: linear-gradient(135deg, rgba(28, 200, 138, 0.1) 0%, rgba(28, 200, 138, 0.05) 100%) !important;
+    box-shadow: 
+        0 4px 16px rgba(28, 200, 138, 0.2),
+        0 0 0 2px rgba(28, 200, 138, 0.3) !important;
+    animation: successPulse 0.6s ease-out;
+}
+
+@keyframes successPulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.inline-error {
+    border-color: #e74a3b !important;
+    background: linear-gradient(135deg, rgba(231, 74, 59, 0.1) 0%, rgba(231, 74, 59, 0.05) 100%) !important;
+    box-shadow: 
+        0 4px 16px rgba(231, 74, 59, 0.2),
+        0 0 0 2px rgba(231, 74, 59, 0.3) !important;
+    animation: errorShake 0.6s ease-out;
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-2px); }
+    20%, 40%, 60%, 80% { transform: translateX(2px); }
+}
+
+/* =============================================================================
+   Input Elements
+   ============================================================================= */
+
+.inline-edit-input,
+.inline-edit-textarea,
+.inline-edit-select {
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    width: 100%;
+    resize: vertical;
+    min-height: inherit;
+    padding: 0;
+    margin: 0;
+    border-radius: inherit;
+    transition: all 0.2s ease;
+}
+
+.inline-edit-textarea {
+    min-height: 80px;
+    line-height: 1.5;
+}
+
+.inline-edit-select {
+    cursor: pointer;
+    padding-right: 20px;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px;
+}
+
+/* Focus states for inputs */
+.inline-edit-input:focus,
+.inline-edit-textarea:focus,
+.inline-edit-select:focus {
+    outline: 2px solid #4e73df;
+    outline-offset: -2px;
+    border-radius: 4px;
+}
+
+/* =============================================================================
+   Control Buttons
+   ============================================================================= */
+
+.inline-edit-controls {
+    position: absolute;
+    top: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffff;
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.12),
+        0 2px 8px rgba(0, 0, 0, 0.08);
+    z-index: 1001;
+    display: flex;
+    gap: 4px;
+    animation: controlsSlideIn 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    backdrop-filter: blur(10px);
+    border-color: rgba(255, 255, 255, 0.8);
+}
+
+@keyframes controlsSlideIn {
+    0% { 
+        transform: translateX(-50%) translateY(-10px) scale(0.9);
+        opacity: 0;
+    }
+    100% { 
+        transform: translateX(-50%) translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.inline-edit-btn {
+    background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
+    border: 1px solid #e3e6f0;
+    padding: 8px 12px;
+    cursor: pointer;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    min-width: 36px;
+    justify-content: center;
+}
+
+.inline-edit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.inline-edit-btn:active {
+    transform: translateY(0);
+}
+
+.inline-edit-btn.save {
+    color: #1cc88a;
+    border-color: rgba(28, 200, 138, 0.3);
+    background: linear-gradient(135deg, rgba(28, 200, 138, 0.1) 0%, rgba(28, 200, 138, 0.05) 100%);
+}
+
+.inline-edit-btn.save:hover {
+    color: #17a673;
+    border-color: #1cc88a;
+    background: linear-gradient(135deg, rgba(28, 200, 138, 0.2) 0%, rgba(28, 200, 138, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(28, 200, 138, 0.2);
+}
+
+.inline-edit-btn.cancel {
+    color: #e74a3b;
+    border-color: rgba(231, 74, 59, 0.3);
+    background: linear-gradient(135deg, rgba(231, 74, 59, 0.1) 0%, rgba(231, 74, 59, 0.05) 100%);
+}
+
+.inline-edit-btn.cancel:hover {
+    color: #c23321;
+    border-color: #e74a3b;
+    background: linear-gradient(135deg, rgba(231, 74, 59, 0.2) 0%, rgba(231, 74, 59, 0.1) 100%);
+    box-shadow: 0 4px 16px rgba(231, 74, 59, 0.2);
+}
+
+/* =============================================================================
+   Field-Specific Styles
+   ============================================================================= */
+
+/* Vulnerability Title */
+.inline-editable[data-field="title"] {
+    font-weight: 600;
+    min-width: 120px;
+}
+
+/* Vulnerability Description */
+.inline-editable[data-field="description"] {
+    display: block;
+    min-height: 60px;
+    line-height: 1.6;
+    padding: 12px 16px;
+}
+
+/* Report Notes */
+.inline-editable[data-field="note"] {
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Client/Engagement Names */
+.inline-editable[data-field="name"] {
+    font-weight: 700;
+    font-size: 1.1em;
+    min-width: 150px;
+}
+
+/* Dates */
+.inline-editable[data-type="date"] {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, rgba(54, 185, 204, 0.05) 0%, rgba(54, 185, 204, 0.02) 100%);
+}
+
+.inline-editable[data-type="date"]:hover {
+    background: linear-gradient(135deg, rgba(54, 185, 204, 0.12) 0%, rgba(54, 185, 204, 0.08) 100%);
+    border-color: rgba(54, 185, 204, 0.3);
+}
+
+/* Select dropdowns */
+.inline-editable[data-type="select"] {
+    background: linear-gradient(135deg, rgba(246, 194, 62, 0.05) 0%, rgba(246, 194, 62, 0.02) 100%);
+}
+
+.inline-editable[data-type="select"]:hover {
+    background: linear-gradient(135deg, rgba(246, 194, 62, 0.12) 0%, rgba(246, 194, 62, 0.08) 100%);
+    border-color: rgba(246, 194, 62, 0.3);
+}
+
+/* =============================================================================
+   Context-Specific Integration
+   ============================================================================= */
+
+/* Integration with vulnerability items */
+.vulnerability-item .inline-editable {
+    margin: 0 4px;
+}
+
+.vulnerability-item .inline-editable[data-field="title"] {
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 4px;
+}
+
+/* Integration with report tables */
+.table .inline-editable {
+    display: block;
+    width: 100%;
+    margin: -6px -12px;
+    padding: 6px 12px;
+}
+
+/* Integration with cards */
+.card .inline-editable {
+    margin: -2px -4px;
+}
+
+/* Integration with stats cards */
+.stats-item .inline-editable {
+    color: inherit;
+    font-weight: inherit;
+    font-size: inherit;
+}
+
+/* =============================================================================
+   Mobile Responsive Design
+   ============================================================================= */
+
+@media (max-width: 768px) {
+    .inline-editable {
+        min-height: 44px;
+        padding: 12px 16px;
+        touch-action: manipulation;
+    }
+    
+    .inline-editable:hover::after {
+        display: none; /* Hide edit icons on mobile to avoid touch conflicts */
+    }
+    
+    .inline-edit-controls {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        top: auto;
+        transform: translateX(-50%);
+        box-shadow: 
+            0 12px 40px rgba(0, 0, 0, 0.2),
+            0 4px 16px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        background: rgba(255, 255, 255, 0.95);
+        animation: controlsSlideUp 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    
+    @keyframes controlsSlideUp {
+        0% { 
+            transform: translateX(-50%) translateY(50px) scale(0.9);
+            opacity: 0;
+        }
+        100% { 
+            transform: translateX(-50%) translateY(0) scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .inline-edit-btn {
+        padding: 12px 20px;
+        font-size: 14px;
+        min-height: 44px;
+        min-width: 80px;
+        border-radius: 8px;
+    }
+    
+    .inline-edit-input,
+    .inline-edit-textarea,
+    .inline-edit-select {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+    
+    .inline-edit-textarea {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .inline-editable {
+        display: block;
+        width: 100%;
+        margin-bottom: 8px;
+    }
+    
+    .inline-edit-controls {
+        left: 10px;
+        right: 10px;
+        transform: none;
+        width: auto;
+    }
+    
+    .inline-edit-btn {
+        flex: 1;
+        justify-content: center;
+    }
+}
+
+/* =============================================================================
+   Accessibility Enhancements
+   ============================================================================= */
+
+/* Focus indicators for keyboard navigation */
+.inline-editable:focus {
+    outline: 3px solid #4e73df;
+    outline-offset: 2px;
+    box-shadow: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .inline-editable {
+        border: 2px solid currentColor;
+    }
+    
+    .inline-editing {
+        border: 3px solid #0000ff;
+    }
+    
+    .inline-success {
+        border: 3px solid #008000 !important;
+    }
+    
+    .inline-error {
+        border: 3px solid #ff0000 !important;
+    }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+    .inline-editable,
+    .inline-edit-btn,
+    .inline-edit-controls {
+        transition: none;
+        animation: none;
+    }
+    
+    .inline-editable:hover {
+        transform: none;
+    }
+    
+    .inline-editing {
+        transform: none;
+    }
+    
+    .inline-editable:hover::after {
+        animation: none;
+        transform: scale(1);
+    }
+}
+
+/* Screen reader only content */
+.sr-only {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+/* =============================================================================
+   Dark Mode Support
+   ============================================================================= */
+
+[data-theme="dark"] .inline-editable,
+.dark-mode .inline-editable {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+    color: #e3e6f0;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .inline-editable:hover,
+.dark-mode .inline-editable:hover {
+    background: linear-gradient(135deg, rgba(78, 115, 223, 0.2) 0%, rgba(78, 115, 223, 0.1) 100%);
+    border-color: rgba(78, 115, 223, 0.5);
+}
+
+[data-theme="dark"] .inline-edit-controls,
+.dark-mode .inline-edit-controls {
+    background: #2d3748;
+    border-color: #4a5568;
+    backdrop-filter: blur(20px);
+}
+
+[data-theme="dark"] .inline-edit-btn,
+.dark-mode .inline-edit-btn {
+    background: linear-gradient(135deg, #4a5568 0%, #2d3748 100%);
+    border-color: #6c757d;
+    color: #e3e6f0;
+}
+
+/* =============================================================================
+   Print Styles
+   ============================================================================= */
+
+@media print {
+    .inline-editable:hover::after,
+    .inline-edit-controls {
+        display: none !important;
+    }
+    
+    .inline-editable {
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+}
+
+/* =============================================================================
+   Loading Skeletons
+   ============================================================================= */
+
+.inline-edit-skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 4px;
+    height: 1.2em;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+[data-theme="dark"] .inline-edit-skeleton,
+.dark-mode .inline-edit-skeleton {
+    background: linear-gradient(90deg, #2d3748 25%, #4a5568 50%, #2d3748 75%);
+    background-size: 200% 100%;
+}
+
+/* =============================================================================
+   Utility Classes
+   ============================================================================= */
+
+.inline-edit-disabled {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.inline-edit-required::after {
+    content: ' *';
+    color: #e74a3b;
+    font-weight: bold;
+}
+
+.inline-edit-multiline {
+    white-space: pre-wrap;
+    line-height: 1.6;
+    min-height: 3em;
+}
+
+.inline-edit-compact {
+    padding: 4px 8px;
+    min-height: 28px;
+    font-size: 0.875em;
+}
+
+/* Field validation states */
+.inline-edit-invalid {
+    border-color: #e74a3b !important;
+    box-shadow: 0 0 0 0.2rem rgba(231, 74, 59, 0.25) !important;
+}
+
+.inline-edit-valid {
+    border-color: #1cc88a !important;
+    box-shadow: 0 0 0 0.2rem rgba(28, 200, 138, 0.25) !important;
+}
+
+/* Highlight mode for keyboard shortcut Alt+E */
+.inline-edit-highlight {
+    position: relative;
+    animation: highlightPulse 2s ease-in-out infinite;
+}
+
+.inline-edit-highlight::before {
+    content: '✏️';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ffd700;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+    z-index: 1000;
+    animation: editIconBounce 1s ease-in-out infinite;
+}
+
+@keyframes highlightPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(255, 215, 0, 0); }
+}
+
+@keyframes editIconBounce {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}

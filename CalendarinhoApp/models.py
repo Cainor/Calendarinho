@@ -331,6 +331,30 @@ class Engagement(models.Model):
             days_ago = (today - self.end_date).days
             return f"Completed {days_ago} days ago"
 
+    def can_be_edited_by(self, user):
+        """Check if user has permission to edit this engagement"""
+        if user.is_superuser or user.user_type == 'M':
+            return True
+        
+        if user in self.employees.all():
+            return True
+        
+        return False
+
+    def get_editable_fields(self, user):
+        """Get list of fields that can be edited by the given user"""
+        if not self.can_be_edited_by(user):
+            return []
+        
+        editable_fields = ['name', 'start_date', 'end_date', 'scope']
+        
+        # Only managers can edit critical engagement details
+        if not (user.is_superuser or user.user_type == 'M'):
+            # Regular team members have limited editing capabilities
+            editable_fields = ['scope']  # Only scope can be edited by team members
+        
+        return editable_fields
+
 
 class Comment(models.Model):
     engagement = models.ForeignKey(
@@ -449,6 +473,60 @@ class Vulnerability(models.Model):
         
         days_open = (timezone.now().date() - self.created_at.date()).days
         return days_open > sla_days
+
+    def can_be_edited_by(self, user):
+        """Check if user has permission to edit this vulnerability"""
+        if user.is_superuser or user.user_type == 'M':
+            return True
+        
+        if user == self.created_by:
+            return True
+        
+        if user in self.engagement.employees.all():
+            return True
+        
+        return False
+
+    def get_editable_fields(self, user):
+        """Get list of fields that can be edited by the given user"""
+        if not self.can_be_edited_by(user):
+            return []
+        
+        editable_fields = ['title', 'description', 'severity', 'status']
+        
+        # Regular users might have restrictions on certain fields
+        if not (user.is_superuser or user.user_type == 'M'):
+            # Non-managers can edit all fields for now
+            # Future enhancement: add field-level restrictions
+            pass
+        
+        return editable_fields
+
+    def validate_field_update(self, field_name, new_value):
+        """Validate a field update before saving"""
+        errors = []
+        
+        if field_name == 'title':
+            if not new_value or len(new_value.strip()) < 3:
+                errors.append("Title must be at least 3 characters long")
+            elif len(new_value) > 200:
+                errors.append("Title cannot exceed 200 characters")
+        
+        elif field_name == 'description':
+            if not new_value or len(new_value.strip()) < 10:
+                errors.append("Description must be at least 10 characters long")
+        
+        elif field_name == 'severity':
+            valid_severities = [choice[0] for choice in self.SEVERITY_CHOICES]
+            if new_value not in valid_severities:
+                errors.append(f"Invalid severity. Must be one of: {', '.join(valid_severities)}")
+        
+        elif field_name == 'status':
+            valid_statuses = [choice[0] for choice in self.STATUS_CHOICES]
+            if new_value not in valid_statuses:
+                errors.append(f"Invalid status. Must be one of: {', '.join(valid_statuses)}")
+        
+        return errors
 
 
 class Report(models.Model):

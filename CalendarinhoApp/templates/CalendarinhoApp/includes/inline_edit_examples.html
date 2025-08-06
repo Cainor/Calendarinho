@@ -1,0 +1,272 @@
+{% comment %}
+Inline Edit Examples Template
+This template demonstrates various inline editing patterns and can be included in other templates
+{% endcomment %}
+
+<!-- Text Field Example (Engagement Name) -->
+<div class="example-section mb-4">
+  <h5>Engagement Name (Text Field)</h5>
+  <div class="card p-3">
+    {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='name' object_id=engagement.id value=engagement.name type='text' required=True max_length=200 title='Click to edit engagement name' css_classes='h4 font-weight-bold' %}
+  </div>
+</div>
+
+<!-- Textarea Example (Engagement Scope) -->
+<div class="example-section mb-4">
+  <h5>Engagement Scope (Textarea)</h5>
+  <div class="card p-3">
+    {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='scope' object_id=engagement.id value=engagement.scope type='textarea' placeholder='Enter engagement scope details...' title='Click to edit scope' css_classes='text-muted inline-edit-multiline' %}
+  </div>
+</div>
+
+<!-- Date Field Example (Start/End Dates) -->
+<div class="example-section mb-4">
+  <h5>Engagement Dates</h5>
+  <div class="card p-3">
+    <div class="row">
+      <div class="col-md-6">
+        <label class="font-weight-bold">Start Date:</label>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='start_date' object_id=engagement.id value=engagement.start_date|date:'Y-m-d' type='date' required=True title='Click to edit start date' css_classes='ml-2' %}
+      </div>
+      <div class="col-md-6">
+        <label class="font-weight-bold">End Date:</label>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='end_date' object_id=engagement.id value=engagement.end_date|date:'Y-m-d' type='date' required=True title='Click to edit end date' css_classes='ml-2' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Select Field Example (Vulnerability Severity) -->
+<div class="example-section mb-4">
+  <h5>Vulnerability Severity (Select Dropdown)</h5>
+  <div class="card p-3">
+    {% for vuln in engagement.vulnerabilities.all|slice:':3' %}
+      <div class="mb-2">
+        <strong>{{ vuln.title }}:</strong>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='severity' object_id=vuln.id value=vuln.severity type='select' options='[{\"value\":\"Critical\",\"label\":\"Critical\"},{\"value\":\"High\",\"label\":\"High\"},{\"value\":\"Medium\",\"label\":\"Medium\"},{\"value\":\"Low\",\"label\":\"Low\"}]' title='Click to change severity' css_classes='badge ml-2' %}
+      </div>
+    {% empty %}
+      <p class="text-muted">No vulnerabilities to display</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Client Information Example -->
+{% if engagement.client %}
+<div class="example-section mb-4">
+  <h5>Client Information</h5>
+  <div class="card p-3">
+    <div class="row">
+      <div class="col-md-4">
+        <label class="font-weight-bold">Client Name:</label>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='client' field='name' object_id=engagement.client.id value=engagement.client.name type='text' required=True max_length=200 title='Click to edit client name' css_classes='d-block mt-1' %}
+      </div>
+      <div class="col-md-4">
+        <label class="font-weight-bold">Acronym:</label>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='client' field='acronym' object_id=engagement.client.id value=engagement.client.acronym type='text' max_length=10 title='Click to edit acronym' css_classes='d-block mt-1 text-uppercase' %}
+      </div>
+      <div class="col-md-4">
+        <label class="font-weight-bold">Code:</label>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='client' field='code' object_id=engagement.client.id value=engagement.client.code type='text' max_length=4 title='Click to edit client code' css_classes='d-block mt-1 font-monospace' %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Report Notes Example -->
+<div class="example-section mb-4">
+  <h5>Report Notes</h5>
+  <div class="card p-3">
+    {% for report in engagement.report_set.all|slice:':3' %}
+      <div class="d-flex align-items-center mb-2">
+        <i class="fas fa-file-pdf text-danger mr-2"></i>
+        <div>
+          <div class="font-weight-bold">
+            {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='report' field='note' object_id=report.id value=report.note type='text' placeholder='Add report note...' max_length=60 title='Click to edit report note' %}
+          </div>
+          <small class="text-muted">{{ report.report_type }} - {{ report.timestamp|date:'M d, Y' }}</small>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">No reports to display</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Vulnerability Management Example -->
+<div class="example-section mb-4">
+  <h5>Vulnerability Details</h5>
+  <div class="card p-3">
+    {% for vuln in engagement.vulnerabilities.all|slice:':2' %}
+      <div class="vulnerability-item mb-3 p-3 border rounded">
+        <div class="row align-items-start">
+          <div class="col-md-1">
+            <span class="severity-badge bg-{% if vuln.severity == 'Critical' %}danger{% elif vuln.severity == 'High' %}warning{% elif vuln.severity == 'Medium' %}info{% else %}success{% endif %} text-white">
+              {{ vuln.get_severity_icon }} {{ vuln.severity|slice:':1' }}
+            </span>
+          </div>
+          <div class="col-md-6">
+            <div class="font-weight-bold mb-2">
+              {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='title' object_id=vuln.id value=vuln.title type='text' required=True min_length=3 max_length=200 title='Click to edit vulnerability title' css_classes='vulnerability-title' %}
+            </div>
+            <div class="text-muted">
+              {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='description' object_id=vuln.id value=vuln.description type='textarea' placeholder='Add vulnerability description...' min_length=10 title='Click to edit description' css_classes='small inline-edit-multiline' %}
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="mb-2">
+              <label class="small font-weight-bold">Status:</label>
+              {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='status' object_id=vuln.id value=vuln.status type='select' options='[{\"value\":\"Open\",\"label\":\"Open\"},{\"value\":\"Fixed\",\"label\":\"Fixed\"}]' title='Click to change status' css_classes='d-block badge' %}
+            </div>
+            <div>
+              <label class="small font-weight-bold">Severity:</label>
+              {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='severity' object_id=vuln.id value=vuln.severity type='select' options='[{\"value\":\"Critical\",\"label\":\"Critical\"},{\"value\":\"High\",\"label\":\"High\"},{\"value\":\"Medium\",\"label\":\"Medium\"},{\"value\":\"Low\",\"label\":\"Low\"}]' title='Click to change severity' css_classes='d-block badge' %}
+            </div>
+          </div>
+          <div class="col-md-2 text-right">
+            <small class="text-muted d-block">Created: {{ vuln.created_at|date:'M d' }}</small>
+            {% if vuln.fixed_at %}
+              <small class="text-success d-block">Fixed: {{ vuln.fixed_at|date:'M d' }}</small>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">No vulnerabilities to display</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Compact Table Example -->
+<div class="example-section mb-4">
+  <h5>Compact Table View</h5>
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table table-sm mb-0">
+        <thead class="thead-light">
+          <tr>
+            <th>Title</th>
+            <th>Severity</th>
+            <th>Status</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for vuln in engagement.vulnerabilities.all|slice:':5' %}
+            <tr>
+              <td>
+                {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='title' object_id=vuln.id value=vuln.title type='text' required=True max_length=200 title='Click to edit title' css_classes='inline-edit-compact' %}
+              </td>
+              <td>
+                {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='severity' object_id=vuln.id value=vuln.severity type='select' options='[{\"value\":\"Critical\",\"label\":\"Critical\"},{\"value\":\"High\",\"label\":\"High\"},{\"value\":\"Medium\",\"label\":\"Medium\"},{\"value\":\"Low\",\"label\":\"Low\"}]' title='Click to change severity' css_classes='badge inline-edit-compact' %}
+              </td>
+              <td>
+                {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='vulnerability' field='status' object_id=vuln.id value=vuln.status type='select' options='[{\"value\":\"Open\",\"label\":\"Open\"},{\"value\":\"Fixed\",\"label\":\"Fixed\"}]' title='Click to change status' css_classes='badge inline-edit-compact' %}
+              </td>
+              <td>
+                <small class="text-muted">{{ vuln.created_at|date:'M d, Y' }}</small>
+              </td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="4" class="text-center text-muted">No vulnerabilities found</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Custom Styling Examples -->
+<div class="example-section mb-4">
+  <h5>Custom Styling Examples</h5>
+  <div class="card p-3">
+    <div class="row">
+      <div class="col-md-4">
+        <h6>Required Field</h6>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='name' object_id=engagement.id value=engagement.name type='text' required=True css_classes='inline-edit-required' %}
+      </div>
+      <div class="col-md-4">
+        <h6>Compact Field</h6>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='name' object_id=engagement.id value=engagement.name type='text' css_classes='inline-edit-compact' %}
+      </div>
+      <div class="col-md-4">
+        <h6>Multiline Field</h6>
+        {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='scope' object_id=engagement.id value=engagement.scope type='textarea' css_classes='inline-edit-multiline' %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JavaScript Integration Example -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Custom callbacks for this page
+    if (window.inlineEditManager) {
+        window.inlineEditManager.updateConfig({
+            onSaveSuccess: function(element, newValue, result) {
+                console.log('Field updated:', element.dataset.field, 'New value:', newValue);
+                
+                // Custom handling for specific fields
+                if (element.dataset.field === 'status') {
+                    // Update vulnerability item styling when status changes
+                    const vulnerabilityItem = element.closest('.vulnerability-item');
+                    if (vulnerabilityItem) {
+                        if (newValue === 'Fixed') {
+                            vulnerabilityItem.classList.add('vulnerability-fixed');
+                        } else {
+                            vulnerabilityItem.classList.remove('vulnerability-fixed');
+                        }
+                    }
+                }
+                
+                // Update statistics when vulnerability data changes
+                if (element.dataset.model === 'vulnerability') {
+                    if (typeof updateStatistics === 'function') {
+                        updateStatistics();
+                    }
+                }
+            },
+            
+            onSaveError: function(element, error) {
+                console.error('Save error:', error);
+                
+                // Show contextual error message based on field type
+                let errorMsg = error;
+                if (element.dataset.field === 'title' && error.includes('length')) {
+                    errorMsg = 'Title must be between 3 and 200 characters';
+                } else if (element.dataset.field === 'description' && error.includes('length')) {
+                    errorMsg = 'Description must be at least 10 characters long';
+                }
+                
+                // Custom error display could go here
+            }
+        });
+    }
+});
+</script>
+
+<!-- Keyboard Shortcuts Help -->
+<div class="example-section">
+  <h5>Keyboard Shortcuts</h5>
+  <div class="card p-3">
+    <div class="row">
+      <div class="col-md-6">
+        <ul class="list-unstyled">
+          <li><kbd>Click</kbd> or <kbd>Enter</kbd> - Start editing</li>
+          <li><kbd>Enter</kbd> - Save changes (text fields)</li>
+          <li><kbd>Escape</kbd> - Cancel editing</li>
+        </ul>
+      </div>
+      <div class="col-md-6">
+        <ul class="list-unstyled">
+          <li><kbd>Tab</kbd> - Navigate between fields</li>
+          <li><kbd>Click outside</kbd> - Save changes</li>
+          <li>Auto-save after 1.5 seconds of inactivity</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

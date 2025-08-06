@@ -3,6 +3,8 @@
 {% load crispy_forms_tags %}
 
 {% block head_block %}
+<!-- Inline Edit Styles -->
+<link href="{% static 'css/inline-edit.css' %}" rel="stylesheet">
 <style>
 .vulnerability-item {
     border: 1px solid #e3e6f0;
@@ -113,9 +115,25 @@
     <div class="col">
       <h1 class="h3 mb-0 text-title-color">
         <i class="fas fa-shield-alt text-primary mr-3"></i>
-        Security Reports - {{engagement}}
+        Security Reports - 
+        <span class="inline-editable" 
+              data-model="engagement" 
+              data-field="name" 
+              data-id="{{engagement.id}}"
+              data-type="text"
+              data-required="true"
+              data-max-length="200"
+              title="Click to edit engagement name">{{engagement.name}}</span>
       </h1>
-      <p class="text-muted mb-0">Manage reports and track vulnerabilities for this engagement</p>
+      <p class="text-muted mb-0">
+        <span class="inline-editable" 
+              data-model="engagement" 
+              data-field="scope" 
+              data-id="{{engagement.id}}"
+              data-type="textarea"
+              data-placeholder="Click to add engagement scope/description..."
+              title="Click to edit engagement scope">{{engagement.scope|default:"Manage reports and track vulnerabilities for this engagement"}}</span>
+      </p>
     </div>
     <div class="col-auto">
       <a href="/engagement/{{engagement.id}}" class="btn btn-outline-primary">
@@ -124,7 +142,6 @@
     </div>
   </div>
   
-  {% if list %}
   <!-- Redesigned Statistics Dashboard -->
   <div class="row mb-4">
     <div class="col-12">
@@ -218,7 +235,6 @@
       </div>
     </div>
   </div>
-  {% endif %}
   
   <!-- Main Content Row -->
   <div class="row">
@@ -316,7 +332,16 @@
                     <div class="d-flex align-items-center">
                       <i class="fas fa-file-pdf text-danger mr-2"></i>
                       <div>
-                        <div class="font-weight-bold">{{file.note|default:"Report"|truncatechars:20}}</div>
+                        <div class="font-weight-bold">
+                          <span class="inline-editable" 
+                                data-model="report" 
+                                data-field="note" 
+                                data-id="{{file.id}}"
+                                data-type="text"
+                                data-placeholder="Report note..."
+                                data-max-length="60"
+                                title="Click to edit report note">{{file.note|default:"Report"}}</span>
+                        </div>
                         <small class="text-muted">by {{file.user.first_name}} {{file.user.last_name}}</small>
                       </div>
                     </div>
@@ -430,7 +455,6 @@
         </div>
       </div>
       <!-- Vulnerability Management Section -->
-      {% if list %}
       <div class="card shadow">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
           <h6 class="m-0 font-weight-bold text-primary">
@@ -453,7 +477,14 @@
                     </span>
                   </div>
                   <div class="col-5">
-                    <input type="text" class="form-control form-control-sm vulnerability-title" value="{{vuln.title}}" data-vuln-id="{{vuln.id}}" onchange="updateVulnTitle({{vuln.id}}, this.value)">
+                    <span class="inline-editable vulnerability-title" 
+                          data-model="vulnerability" 
+                          data-field="title" 
+                          data-id="{{vuln.id}}"
+                          data-type="text"
+                          data-required="true"
+                          data-min-length="3"
+                          data-max-length="200">{{vuln.title}}</span>
                   </div>
                   <div class="col-3">
                     <div class="custom-control custom-switch">
@@ -470,21 +501,12 @@
               </div>
             {% empty %}
               <div class="alert alert-info text-center">
-                <i class="fas fa-info-circle mr-2"></i>No vulnerabilities found.
+                <i class="fas fa-info-circle mr-2"></i>No vulnerabilities found. Add vulnerabilities using the form above.
               </div>
             {% endfor %}
           </div>
         </div>
       </div>
-      {% else %}
-      <div class="card shadow">
-        <div class="card-body text-center py-5">
-          <i class="fas fa-shield-alt fa-3x text-muted mb-3"></i>
-          <h5 class="text-muted">No Vulnerabilities Yet</h5>
-          <p class="text-muted">Add vulnerabilities using the form above.</p>
-        </div>
-      </div>
-      {% endif %}
     </div>
   </div>
 </div>
@@ -492,6 +514,8 @@
 <!-- JavaScript for Enhanced Functionality -->
 <script src="{% static 'js/fnon.min.js' %}"></script>
 <link rel="stylesheet" href="{% static 'css/fnon.min.css' %}" />
+<!-- Inline Edit JavaScript -->
+<script src="{% static 'js/inline-edit.js' %}"></script>
 
 <script>
 // File upload handling

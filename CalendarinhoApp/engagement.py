@@ -592,14 +592,12 @@ def api_search_users_for_mention(request, eng_id):
     """API endpoint for searching users to mention in comments"""
     try:
         engagement = Engagement.objects.get(id=eng_id)
-        
-        # Check if user has access to this engagement
-        if not engagement.employees.filter(id=request.user.id).exists():
-            return JsonResponse({'error': 'Access denied'}, status=403)
-        
         query = request.GET.get('q', '').strip()
         
-        # Get all users in the engagement, ordered consistently by first name
+        # Get all active users for search, ordered consistently by first name
+        all_users = Employee.objects.filter(is_active=True).order_by('first_name', 'last_name', 'username')
+        
+        # Get engagement users for default list
         engagement_users = engagement.employees.all().order_by('first_name', 'last_name', 'username')
         
         # Prepare user data for response
@@ -608,39 +606,30 @@ def api_search_users_for_mention(request, eng_id):
         # Always add "Everyone" option at the top for empty queries or if query matches "everyone"
         include_everyone = not query or 'everyone' in query.lower()
         if include_everyone:
+            everyone_text = 'Everyone in this engagement' if not query else 'Everyone'
             users_data.append({
                 'id': 'everyone',
                 'username': 'everyone',
                 'display_name': 'Everyone',
-                'full_name': 'Everyone in this engagement',
+                'full_name': everyone_text,
                 'is_special': True
             })
         
-        # Filter and add individual users
+        # Filter users based on search query
         if query:
-            # Search ALL active users (not just engagement members) when there's a query
-            all_users = Employee.objects.filter(
+            # Search all users when typing
+            filtered_users = all_users.filter(
                 Q(first_name__icontains=query) |
                 Q(last_name__icontains=query) |
-                Q(username__icontains=query),
-                is_active=True
-            ).order_by('first_name', 'last_name', 'username')
-            
-            # Prioritize engagement users in results
-            engagement_user_ids = set(engagement_users.values_list('id', flat=True))
-            engagement_matches = [u for u in all_users if u.id in engagement_user_ids]
-            other_matches = [u for u in all_users if u.id not in engagement_user_ids]
-            
-            # Combine results with engagement users first
-            combined_users = engagement_matches + other_matches
-            
-            # Limit results, accounting for "Everyone" option if included
-            limit = 9 if include_everyone else 10
-            filtered_users = combined_users[:limit]
+                Q(username__icontains=query)
+            )
         else:
-            # For empty query, return all users (up to limit)
-            # Since "Everyone" is already included, limit to 9 users
-            filtered_users = engagement_users[:9]
+            # For empty query, return engagement users first
+            filtered_users = engagement_users
+        
+        # Limit results, accounting for "Everyone" option if included
+        limit = 9 if include_everyone else 10
+        filtered_users = filtered_users[:limit]
         
         # Add individual users to results
         for user in filtered_users:

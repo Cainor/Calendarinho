@@ -308,3 +308,7 @@ def toggleTheme(request):
     else:
         response.set_cookie("theme","Dark",max_age=year_inSeconds)
     return response
+
+def debug_inline(request):
+    """Debug page for inline editing issues"""
+    return render(request, 'CalendarinhoApp/debug_inline.html')

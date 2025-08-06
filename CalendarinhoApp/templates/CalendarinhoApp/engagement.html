@@ -6,13 +6,24 @@
 
 {% block head_block %}
 <link href="{% static 'css/comments.css' %}" rel="stylesheet" type="text/css">
+<!-- Inline Edit Styles -->
+<link href="{% static 'css/inline-edit.css' %}" rel="stylesheet">
 {% endblock %}
 
 
 {% block body_block %}
 <div class="container-fluid">
     <div class="row">
-        <h1 class="h3 mb-2 text-title-color col-sm">{{eng.name}} - <a href="/projectManager/{{eng.project_manager.id}}">{{eng.project_manager}}</a> </h1>
+        <h1 class="h3 mb-2 text-title-color col-sm">
+            <span class="inline-editable" 
+                  data-model="engagement" 
+                  data-field="name" 
+                  data-id="{{eng.id}}"
+                  data-type="text"
+                  data-required="true"
+                  data-max-length="200">{{eng.name}}</span> 
+            - <a href="/projectManager/{{eng.project_manager.id}}">{{eng.project_manager}}</a>
+        </h1>
         {% if 'jira.sitco.sa' in eng.JiraURL|lower %}
         <a href="{{eng.JiraURL}}" target="_blank">
             <input class="btn btn-info btn-md" style="margin-bottom: 35px; margin-right: 10px; background-color: #0d47a1;" type="button" value="Jira"></input>
@@ -49,7 +60,23 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 align="center">{{eng.start_date}} - {{eng.end_date}}</h4>
+                    <h4 align="center">
+                        <span class="inline-editable" 
+                              data-model="engagement" 
+                              data-field="start_date" 
+                              data-id="{{eng.id}}"
+                              data-type="date"
+                              data-value="{{eng.start_date|date:'Y-m-d'}}"
+                              data-required="true">{{eng.start_date}}</span>
+                        -
+                        <span class="inline-editable" 
+                              data-model="engagement" 
+                              data-field="end_date" 
+                              data-id="{{eng.id}}"
+                              data-type="date"
+                              data-value="{{eng.end_date|date:'Y-m-d'}}"
+                              data-required="true">{{eng.end_date}}</span>
+                    </h4>
                 </div>
             </div>
         </div>
@@ -64,7 +91,14 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <h4 align="center">{{eng.service_type}}</h4>
+                    <h4 align="center">
+                        <span class="inline-editable" 
+                              data-model="engagement" 
+                              data-field="service_type" 
+                              data-id="{{eng.id}}"
+                              data-type="select"
+                              data-max-length="100">{{eng.service_type}}</span>
+                    </h4>
                 </div>
             </div>
         </div>
@@ -74,8 +108,11 @@
     <div class="row">
         <div class="col-xl-4 col-lg-7">
             <div class="card shadow mb-4">
-                <div class="card-header py-3">
+                <div class="card-header py-3 d-flex justify-content-between align-items-center">
                     <h6 class="m-0 font-weight-bold text-primary">Employees Involvment</h6>
+                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="editEmployeeInvolvement({{eng.id}})" title="Edit employee involvement">
+                        <i class="fas fa-edit"></i>
+                    </button>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -110,18 +147,17 @@
                 </div>
                 <!-- Card Body -->
                 <div class="card-body">
-                    <div class="overflow-auto" style="height:10em;">
-                        <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                            <tbody>
-                                {% for scope in scope_list %}
-                                <tr>
-                                    <td>{{scope}}</td>
-
-                                </tr>
-                                {% endfor %}
-
-                            </tbody>
-                        </table>
+                    <div class="" style="height:10em;">
+                        <div class="inline-editable" 
+                             data-model="engagement" 
+                             data-field="scope" 
+                             data-id="{{eng.id}}"
+                             data-type="textarea"
+                             data-placeholder="Click to edit engagement scope (one domain/IP per line)..."
+                             data-rows="8"
+                             style="white-space: pre-line; min-height: 100px; cursor: pointer; padding: 10px; border: 1px dashed transparent; border-radius: 4px;"
+                             onmouseover="this.style.borderColor='#007bff'"
+                             onmouseout="this.style.borderColor='transparent'">{{eng.scope|default:"Click to add scope details..."}}</div>
                     </div>
                 </div>
             </div>
@@ -663,4 +699,490 @@
         </div>
     </div>
 </div>
+
+<!-- Simple Inline Edit JavaScript for testing -->
+<script src="{% static 'js/simple-inline-edit.js' %}"></script>
+
+<script>
+// Engagement page specific inline edit handlers
+function waitForInlineEditor(callback, attempts = 0) {
+    if (window.inlineEditor && window.inlineEditor.setupEventListeners) {
+        console.log('Inline editor found and ready');
+        callback();
+    } else if (attempts < 50) { // Try for 5 seconds
+        console.log('Waiting for inline editor... attempt', attempts + 1);
+        setTimeout(() => waitForInlineEditor(callback, attempts + 1), 100);
+    } else {
+        console.error('Timeout waiting for inline editor');
+        console.log('Available objects:', {
+            inlineEditor: window.inlineEditor,
+            InlineEditor: window.InlineEditor
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    waitForInlineEditor(function() {
+        console.log('Setting up engagement page inline editing');
+        
+        // Add custom event listeners for engagement updates
+        document.addEventListener('inlineEditSuccess', function(e) {
+            const detail = e.detail;
+            console.log('Field updated successfully:', detail);
+            
+            // If start_date or end_date was updated, we might want to refresh certain elements
+            if (detail.field === 'start_date' || detail.field === 'end_date') {
+                console.log('Date field updated');
+            }
+        });
+        
+        document.addEventListener('inlineEditError', function(e) {
+            console.error('Error updating field:', e.detail);
+        });
+        
+        // Test service_type field specifically
+        const serviceField = document.querySelector('[data-field="service_type"]');
+        if (serviceField) {
+            console.log('Service type field found:', serviceField);
+            console.log('Field classes:', serviceField.className);
+            console.log('Field data attributes:', serviceField.dataset);
+        } else {
+            console.warn('Service type field not found');
+        }
+    });
+});
+
+// Function to edit employee involvement
+function editEmployeeInvolvement(engagementId) {
+    // Create and show employee management modal
+    showEmployeeManagementModal(engagementId);
+}
+
+// Employee Management Modal
+async function showEmployeeManagementModal(engagementId) {
+    // Set current engagement ID and reset pending changes
+    currentEngagementId = engagementId;
+    pendingChanges = {additions: [], removals: []};
+    // Create modal HTML
+    const modalHtml = `
+        <div class="modal fade" id="employeeModal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Manage Employee Involvement</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="employeeManagementContent">
+                            <div class="text-center">
+                                <i class="fas fa-spinner fa-spin fa-2x text-primary"></i>
+                                <p class="mt-2">Loading employees...</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <div id="changesIndicator" class="mr-auto" style="display: none;">
+                            <small class="text-info">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="changesText">No changes</span>
+                            </small>
+                        </div>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-success" id="confirmChangesBtn" onclick="confirmEmployeeChanges()" disabled>
+                            <i class="fas fa-check"></i> Confirm Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    // Remove existing modal if any
+    const existingModal = document.getElementById('employeeModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    
+    // Show modal
+    $('#employeeModal').modal('show');
+    
+    // Load employee data
+    await loadEmployeeManagementContent(engagementId);
+}
+
+async function loadEmployeeManagementContent(engagementId) {
+    try {
+        console.log('Loading employee data for engagement:', engagementId);
+        
+        // Load current employees and available employees
+        const [currentResponse, availableResponse] = await Promise.all([
+            fetch(`/api/engagement/${engagementId}/employees/`, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            }),
+            fetch(`/api/employees/available/?engagement_id=${engagementId}`, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+        ]);
+        
+        console.log('Current employees response status:', currentResponse.status);
+        console.log('Available employees response status:', availableResponse.status);
+        
+        const currentData = await currentResponse.json();
+        const availableData = await availableResponse.json();
+        
+        console.log('Current employees data:', currentData);
+        console.log('Available employees data:', availableData);
+        
+        if (currentData.success && availableData.success) {
+            // Extract the actual arrays from the nested data structure
+            const currentEmployees = currentData.data.employees || currentData.data || [];
+            const availableEmployees = availableData.data.employees || availableData.data || [];
+            
+            console.log('Extracted current employees:', currentEmployees);
+            console.log('Extracted available employees:', availableEmployees);
+            
+            renderEmployeeManagementInterface(engagementId, currentEmployees, availableEmployees);
+        } else {
+            const errorMsg = `Current: ${currentData.message || 'Unknown error'}, Available: ${availableData.message || 'Unknown error'}`;
+            throw new Error(errorMsg);
+        }
+    } catch (error) {
+        console.error('Error loading employees:', error);
+        document.getElementById('employeeManagementContent').innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-triangle"></i>
+                Error loading employee data: ${error.message}
+                <br><small>Check console for details. You may need manager permissions.</small>
+            </div>
+        `;
+    }
+}
+
+function renderEmployeeManagementInterface(engagementId, currentEmployees, availableEmployees) {
+    const content = document.getElementById('employeeManagementContent');
+    
+    // Filter available employees to exclude current ones
+    const currentEmployeeIds = currentEmployees.map(emp => emp.id);
+    const filteredAvailable = availableEmployees.filter(emp => !currentEmployeeIds.includes(emp.id));
+    
+    const html = `
+        <div class="row">
+            <div class="col-md-6">
+                <h6 class="font-weight-bold text-primary">Current Team Members</h6>
+                <div class="border rounded p-3" style="min-height: 300px; max-height: 300px; overflow-y: auto;">
+                    ${currentEmployees.length === 0 ? 
+                        '<p class="text-muted text-center mt-3">No team members assigned</p>' :
+                        currentEmployees.map(emp => `
+                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom" id="current-emp-${emp.id}">
+                                <div>
+                                    <strong>${emp.first_name} ${emp.last_name}</strong>
+                                    <br><small class="text-muted">${emp.user_type || 'Employee'}</small>
+                                </div>
+                                <button type="button" class="btn btn-outline-danger btn-sm" 
+                                        onclick="markEmployeeForRemoval(${engagementId}, ${emp.id}, '${emp.first_name} ${emp.last_name}')"
+                                        title="Remove from engagement">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `).join('')
+                    }
+                </div>
+            </div>
+            
+            <div class="col-md-6">
+                <h6 class="font-weight-bold text-success">Available Employees</h6>
+                <div class="border rounded p-3" style="min-height: 300px; max-height: 300px; overflow-y: auto;">
+                    ${filteredAvailable.length === 0 ? 
+                        '<p class="text-muted text-center mt-3">No additional employees available</p>' :
+                        filteredAvailable.map(emp => {
+                            // Determine availability styling
+                            let availabilityClass = 'text-success';
+                            let availabilityIcon = 'fas fa-check-circle';
+                            let availabilityText = 'Available';
+                            
+                            if (emp.availability) {
+                                if (emp.availability.is_completely_busy) {
+                                    availabilityClass = 'text-danger';
+                                    availabilityIcon = 'fas fa-times-circle';
+                                    availabilityText = 'Fully Booked';
+                                } else if (emp.availability.is_partially_available) {
+                                    availabilityClass = 'text-warning';
+                                    availabilityIcon = 'fas fa-exclamation-triangle';
+                                    availabilityText = emp.availability_text;
+                                }
+                            }
+                            
+                            return `
+                                <div class="d-flex justify-content-between align-items-center py-2 border-bottom" id="available-emp-${emp.id}">
+                                    <div>
+                                        <strong>${emp.first_name} ${emp.last_name}</strong>
+                                        <br><small class="text-muted">${emp.user_type || 'Employee'}</small>
+                                        ${emp.availability ? 
+                                            `<br><small class="${availabilityClass}">
+                                                <i class="${availabilityIcon}"></i> ${availabilityText}
+                                                ${emp.availability.busy_days > 0 ? `<br><span class="text-muted">${emp.busy_days_text}</span>` : ''}
+                                            </small>` : 
+                                            emp.current_engagements.length > 0 ? 
+                                                `<br><small class="text-warning">Currently on ${emp.current_engagements.length} engagement(s)</small>` : 
+                                                ''
+                                        }
+                                    </div>
+                                    <button type="button" class="btn btn-outline-success btn-sm" 
+                                            onclick="markEmployeeForAddition(${engagementId}, ${emp.id}, '${emp.first_name} ${emp.last_name}')"
+                                            title="Add to engagement">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            `;
+                        }).join('')
+                    }
+                </div>
+            </div>
+        </div>
+    `;
+    
+    content.innerHTML = html;
+}
+
+// Track pending changes
+let pendingChanges = {
+    additions: [], // {id, name}
+    removals: []   // {id, name}
+};
+
+function markEmployeeForAddition(engagementId, employeeId, employeeName) {
+    // Check if already in removals (undo removal)
+    const removalIndex = pendingChanges.removals.findIndex(emp => emp.id === employeeId);
+    if (removalIndex !== -1) {
+        pendingChanges.removals.splice(removalIndex, 1);
+    } else {
+        // Add to additions if not already there
+        if (!pendingChanges.additions.find(emp => emp.id === employeeId)) {
+            pendingChanges.additions.push({id: employeeId, name: employeeName});
+        }
+    }
+    
+    updateUIForPendingChanges();
+    updateChangesDisplay();
+}
+
+function markEmployeeForRemoval(engagementId, employeeId, employeeName) {
+    // Check if already in additions (undo addition)
+    const additionIndex = pendingChanges.additions.findIndex(emp => emp.id === employeeId);
+    if (additionIndex !== -1) {
+        pendingChanges.additions.splice(additionIndex, 1);
+    } else {
+        // Add to removals if not already there
+        if (!pendingChanges.removals.find(emp => emp.id === employeeId)) {
+            pendingChanges.removals.push({id: employeeId, name: employeeName});
+        }
+    }
+    
+    updateUIForPendingChanges();
+    updateChangesDisplay();
+}
+
+function updateUIForPendingChanges() {
+    // Update visual indicators for additions
+    pendingChanges.additions.forEach(emp => {
+        const element = document.getElementById(`available-emp-${emp.id}`);
+        if (element) {
+            element.style.backgroundColor = '#d4edda';
+            element.style.border = '2px solid #28a745';
+            const button = element.querySelector('button');
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.className = 'btn btn-success btn-sm';
+            button.title = 'Will be added';
+        }
+    });
+    
+    // Update visual indicators for removals
+    pendingChanges.removals.forEach(emp => {
+        const element = document.getElementById(`current-emp-${emp.id}`);
+        if (element) {
+            element.style.backgroundColor = '#f8d7da';
+            element.style.border = '2px solid #dc3545';
+            const button = element.querySelector('button');
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            button.className = 'btn btn-danger btn-sm';
+            button.title = 'Will be removed';
+        }
+    });
+    
+    // Reset elements not in pending changes
+    document.querySelectorAll('[id^="available-emp-"], [id^="current-emp-"]').forEach(element => {
+        const empId = parseInt(element.id.split('-')[2]);
+        const isAddition = pendingChanges.additions.find(emp => emp.id === empId);
+        const isRemoval = pendingChanges.removals.find(emp => emp.id === empId);
+        
+        if (!isAddition && !isRemoval) {
+            element.style.backgroundColor = '';
+            element.style.border = '';
+            const button = element.querySelector('button');
+            if (element.id.startsWith('available-emp-')) {
+                button.innerHTML = '<i class="fas fa-plus"></i>';
+                button.className = 'btn btn-outline-success btn-sm';
+                button.title = 'Add to engagement';
+            } else {
+                button.innerHTML = '<i class="fas fa-times"></i>';
+                button.className = 'btn btn-outline-danger btn-sm';
+                button.title = 'Remove from engagement';
+            }
+        }
+    });
+}
+
+function updateChangesDisplay() {
+    const changesIndicator = document.getElementById('changesIndicator');
+    const changesText = document.getElementById('changesText');
+    const confirmBtn = document.getElementById('confirmChangesBtn');
+    
+    const totalChanges = pendingChanges.additions.length + pendingChanges.removals.length;
+    
+    if (totalChanges === 0) {
+        changesIndicator.style.display = 'none';
+        confirmBtn.disabled = true;
+        changesText.textContent = 'No changes';
+    } else {
+        changesIndicator.style.display = 'block';
+        confirmBtn.disabled = false;
+        
+        let changeText = [];
+        if (pendingChanges.additions.length > 0) {
+            changeText.push(`${pendingChanges.additions.length} to add`);
+        }
+        if (pendingChanges.removals.length > 0) {
+            changeText.push(`${pendingChanges.removals.length} to remove`);
+        }
+        
+        changesText.textContent = changeText.join(', ');
+    }
+}
+
+async function confirmEmployeeChanges() {
+    const confirmBtn = document.getElementById('confirmChangesBtn');
+    const originalText = confirmBtn.innerHTML;
+    
+    confirmBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+    confirmBtn.disabled = true;
+    
+    try {
+        let allSuccessful = true;
+        const results = [];
+        
+        // Process additions
+        for (const emp of pendingChanges.additions) {
+            try {
+                const response = await fetch(`/api/engagement/${currentEngagementId}/add-employee/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        employee_id: emp.id
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    results.push(`✓ ${emp.name} added`);
+                } else {
+                    results.push(`✗ Failed to add ${emp.name}: ${data.message}`);
+                    allSuccessful = false;
+                }
+            } catch (error) {
+                results.push(`✗ Error adding ${emp.name}`);
+                allSuccessful = false;
+            }
+        }
+        
+        // Process removals
+        for (const emp of pendingChanges.removals) {
+            try {
+                const response = await fetch(`/api/engagement/${currentEngagementId}/remove-employee/`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: JSON.stringify({
+                        employee_id: emp.id
+                    })
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    results.push(`✓ ${emp.name} removed`);
+                } else {
+                    results.push(`✗ Failed to remove ${emp.name}: ${data.message}`);
+                    allSuccessful = false;
+                }
+            } catch (error) {
+                results.push(`✗ Error removing ${emp.name}`);
+                allSuccessful = false;
+            }
+        }
+        
+        // Show results
+        const resultType = allSuccessful ? 'success' : 'warning';
+        const resultMessage = results.join('<br>');
+        showNotification(resultMessage, resultType);
+        
+        // Reset pending changes
+        pendingChanges = {additions: [], removals: []};
+        
+        // Close modal and refresh page
+        $('#employeeModal').modal('hide');
+        setTimeout(() => location.reload(), 1000);
+        
+    } catch (error) {
+        showNotification('Error processing changes', 'error');
+    } finally {
+        confirmBtn.innerHTML = originalText;
+        confirmBtn.disabled = false;
+    }
+}
+
+// Store current engagement ID for use in confirm function
+let currentEngagementId = null;
+
+function showNotification(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+    const icon = type === 'success' ? 'check-circle' : 'exclamation-triangle';
+    
+    const notification = document.createElement('div');
+    notification.className = `alert ${alertClass} alert-dismissible fade show`;
+    notification.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+    notification.innerHTML = `
+        <i class="fas fa-${icon} mr-2"></i>
+        ${message}
+        <button type="button" class="close" data-dismiss="alert">
+            <span>&times;</span>
+        </button>
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // Auto remove after 3 seconds
+    setTimeout(() => {
+        if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+        }
+    }, 3000);
+}
+</script>
 {% endblock %}

@@ -1,0 +1,30 @@
+{% comment %}
+Inline Edit Field Template
+Usage: {% include 'CalendarinhoApp/includes/inline_edit_field.html' with model='engagement' field='name' object_id=engagement.id value=engagement.name type='text' %}
+
+Parameters:
+- model: Model name (e.g., 'engagement', 'vulnerability', 'client', 'report')
+- field: Field name (e.g., 'name', 'title', 'description', 'note')
+- object_id: Object ID for the API call
+- value: Current field value
+- type: Input type ('text', 'textarea', 'select', 'date', 'number')
+- required: Boolean (optional, default: false)
+- placeholder: Placeholder text (optional)
+- min_length: Minimum length validation (optional)
+- max_length: Maximum length validation (optional)
+- options: JSON string for select options (optional)
+- css_classes: Additional CSS classes (optional)
+- title: Tooltip text (optional)
+{% endcomment %}
+
+<span class="inline-editable{% if css_classes %} {{ css_classes }}{% endif %}" 
+      data-model="{{ model }}" 
+      data-field="{{ field }}" 
+      data-id="{{ object_id }}"
+      data-type="{{ type|default:'text' }}"
+      {% if required %}data-required="true"{% endif %}
+      {% if placeholder %}data-placeholder="{{ placeholder }}"{% endif %}
+      {% if min_length %}data-min-length="{{ min_length }}"{% endif %}
+      {% if max_length %}data-max-length="{{ max_length }}"{% endif %}
+      {% if options %}data-options="{{ options }}"{% endif %}
+      {% if title %}title="{{ title }}"{% else %}title="Click to edit {{ field }}"{% endif %}>{{ value|default:placeholder|default:"Click to edit" }}</span>

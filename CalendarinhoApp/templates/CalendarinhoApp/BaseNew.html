@@ -31,6 +31,8 @@
     <link href="{% static 'admin/css/autocomplete.css' %}" rel="stylesheet">
     <link href="{% static 'autocomplete_light/select2.css' %}" rel="stylesheet">
     <link href="{% static 'css/fnon.min.css' %}" rel="stylesheet">
+    <!-- Inline Edit Styles -->
+    <link href="{% static 'css/inline-edit.css' %}" rel="stylesheet">
     {% block head_block %}{% endblock %}
 
 
@@ -57,10 +59,9 @@
     <script src="{% static 'autocomplete_light/autocomplete_light.js' %}"></script>
     <script src="{% static 'autocomplete_light/select2.js' %}"></script>
     <script src="{% static 'autocomplete_light/i18n/en.js' %}"></script>
-        
     
-    
-    
+    <!-- New Inline Edit JavaScript -->
+    <script src="{% static 'js/inline-edit.js' %}"></script>
 
     <!-- Page Wrapper -->
     <div id="wrapper">
@@ -1849,6 +1850,18 @@
                     e.preventDefault();
                     if (typeof AddLeave === 'function') {
                         AddLeave();
+                    }
+                }
+                
+                // Alt + E for toggle inline editing mode
+                if (e.altKey && e.key === 'e') {
+                    e.preventDefault();
+                    if (window.inlineEditManager) {
+                        // Toggle inline editing mode
+                        const editables = document.querySelectorAll('.inline-editable');
+                        editables.forEach(el => {
+                            el.classList.toggle('inline-edit-highlight');
+                        });
                     }
                 }
                 

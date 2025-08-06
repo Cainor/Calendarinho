@@ -11,6 +11,7 @@ from . import vulnerabilities
 from . import api_performance
 from . import api_mobile
 from . import api_docs
+from . import api_inline_edit
 from django.urls import re_path
 from django.contrib.auth import views as auth_views
 from django.urls import reverse_lazy
@@ -98,6 +99,30 @@ urlpatterns = [
     
     # API Documentation
     path('api/docs/', api_docs.api_documentation, name='api_documentation'),
+    
+    # Inline Editing API Endpoints
+    path('api/vulnerability/<int:vuln_id>/edit-field/', api_inline_edit.update_vulnerability_field, name='api_update_vulnerability_field'),
+    path('api/engagement/<int:eng_id>/edit-field/', api_inline_edit.update_engagement_field, name='api_update_engagement_field'),
+    path('api/engagement/<int:eng_id>/edit-field-enhanced/', api_inline_edit.update_engagement_field_enhanced, name='api_update_engagement_field_enhanced'),
+    path('api/report/<int:report_id>/edit-field/', api_inline_edit.update_report_field, name='api_update_report_field'),
+    path('api/leave/<int:leave_id>/edit-field/', api_inline_edit.update_leave_field, name='api_update_leave_field'),
+    path('api/client/<int:client_id>/edit-field/', api_inline_edit.update_client_field, name='api_update_client_field'),
+    path('api/comment/<int:comment_id>/edit-field/', api_inline_edit.update_comment_field, name='api_update_comment_field'),
+    path('api/vulnerabilities/batch-edit/', api_inline_edit.batch_update_vulnerabilities, name='api_batch_update_vulnerabilities'),
+    
+    # Services API
+    path('api/services/', api_inline_edit.get_services, name='api_get_services'),
+    
+    # Employee Management API for Inline Editing
+    path('api/employees/available/', api_inline_edit.get_available_employees, name='api_get_available_employees'),
+    path('api/engagement/<int:eng_id>/employees/', api_inline_edit.get_engagement_employees, name='api_get_engagement_employees'),
+    path('api/engagement/<int:eng_id>/add-employee/', api_inline_edit.add_employee_to_engagement, name='api_add_employee_to_engagement'),
+    path('api/engagement/<int:eng_id>/remove-employee/', api_inline_edit.remove_employee_from_engagement, name='api_remove_employee_from_engagement'),
+    
+    # API Documentation and Testing
+    path('api/inline-edit/docs/', api_inline_edit.inline_edit_api_docs, name='api_inline_edit_docs'),
+    path('api/inline-edit/test/', api_inline_edit.inline_edit_test, name='api_inline_edit_test'),
+    path('debug-inline/', views.debug_inline, name='debug_inline'),
     
     path('login', authentication.loginForm, name='login'),
     re_path(r'^login\/(?P<next>.*)$', view=authentication.loginForm, name='login'),
