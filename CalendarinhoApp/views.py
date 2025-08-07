@@ -81,6 +81,9 @@ def managerDashboard(request):
     if(not request.user.is_superuser and not request.user.user_type == 'M'):
         return not_found(request)
     else:
+        # Import enhanced dashboard function
+        from .service import get_enhanced_manager_dashboard_data
+        
         form = countEngDays()
         emps = Employee.objects.exclude(is_active=False)
 
@@ -89,18 +92,25 @@ def managerDashboard(request):
             sDate = eDate - timedelta(days=90)
             form = countEngDays(initial={'start_date': sDate,'end_date':eDate})
 
-            # list for employees with less than 20% under the average working days
-            empsNumDays = []
-            for emp in emps:
-                result = []
-                noDays = emp.countEngDays(sDate, eDate)
-                result.append(emp)
-                result.append(noDays)
-                empsNumDays.append(result)
-            # sorting results by less emp days
-            empsNumDays.sort(key=lambda x:x[1])
+            # ENHANCED: Get comprehensive dashboard data
+            enhanced_data = get_enhanced_manager_dashboard_data(sDate, eDate)
+
+            # LEGACY: Maintain backward compatibility for existing template
+            # Use enhanced data when available, fallback to legacy calculation
+            if enhanced_data['success']:
+                empsNumDays = enhanced_data['enhanced_emp_data']
+            else:
+                # Fallback to legacy calculation
+                empsNumDays = []
+                for emp in emps:
+                    result = []
+                    noDays = emp.countEngDays(sDate, eDate)
+                    result.append(emp)
+                    result.append(noDays)
+                    empsNumDays.append(result)
+                empsNumDays.sort(key=lambda x:x[1])
             
-            # Calculate the total number of wroking days for all emps for specific time period
+            # Calculate the total number of working days for all emps for specific time period
             allEmpDays = []
             for emp in emps:
                 noDays = emp.countEngDays(sDate, eDate)
@@ -111,55 +121,161 @@ def managerDashboard(request):
             allEmpDaysCost = []
             for emp in emps:
                 noDays = emp.countEngDays(sDate, eDate)
-                cost = noDays * settings.COST_PER_DAY #Estimated Cost Per Day (Needs updating)
+                cost = noDays * settings.COST_PER_DAY
                 allEmpDaysCost.append(cost)
             allEmpDaysCost = sum(allEmpDaysCost)
 
+            # Get client overview data
+            from .models import Client
+            client_overview_list = []
+            clients = Client.objects.all()
+            for client in clients:
+                today = datetime.date.today()
+                active_engagements = client.engagements.filter(
+                    start_date__lte=today, end_date__gte=today
+                ).count()
+                
+                # Get vulnerability summary
+                vuln_summary = client.get_vulnerability_summary()
+                open_vulnerabilities = vuln_summary.get('total_open', 0)
+                
+                client_overview_list.append({
+                    'name': client.name,
+                    'active_engagements': active_engagements,
+                    'open_vulnerabilities': open_vulnerabilities,
+                    'needs_attention': open_vulnerabilities > 0 or active_engagements == 0
+                })
+
+            # ENHANCED: Build comprehensive context with new analytics
             context = {
+                # Legacy variables (keep for backward compatibility)
                 'empsNumDays': empsNumDays,
                 'allEmpDays': allEmpDays,
                 'allEmpDaysCost': "{:,}".format(allEmpDaysCost),
-                "form":form
+                'form': form,
+                
+                # NEW: Enhanced performance metrics
+                'team_utilization': enhanced_data.get('team_utilization', 0),
+                'monthly_revenue': "{:,}".format(enhanced_data.get('monthly_revenue', 0)),
+                'client_health_score': enhanced_data.get('client_health_score', 0),
+                'available_capacity': enhanced_data.get('available_capacity', 0),
+                'cost_per_emp_per_day': enhanced_data.get('cost_per_emp_per_day', settings.COST_PER_DAY),
+                'budget_variance': enhanced_data.get('budget_variance', 0),
+                'total_services': enhanced_data.get('total_services', 0),
+                'total_employees': emps.count(),
+                
+                # NEW: Action required data
+                'action_alerts': enhanced_data.get('action_alerts', []),
+                'underutilized_count': enhanced_data.get('underutilized_count', 0),
+                'team_capacity': enhanced_data.get('team_utilization', 0),
+                'inactive_clients': enhanced_data.get('inactive_clients', 0),
+                'critical_vulns': enhanced_data.get('critical_vulns', 0),
+                'total_open_vulnerabilities': enhanced_data.get('total_open_vulnerabilities', 0),
+                
+                # NEW: Enhanced chart data and analytics
+                'employee_performance_data': enhanced_data.get('enhanced_emp_data', empsNumDays),
+                'financial_summary': enhanced_data.get('financial_summary', {}),
+                'utilization_distribution': enhanced_data.get('utilization_distribution', {}),
+                'client_overview': client_overview_list,
+                
+                # NEW: Quick actions data
+                'quick_actions': [
+                    {'title': 'Review Under-utilized Team', 'url': '#', 'icon': 'fa-users', 'count': enhanced_data.get('underutilized_count', 0)},
+                    {'title': 'Address Critical Vulnerabilities', 'url': '#', 'icon': 'fa-exclamation-triangle', 'count': enhanced_data.get('critical_vulns', 0)},
+                    {'title': 'Client Relationship Review', 'url': '#', 'icon': 'fa-handshake', 'count': enhanced_data.get('inactive_clients', 0)},
+                    {'title': 'Capacity Planning', 'url': '#', 'icon': 'fa-calendar-alt', 'count': 1 if enhanced_data.get('team_utilization', 0) > 85 else 0}
+                ],
+                
+                # NEW: Success indicator for debugging
+                'enhanced_data_success': enhanced_data.get('success', False),
+                'calculation_error': enhanced_data.get('error', None) if not enhanced_data.get('success', False) else None
             }
             return render(request,"CalendarinhoApp/managerDashboard.html",context)
         
         else:
             form = countEngDays(data=request.POST)
 
-            sDate = request.POST.get("start_date")
-            eDate = request.POST.get("end_date")
-
-            empsNumDays = []
-            for emp in emps:
-                result = []
-                noDays = emp.countEngDays(sDate, eDate)
-                result.append(emp)
-                result.append(noDays)
-                empsNumDays.append(result)
-            # sorting results by less emp days
-            empsNumDays.sort(key=lambda x:x[1])
+            sDate_str = request.POST.get("start_date")
+            eDate_str = request.POST.get("end_date")
             
-            # Calculate the total number of wroking days for all emps for specific time period
+            # Convert string dates to date objects
+            try:
+                sDate = datetime.datetime.strptime(sDate_str, '%Y-%m-%d').date() if sDate_str else datetime.date.today() - timedelta(days=90)
+                eDate = datetime.datetime.strptime(eDate_str, '%Y-%m-%d').date() if eDate_str else datetime.date.today()
+            except ValueError:
+                sDate = datetime.date.today() - timedelta(days=90)
+                eDate = datetime.date.today()
+
+            # ENHANCED: Get comprehensive dashboard data with form dates
+            enhanced_data = get_enhanced_manager_dashboard_data(sDate, eDate)
+
+            # LEGACY: Maintain backward compatibility
+            if enhanced_data['success']:
+                empsNumDays = enhanced_data['enhanced_emp_data']
+            else:
+                empsNumDays = []
+                for emp in emps:
+                    result = []
+                    noDays = emp.countEngDays(sDate, eDate)
+                    result.append(emp)
+                    result.append(noDays)
+                    empsNumDays.append(result)
+                empsNumDays.sort(key=lambda x:x[1])
+            
+            # Calculate the total number of working days for all emps for specific time period
             allEmpDays = []
             for emp in emps:
                 noDays = emp.countEngDays(sDate, eDate)
                 allEmpDays.append(noDays)
             allEmpDays = sum(allEmpDays)
 
-            # Calculate the cost based on total numbers of emps working days in specific period of time 
+            # Calculate the cost - use different calculation for POST (legacy behavior)
             allEmpDaysCost = []
             for emp in emps:
                 noDays = emp.countEngDays(sDate, eDate)
-                cost = (noDays * 8) * 1200
+                cost = (noDays * 8) * 1200  # Legacy POST calculation
                 allEmpDaysCost.append(cost)
             allEmpDaysCost = sum(allEmpDaysCost)
 
-
+            # ENHANCED: Build comprehensive context with form submission data
             context = {
+                # Legacy variables (keep for backward compatibility)
                 'empsNumDays': empsNumDays,
                 'allEmpDays': allEmpDays,
                 'allEmpDaysCost': "{:,}".format(allEmpDaysCost),
-                'form': form
+                'form': form,
+                
+                # NEW: Enhanced performance metrics with custom date range
+                'team_utilization': enhanced_data.get('team_utilization', 0),
+                'monthly_revenue': "{:,}".format(enhanced_data.get('monthly_revenue', 0)),
+                'client_health_score': enhanced_data.get('client_health_score', 0),
+                'available_capacity': enhanced_data.get('available_capacity', 0),
+                'cost_per_emp_per_day': enhanced_data.get('cost_per_emp_per_day', settings.COST_PER_DAY),
+                'budget_variance': enhanced_data.get('budget_variance', 0),
+                
+                # NEW: Action required data
+                'action_alerts': enhanced_data.get('action_alerts', []),
+                'underutilized_count': enhanced_data.get('underutilized_count', 0),
+                'team_capacity': enhanced_data.get('team_utilization', 0),
+                'inactive_clients': enhanced_data.get('inactive_clients', 0),
+                'critical_vulns': enhanced_data.get('critical_vulns', 0),
+                
+                # NEW: Enhanced chart data and analytics
+                'employee_performance_data': enhanced_data.get('enhanced_emp_data', empsNumDays),
+                'financial_summary': enhanced_data.get('financial_summary', {}),
+                'utilization_distribution': enhanced_data.get('utilization_distribution', {}),
+                
+                # NEW: Quick actions data
+                'quick_actions': [
+                    {'title': 'Review Under-utilized Team', 'url': '#', 'icon': 'fa-users', 'count': enhanced_data.get('underutilized_count', 0)},
+                    {'title': 'Address Critical Vulnerabilities', 'url': '#', 'icon': 'fa-exclamation-triangle', 'count': enhanced_data.get('critical_vulns', 0)},
+                    {'title': 'Client Relationship Review', 'url': '#', 'icon': 'fa-handshake', 'count': enhanced_data.get('inactive_clients', 0)},
+                    {'title': 'Capacity Planning', 'url': '#', 'icon': 'fa-calendar-alt', 'count': 1 if enhanced_data.get('team_utilization', 0) > 85 else 0}
+                ],
+                
+                # NEW: Success indicator for debugging
+                'enhanced_data_success': enhanced_data.get('success', False),
+                'calculation_error': enhanced_data.get('error', None) if not enhanced_data.get('success', False) else None
             }
             return render(request, "CalendarinhoApp/managerDashboard.html", context)
 

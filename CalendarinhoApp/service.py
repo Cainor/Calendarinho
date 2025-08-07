@@ -934,6 +934,122 @@ def api_performance_metrics(request):
     })
 
 
+@login_required
+def api_enhanced_manager_dashboard(request):
+    """API endpoint for enhanced manager dashboard data"""
+    # Get date parameters from request
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    try:
+        if start_date_str:
+            start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        else:
+            start_date = timezone.now().date() - datetime.timedelta(days=90)
+        
+        if end_date_str:
+            end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        else:
+            end_date = timezone.now().date()
+            
+    except ValueError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid date format. Use YYYY-MM-DD.'
+        }, status=400)
+    
+    # Get enhanced dashboard data
+    data = get_enhanced_manager_dashboard_data(start_date, end_date)
+    
+    # Convert employee objects to serializable format
+    if data.get('enhanced_emp_data'):
+        serializable_emp_data = []
+        for emp_data in data['enhanced_emp_data']:
+            if len(emp_data) >= 4:  # Enhanced format with utilization
+                serializable_emp_data.append({
+                    'employee_id': emp_data[0].id,
+                    'employee_name': emp_data[0].get_full_name(),
+                    'engaged_days': emp_data[1],
+                    'utilization_rate': emp_data[2],
+                    'utilization_status': emp_data[3]
+                })
+            else:  # Legacy format
+                serializable_emp_data.append({
+                    'employee_id': emp_data[0].id,
+                    'employee_name': emp_data[0].get_full_name(),
+                    'engaged_days': emp_data[1],
+                    'utilization_rate': 0,
+                    'utilization_status': 'unknown'
+                })
+        data['enhanced_emp_data'] = serializable_emp_data
+    
+    return JsonResponse({
+        'success': True,
+        'data': data,
+        'date_range': {
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat()
+        }
+    })
+
+
+@login_required 
+def api_team_utilization_breakdown(request):
+    """API endpoint for detailed team utilization breakdown"""
+    # Get date parameters
+    start_date_str = request.GET.get('start_date')
+    end_date_str = request.GET.get('end_date')
+    
+    try:
+        if start_date_str:
+            start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
+        else:
+            start_date = timezone.now().date() - datetime.timedelta(days=90)
+        
+        if end_date_str:
+            end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        else:
+            end_date = timezone.now().date()
+            
+    except ValueError:
+        return JsonResponse({
+            'success': False,
+            'error': 'Invalid date format. Use YYYY-MM-DD.'
+        }, status=400)
+    
+    # Get detailed utilization data
+    utilization_data = calculate_enhanced_team_utilization(start_date, end_date)
+    
+    # Serialize employee data
+    serializable_employees = []
+    for emp_data in utilization_data['employee_details']:
+        serializable_employees.append({
+            'employee_id': emp_data['employee'].id,
+            'employee_name': emp_data['employee'].get_full_name(),
+            'engaged_days': emp_data['engaged_days'],
+            'working_days': emp_data['working_days'],
+            'utilization_rate': emp_data['utilization_rate'],
+            'status': emp_data['status'],
+            'user_type': emp_data['employee'].user_type
+        })
+    
+    return JsonResponse({
+        'success': True,
+        'data': {
+            'team_utilization': utilization_data['team_utilization'],
+            'available_capacity': utilization_data['available_capacity'],
+            'utilization_distribution': utilization_data['utilization_distribution'],
+            'employee_details': serializable_employees,
+            'underutilized_count': len(utilization_data['underutilized_employees']),
+            'overutilized_count': len(utilization_data['overutilized_employees'])
+        },
+        'date_range': {
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat()
+        }
+    })
+
+
 def get_search_suggestions(query: str, search_type: str = 'all'):
     """Get search suggestions for autocomplete functionality"""
     suggestions = []
@@ -1019,3 +1135,474 @@ def api_search_suggestions(request):
         'suggestions': suggestions,
         'query': query
     })
+
+
+# Enhanced Manager Dashboard Functions
+
+# Simple cache for expensive calculations (5 minute TTL)
+_dashboard_cache = {}
+CACHE_TTL = 300  # 5 minutes
+
+def _get_cache_key(start_date, end_date, cache_type):
+    """Generate cache key for dashboard calculations"""
+    return f"{cache_type}_{start_date}_{end_date}"
+
+def _is_cache_valid(cache_entry):
+    """Check if cache entry is still valid"""
+    if not cache_entry:
+        return False
+    return (timezone.now().timestamp() - cache_entry.get('timestamp', 0)) < CACHE_TTL
+
+def _set_cache(key, data):
+    """Set cache entry with timestamp"""
+    _dashboard_cache[key] = {
+        'data': data,
+        'timestamp': timezone.now().timestamp()
+    }
+
+def _get_cache(key):
+    """Get cache entry if valid"""
+    cache_entry = _dashboard_cache.get(key)
+    if _is_cache_valid(cache_entry):
+        return cache_entry['data']
+    return None
+
+def calculate_enhanced_team_utilization(start_date, end_date):
+    """
+    Calculate enhanced team utilization metrics with categorization
+    Returns detailed utilization breakdown and identifies under/over utilized employees
+    """
+    # Check cache first
+    cache_key = _get_cache_key(start_date, end_date, 'utilization')
+    cached_result = _get_cache(cache_key)
+    if cached_result:
+        return cached_result
+    
+    employees = Employee.objects.exclude(is_active=False).prefetch_related(
+        'engagements', 'leave_set'
+    )
+    
+    if not employees.exists():
+        return {
+            'team_utilization': 0,
+            'available_capacity': 100,
+            'underutilized_employees': [],
+            'overutilized_employees': [],
+            'utilization_distribution': {'optimal': 0, 'under': 0, 'over': 0}
+        }
+    
+    utilization_data = []
+    total_utilization = 0
+    
+    for emp in employees:
+        engaged_days = emp.countEngDays(start_date, end_date)
+        
+        # Calculate weekdays only using proper business day calculation
+        import numpy as np
+        from django.conf import settings
+        working_days = np.busday_count(
+            start_date, 
+            end_date + timezone.timedelta(days=1),
+            weekmask=settings.WORKING_DAYS
+        )
+        
+        # Calculate utilization rate - this shows percentage of business days spent on client engagements
+        # Note: 100% would mean working on engagements every single business day (unrealistic)
+        # Typically 70-80% is considered high utilization in consulting
+        raw_utilization = round((engaged_days / working_days) * 100, 2) if working_days > 0 else 0
+        
+        # For better business interpretation, we can scale the utilization
+        # so that 70% engagement becomes 100% utilization target
+        # utilization_rate = min(100, round((engaged_days / (working_days * 0.7)) * 100, 2)) if working_days > 0 else 0
+        
+        # For now, keep raw calculation but with better thresholds
+        utilization_rate = raw_utilization
+        
+        emp_data = {
+            'employee': emp,
+            'engaged_days': engaged_days,
+            'working_days': working_days,
+            'utilization_rate': utilization_rate,
+            'status': 'optimal'  # Default
+        }
+        
+        # Categorize utilization (30-80% is optimal for realistic business scenarios)
+        if utilization_rate < 30:
+            emp_data['status'] = 'under'
+        elif utilization_rate > 80:
+            emp_data['status'] = 'over'
+        
+        utilization_data.append(emp_data)
+        total_utilization += utilization_rate
+    
+    # Calculate team averages
+    team_utilization = round(total_utilization / len(utilization_data), 2)
+    available_capacity = max(0, round(100 - team_utilization, 2))
+    
+    # Categorize employees
+    underutilized = [emp for emp in utilization_data if emp['status'] == 'under']
+    overutilized = [emp for emp in utilization_data if emp['status'] == 'over']
+    optimal = [emp for emp in utilization_data if emp['status'] == 'optimal']
+    
+    result = {
+        'team_utilization': team_utilization,
+        'available_capacity': available_capacity,
+        'underutilized_employees': underutilized,
+        'overutilized_employees': overutilized,
+        'utilization_distribution': {
+            'optimal': len(optimal),
+            'under': len(underutilized),
+            'over': len(overutilized)
+        },
+        'employee_details': utilization_data
+    }
+    
+    # Cache the result
+    _set_cache(cache_key, result)
+    return result
+
+
+def calculate_financial_intelligence(start_date, end_date):
+    """
+    Calculate financial intelligence metrics including revenue, costs, and variance
+    """
+    from django.conf import settings
+    
+    employees = Employee.objects.exclude(is_active=False)
+    
+    # Calculate total engaged days and costs
+    total_engaged_days = 0
+    total_cost = 0
+    employee_costs = []
+    
+    for emp in employees:
+        engaged_days = emp.countEngDays(start_date, end_date)
+        emp_cost = engaged_days * settings.COST_PER_DAY
+        
+        total_engaged_days += engaged_days
+        total_cost += emp_cost
+        
+        if engaged_days > 0:
+            employee_costs.append({
+                'employee': emp,
+                'engaged_days': engaged_days,
+                'cost': emp_cost
+            })
+    
+    # Calculate average cost per employee per day
+    active_employees = len([emp for emp in employee_costs if emp['engaged_days'] > 0])
+    cost_per_emp_per_day = settings.COST_PER_DAY
+    
+    # Calculate monthly revenue run-rate (extrapolate from current period)
+    period_days = (end_date - start_date).days + 1
+    monthly_revenue = round((total_cost * 30) / period_days) if period_days > 0 else 0
+    
+    # Calculate budget variance without recursive call for performance
+    # This is a simplified calculation - enhance with actual budget data when available
+    expected_utilization = 75  # Target utilization percentage
+    
+    # Calculate actual utilization directly to avoid recursion
+    total_utilization = 0
+    employee_count = 0
+    
+    for emp_cost_data in employee_costs:
+        if emp_cost_data['engaged_days'] > 0:
+            emp = emp_cost_data['employee']
+            # Calculate weekdays only
+            import numpy as np
+            from django.conf import settings
+            working_days = np.busday_count(
+                start_date, 
+                end_date + timezone.timedelta(days=1),
+                weekmask=settings.WORKING_DAYS
+            )
+            
+            if working_days > 0:
+                emp_utilization = round((emp_cost_data['engaged_days'] / working_days) * 100, 2)
+                total_utilization += emp_utilization
+                employee_count += 1
+    
+    actual_utilization = round(total_utilization / employee_count, 2) if employee_count > 0 else 0
+    budget_variance = round(((actual_utilization - expected_utilization) / expected_utilization) * 100, 2) if expected_utilization > 0 else 0
+    
+    return {
+        'monthly_revenue': monthly_revenue,
+        'total_cost': total_cost,
+        'cost_per_emp_per_day': cost_per_emp_per_day,
+        'budget_variance': budget_variance,
+        'total_engaged_days': total_engaged_days,
+        'active_employees': active_employees,
+        'employee_costs': employee_costs[:10]  # Top 10 for performance
+    }
+
+
+def calculate_client_health_scores():
+    """
+    Calculate client health scores based on engagement activity and vulnerability status
+    Returns health scores and identifies clients needing attention
+    """
+    # Check cache first
+    today = timezone.now().date()
+    cache_key = f"client_health_{today}"
+    cached_result = _get_cache(cache_key)
+    if cached_result:
+        return cached_result
+    
+    clients = Client.objects.prefetch_related(
+        'engagements__vulnerabilities'
+    ).all()
+    
+    client_health_data = []
+    total_score = 0
+    inactive_clients = []
+    
+    for client in clients:
+        score_components = {
+            'engagement_activity': 0,
+            'vulnerability_status': 0,
+            'communication': 0,
+            'relationship_age': 0
+        }
+        
+        # 1. Engagement Activity Score (0-40 points)
+        current_engagements = client.count_current_engagements()
+        recent_engagements = client.engagements.filter(
+            end_date__gte=today - timezone.timedelta(days=90)
+        ).count()
+        
+        score_components['engagement_activity'] = min(40, (current_engagements * 20) + (recent_engagements * 5))
+        
+        # 2. Vulnerability Status Score (0-30 points)
+        vuln_summary = client.get_vulnerability_summary()
+        total_vulns = vuln_summary['total_open'] + vuln_summary['total_fixed']
+        
+        if total_vulns == 0:
+            score_components['vulnerability_status'] = 30  # No vulnerabilities is good
+        else:
+            remediation_rate = vuln_summary['total_fixed'] / total_vulns
+            critical_penalty = vuln_summary['critical_open'] * 5
+            high_penalty = vuln_summary['high_open'] * 3
+            
+            score_components['vulnerability_status'] = max(0, 
+                (remediation_rate * 30) - critical_penalty - high_penalty
+            )
+        
+        # 3. Communication Score (0-20 points) - Based on recent activity
+        # This is a simplified metric - could be enhanced with actual communication data
+        if current_engagements > 0:
+            score_components['communication'] = 20
+        elif recent_engagements > 0:
+            score_components['communication'] = 10
+        else:
+            score_components['communication'] = 5
+        
+        # 4. Relationship Age Score (0-10 points)
+        first_engagement = client.engagements.order_by('start_date').first()
+        if first_engagement:
+            relationship_days = (today - first_engagement.start_date).days
+            # Longer relationships get higher scores (up to 2 years)
+            score_components['relationship_age'] = min(10, relationship_days / 730 * 10)
+        
+        # Calculate total health score
+        total_client_score = sum(score_components.values())
+        health_score = round(total_client_score / 10, 2)  # Scale to 0-10
+        
+        # Determine if client needs attention
+        needs_attention = (
+            health_score < 5.0 or 
+            vuln_summary['critical_open'] > 0 or
+            (current_engagements == 0 and recent_engagements == 0)
+        )
+        
+        if needs_attention:
+            inactive_clients.append({
+                'client': client,
+                'health_score': health_score,
+                'reasons': []
+            })
+        
+        client_health_data.append({
+            'client': client,
+            'health_score': health_score,
+            'score_components': score_components,
+            'needs_attention': needs_attention
+        })
+        
+        total_score += health_score
+    
+    # Calculate average health score
+    average_health_score = round(total_score / len(client_health_data), 2) if client_health_data else 0
+    
+    result = {
+        'client_health_score': average_health_score,
+        'client_details': client_health_data,
+        'inactive_clients': len(inactive_clients),
+        'clients_needing_attention': inactive_clients[:5]  # Top 5 for performance
+    }
+    
+    # Cache the result
+    _set_cache(cache_key, result)
+    return result
+
+
+def generate_dashboard_alerts(start_date, end_date):
+    """
+    Generate actionable alerts for the manager dashboard
+    """
+    alerts = []
+    
+    # Get utilization data
+    utilization_data = calculate_enhanced_team_utilization(start_date, end_date)
+    
+    # Underutilization alerts
+    if len(utilization_data['underutilized_employees']) > 0:
+        alerts.append({
+            'type': 'warning',
+            'category': 'utilization',
+            'title': f"{len(utilization_data['underutilized_employees'])} Underutilized Team Members",
+            'description': f"Employees with utilization below 40%",
+            'action': 'Review workload distribution',
+            'count': len(utilization_data['underutilized_employees']),
+            'priority': 'medium'
+        })
+    
+    # Over-utilization alerts
+    if len(utilization_data['overutilized_employees']) > 0:
+        alerts.append({
+            'type': 'danger',
+            'category': 'utilization',
+            'title': f"{len(utilization_data['overutilized_employees'])} Overutilized Team Members",
+            'description': f"Employees with utilization above 90%",
+            'action': 'Consider workload rebalancing',
+            'count': len(utilization_data['overutilized_employees']),
+            'priority': 'high'
+        })
+    
+    # Critical vulnerability alerts
+    today = timezone.now().date()
+    critical_vulns = Vulnerability.objects.filter(
+        status='Open', 
+        severity='Critical',
+        engagement__start_date__lte=today,
+        engagement__end_date__gte=today
+    ).count()
+    
+    if critical_vulns > 0:
+        alerts.append({
+            'type': 'danger',
+            'category': 'security',
+            'title': f"{critical_vulns} Critical Vulnerabilities",
+            'description': "Open critical vulnerabilities in active engagements",
+            'action': 'Review and prioritize remediation',
+            'count': critical_vulns,
+            'priority': 'high'
+        })
+    
+    # Capacity warnings
+    if utilization_data['team_utilization'] > 85:
+        alerts.append({
+            'type': 'warning',
+            'category': 'capacity',
+            'title': 'High Team Utilization',
+            'description': f"Team utilization at {utilization_data['team_utilization']}%",
+            'action': 'Plan for additional resources',
+            'count': 1,
+            'priority': 'medium'
+        })
+    
+    # Client health alerts
+    client_health = calculate_client_health_scores()
+    if len(client_health['clients_needing_attention']) > 0:
+        alerts.append({
+            'type': 'info',
+            'category': 'client',
+            'title': f"{len(client_health['clients_needing_attention'])} Clients Need Attention",
+            'description': "Clients with low health scores or open critical vulnerabilities",
+            'action': 'Review client relationships',
+            'count': len(client_health['clients_needing_attention']),
+            'priority': 'medium'
+        })
+    
+    # Sort alerts by priority
+    priority_order = {'high': 1, 'medium': 2, 'low': 3}
+    alerts.sort(key=lambda x: priority_order.get(x['priority'], 3))
+    
+    return alerts
+
+
+def get_enhanced_manager_dashboard_data(start_date, end_date):
+    """
+    Main function to get all enhanced manager dashboard data
+    This combines all the individual calculations for optimal performance
+    """
+    try:
+        # Run calculations in parallel conceptually (could be optimized with threading)
+        utilization_data = calculate_enhanced_team_utilization(start_date, end_date)
+        financial_data = calculate_financial_intelligence(start_date, end_date)
+        client_health_data = calculate_client_health_scores()
+        alerts = generate_dashboard_alerts(start_date, end_date)
+        
+        # Get enhanced employee data for the existing chart
+        employees = Employee.objects.exclude(is_active=False)
+        enhanced_emp_data = []
+        
+        for emp in employees:
+            engaged_days = emp.countEngDays(start_date, end_date)
+            utilization_rate = 0
+            
+            # Find this employee in utilization data
+            for emp_util in utilization_data['employee_details']:
+                if emp_util['employee'].id == emp.id:
+                    utilization_rate = emp_util['utilization_rate']
+                    break
+            
+            enhanced_emp_data.append([
+                emp, 
+                engaged_days, 
+                utilization_rate,
+                'under' if utilization_rate < 30 else 'over' if utilization_rate > 80 else 'optimal'
+            ])
+        
+        # Sort by engaged days (maintaining existing behavior)
+        enhanced_emp_data.sort(key=lambda x: x[1])
+        
+        return {
+            'success': True,
+            'team_utilization': utilization_data['team_utilization'],
+            'available_capacity': utilization_data['available_capacity'],
+            'monthly_revenue': financial_data['monthly_revenue'],
+            'cost_per_emp_per_day': financial_data['cost_per_emp_per_day'],
+            'budget_variance': financial_data['budget_variance'],
+            'client_health_score': client_health_data['client_health_score'],
+            'underutilized_count': len(utilization_data['underutilized_employees']),
+            'inactive_clients': client_health_data['inactive_clients'],
+            'critical_vulns': sum(1 for alert in alerts if alert['category'] == 'security'),
+            'action_alerts': alerts,
+            'enhanced_emp_data': enhanced_emp_data,
+            'financial_summary': {
+                'total_cost': financial_data['total_cost'],
+                'active_employees': financial_data['active_employees'],
+                'total_engaged_days': financial_data['total_engaged_days']
+            },
+            'utilization_distribution': utilization_data['utilization_distribution']
+        }
+    
+    except Exception as e:
+        logger.error(f"Error calculating enhanced manager dashboard data: {str(e)}")
+        return {
+            'success': False,
+            'error': str(e),
+            'team_utilization': 0,
+            'available_capacity': 0,
+            'monthly_revenue': 0,
+            'cost_per_emp_per_day': 1000,
+            'budget_variance': 0,
+            'client_health_score': 0,
+            'underutilized_count': 0,
+            'inactive_clients': 0,
+            'critical_vulns': 0,
+            'action_alerts': [],
+            'enhanced_emp_data': [],
+            'financial_summary': {},
+            'utilization_distribution': {}
+        }

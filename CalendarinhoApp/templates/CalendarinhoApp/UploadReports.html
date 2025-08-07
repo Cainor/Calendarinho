@@ -125,15 +125,6 @@
               data-max-length="200"
               title="Click to edit engagement name">{{engagement.name}}</span>
       </h1>
-      <p class="text-muted mb-0">
-        <span class="inline-editable" 
-              data-model="engagement" 
-              data-field="scope" 
-              data-id="{{engagement.id}}"
-              data-type="textarea"
-              data-placeholder="Click to add engagement scope/description..."
-              title="Click to edit engagement scope">{{engagement.scope|default:"Manage reports and track vulnerabilities for this engagement"}}</span>
-      </p>
     </div>
     <div class="col-auto">
       <a href="/engagement/{{engagement.id}}" class="btn btn-outline-primary">

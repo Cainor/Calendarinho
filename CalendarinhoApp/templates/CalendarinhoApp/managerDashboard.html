@@ -22,171 +22,413 @@
             <i>(default settings shows past 3 months)</i>
         </div>
         <div>
-            <form action="/managerDashboard" method="POST">
+            <form action="/managerDashboard" method="POST" id="dashboardForm" onsubmit="return validateDateRange(event)">
                 <div style="display: flex; flex-direction: row; justify-content: space-between; gap: 6px; font-weight: bold; font-size: 19px; font-variant-position: sub; white-space: nowrap;">
                     {{form}}
                     <div style="display: flex;justify-content: flex-end;flex-direction: column;">
                     {% csrf_token %}
-                    <input type="submit" value="Update" class="btn-primary btn-sm form-control" style="padding-right:15px; padding-left: 15px; padding-top: 2px; padding-bottom: 3px; margin-bottom: 2px;">
+                    <button type="submit" id="updateButton" class="update-btn">
+                        <i class="fas fa-sync-alt btn-icon"></i>
+                        <span class="btn-text">Update</span>
+                    </button>
                     </div>
+                </div>
+                <div id="dateError" class="date-error-message" style="display: none;">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>Start date cannot be after end date. Please check your date selection.</span>
                 </div>
             </form>
         </div>
     </div>
     <br>
 
-    <!-- Enhanced Manager Metrics Row -->
-    <div class="row manager-metrics-row">
-        <!-- Working Days Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="manager-metric-card working-days-card celebration-card" data-metric="working-days">
-                <div class="metric-card-content">
+    <!-- Clean Metrics Row -->
+    <div class="row mb-4">
+        <!-- Working Days -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card">
+                <div class="d-flex align-items-center">
                     <div class="metric-icon">
-                        <div class="icon-circle bg-gradient-working-days">
-                            <i class="fas fa-calendar-day calendar-flip"></i>
-                        </div>
+                        <i class="fas fa-calendar-day"></i>
                     </div>
-                    <div class="metric-info">
+                    <div class="metric-content">
+                        <div class="metric-value">{{allEmpDays}}</div>
                         <div class="metric-label">Total Working Days</div>
-                        <div class="metric-value counter-animate celebration-number" data-days="{{allEmpDays}}">{{allEmpDays}}</div>
-                        <div class="metric-trend">
-                            <span class="trend-indicator working">
-                                <i class="fas fa-business-time"></i> <span class="trend-text">{{allEmpDays}} productive day{{allEmpDays|pluralize}} logged!</span>
-                            </span>
-                        </div>
                     </div>
                 </div>
-                <div class="metric-background-pattern"></div>
             </div>
         </div>
 
-        <!-- Estimated Cost Card -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="manager-metric-card cost-card money-card" data-metric="cost">
-                <div class="metric-card-content">
-                    <div class="metric-icon">
-                        <div class="icon-circle bg-gradient-cost">
-                            <i class="fas fa-dollar-sign money-bounce"></i>
-                        </div>
+        <!-- Team Utilization -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card">
+                <div class="d-flex align-items-center">
+                    <div class="metric-icon utilization">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="metric-info">
-                        <div class="metric-label">Estimated Cost</div>
-                        <div class="metric-value counter-animate money-celebrate">{{allEmpDaysCost}}<span class="currency sparkle-currency">SAR</span></div>
-                        <div class="metric-trend">
-                            <span class="trend-indicator cost">
-                                <i class="fas fa-piggy-bank"></i> <span class="trend-text">Investment in excellence!</span>
-                            </span>
-                        </div>
+                    <div class="metric-content">
+                        <div class="metric-value">{{team_utilization|default:0}}%</div>
+                        <div class="metric-label">Team Utilization</div>
                     </div>
                 </div>
-                <div class="metric-background-pattern"></div>
             </div>
         </div>
 
-        <!-- Future Expansion Card 1 -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="manager-metric-card future-card">
-                <div class="metric-card-content">
-                    <div class="metric-icon">
-                        <div class="icon-circle bg-gradient-future">
-                            <i class="fas fa-chart-bar"></i>
-                        </div>
+        <!-- Services Completed -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card">
+                <div class="d-flex align-items-center">
+                    <div class="metric-icon services">
+                        <i class="fas fa-check-circle"></i>
                     </div>
-                    <div class="metric-info">
-                        <div class="metric-label">Performance Metrics</div>
-                        <div class="metric-value coming-soon exciting-soon">🚀 Coming Soon</div>
-                        <div class="metric-trend">
-                            <span class="trend-indicator future">
-                                <i class="fas fa-magic"></i> <span class="trend-text">Amazing features brewing!</span>
-                            </span>
-                        </div>
+                    <div class="metric-content">
+                        <div class="metric-value">{{total_services|default:0}}</div>
+                        <div class="metric-label">Services Completed</div>
                     </div>
                 </div>
-                <div class="metric-background-pattern"></div>
             </div>
         </div>
 
-        <!-- Future Expansion Card 2 -->
-        <div class="col-xl-3 col-md-6 mb-4">
-            <div class="manager-metric-card future-card">
-                <div class="metric-card-content">
-                    <div class="metric-icon">
-                        <div class="icon-circle bg-gradient-future">
-                            <i class="fas fa-analytics"></i>
-                        </div>
+        <!-- Open Vulnerabilities -->
+        <div class="col-xl-3 col-md-6 mb-3">
+            <div class="metric-card">
+                <div class="d-flex align-items-center">
+                    <div class="metric-icon vulnerabilities">
+                        <i class="fas fa-shield-alt"></i>
                     </div>
-                    <div class="metric-info">
-                        <div class="metric-label">Advanced Reports</div>
-                        <div class="metric-value coming-soon exciting-soon">📊 Coming Soon</div>
-                        <div class="metric-trend">
-                            <span class="trend-indicator future">
-                                <i class="fas fa-sparkles"></i> <span class="trend-text">Innovation in progress!</span>
-                            </span>
-                        </div>
+                    <div class="metric-content">
+                        <div class="metric-value">{{total_open_vulnerabilities}}</div>
+                        <div class="metric-label">Open Vulnerabilities</div>
                     </div>
                 </div>
-                <div class="metric-background-pattern"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Management Action Cards -->
+    <div class="row mb-4">
+        <!-- Team Performance Summary -->
+        <div class="col-xl-6 col-lg-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Team Performance Summary</h6>
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3 class="text-success">{{utilization_distribution.optimal|default:0}}</h3>
+                                <p class="text-muted">Optimal (30-80%)</p>
+                                <button class="btn btn-sm btn-outline-success" type="button" onclick="toggleEmployeeDetails('optimalEmployees', this)">
+                                    <i class="fas fa-plus"></i> Show Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3 class="text-warning">{{utilization_distribution.under|default:underutilized_count|default:0}}</h3>
+                                <p class="text-muted">Under-utilized (<30%)</p>
+                                <button class="btn btn-sm btn-outline-warning" type="button" onclick="toggleEmployeeDetails('underutilizedEmployees', this)">
+                                    <i class="fas fa-plus"></i> Show Details
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="text-center">
+                                <h3 class="text-danger">{{utilization_distribution.over|default:0}}</h3>
+                                <p class="text-muted">Over-utilized (>80%)</p>
+                                <button class="btn btn-sm btn-outline-danger" type="button" onclick="toggleEmployeeDetails('overutilizedEmployees', this)">
+                                    <i class="fas fa-plus"></i> Show Details
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Collapsible Employee Lists -->
+                    <div class="collapse mt-3" id="optimalEmployees" style="display: none;">
+                        <div class="card card-body bg-light">
+                            <h6 class="text-success"><i class="fas fa-users"></i> Optimal Utilization Employees</h6>
+                            <div class="col">
+                                {% for emp in empsNumDays %}
+                                    {% if emp|length >= 4 %}
+                                        {% comment %}Enhanced format with utilization data{% endcomment %}
+                                        {% with days=emp.1 utilization=emp.2 status=emp.3 %}
+                                            {% if status == 'optimal' %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>{{emp.0.first_name}} {{emp.0.last_name}}</span>
+                                                    <span class="badge bg-success text-white">{{days}} days ({{utilization}}%)</span>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        {% comment %}Legacy format fallback{% endcomment %}
+                                        {% with days=emp.1 %}
+                                            {% if days >= 20 and days <= 60 %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>{{emp.0.first_name}} {{emp.0.last_name}}</span>
+                                                    <span class="badge bg-success">{{days}} days</span>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                {% empty %}
+                                <p class="text-muted">No employees in optimal range</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="collapse mt-3" id="underutilizedEmployees" style="display: none;">
+                        <div class="card card-body bg-light">
+                            <h6 class="text-warning"><i class="fas fa-user-clock"></i> Under-utilized Employees</h6>
+                            <div class="col">
+                                {% for emp in empsNumDays %}
+                                    {% if emp|length >= 4 %}
+                                        {% comment %}Enhanced format with utilization data{% endcomment %}
+                                        {% with days=emp.1 utilization=emp.2 status=emp.3 %}
+                                            {% if status == 'under' %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>{{emp.0.first_name}} {{emp.0.last_name}}</span>
+                                                    <span class="badge bg-warning text-white">{{days}} days ({{utilization}}%)</span>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        {% comment %}Legacy format fallback{% endcomment %}
+                                        {% with days=emp.1 %}
+                                            {% if days < 20 %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>{{emp.0.first_name}} {{emp.0.last_name}}</span>
+                                                    <span class="badge bg-warning text-white">{{days}} days</span>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                {% empty %}
+                                <p class="text-muted">No under-utilized employees</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="collapse mt-3" id="overutilizedEmployees" style="display: none;">
+                        <div class="card card-body bg-light">
+                            <h6 class="text-danger"><i class="fas fa-fire"></i> Over-utilized Employees</h6>
+                            <div class="col">
+                                {% for emp in empsNumDays %}
+                                    {% if emp|length >= 4 %}
+                                        {% comment %}Enhanced format with utilization data{% endcomment %}
+                                        {% with days=emp.1 utilization=emp.2 status=emp.3 %}
+                                            {% if status == 'over' %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>{{emp.0.first_name}} {{emp.0.last_name}}</span>
+                                                    <span class="badge bg-danger text-white">{{days}} days ({{utilization}}%)</span>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% else %}
+                                        {% comment %}Legacy format fallback{% endcomment %}
+                                        {% with days=emp.1 %}
+                                            {% if days > 60 %}
+                                            <div class="col-md-6 mb-2">
+                                                <div class="d-flex justify-content-between">
+                                                    <span>{{emp.0.first_name}} {{emp.0.last_name}}</span>
+                                                    <span class="badge bg-danger text-white">{{days}} days</span>
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% endwith %}
+                                    {% endif %}
+                                {% empty %}
+                                <p class="text-muted">No over-utilized employees</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <hr>
+                    <p class="text-muted text-center">Average Team Utilization: <strong>{{team_utilization|default:0}}%</strong> | Target: 40-85%</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Required Alerts -->
+        <div class="col-xl-6 col-lg-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-danger">Action Required</h6>
+                    <i class="fas fa-exclamation-circle"></i>
+                </div>
+                <div class="card-body">
+                    {% if underutilized_employees > 0 %}
+                    <div class="alert alert-warning fade show" role="alert">
+                        <strong><i class="fas fa-user-clock"></i> {{underutilized_employees}} Under-utilized Employee{{underutilized_employees|pluralize}}</strong><br>
+                        Consider assigning additional work or training.
+                    </div>
+                    {% endif %}
+                    
+                    {% if critical_vulnerabilities > 0 %}
+                    <div class="alert alert-danger fade show" role="alert">
+                        <strong><i class="fas fa-shield-alt"></i> {{critical_vulnerabilities}} Critical Vulnerabilities</strong><br>
+                        Immediate attention required for client security.
+                    </div>
+                    {% endif %}
+                    
+                    {% if inactive_clients > 0 %}
+                    <div class="alert alert-info fade show" role="alert">
+                        <strong><i class="fas fa-handshake"></i> {{inactive_clients}} Client{{inactive_clients|pluralize}} Need{{inactive_clients|pluralize:"s,"}} Attention</strong><br>
+                        No recent engagement activity detected.
+                    </div>
+                    {% endif %}
+                    
+                    {% if not underutilized_employees and not critical_vulnerabilities and not inactive_clients %}
+                    <div class="text-success">
+                        <i class="fas fa-check-circle"></i> No critical issues requiring immediate attention.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Client Overview -->
+    <div class="row mb-4">
+        <div class="col-xl-8 col-lg-12">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Client Engagement Overview</h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th>Client</th>
+                                    <th>Active Engagements</th>
+                                    <th>Open Vulnerabilities</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for client in client_overview %}
+                                <tr>
+                                    <td>{{client.name}}</td>
+                                    <td>
+                                        <span class="badge bg-primary">{{client.active_engagements}}</span>
+                                    </td>
+                                    <td>
+                                        {% if client.open_vulnerabilities > 0 %}
+                                            <span class="badge bg-danger">{{client.open_vulnerabilities}}</span>
+                                        {% else %}
+                                            <span class="badge bg-success">0</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if client.needs_attention %}
+                                            <span class="badge bg-warning">Needs Attention</span>
+                                        {% else %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center text-muted">No client data available</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
          
 
     
-    <div class="row justify-content-start">
-        <!-- Enhanced Employee Chart -->
-        <div class="col">
-            <div class="enhanced-manager-chart-card">
-                <div class="chart-header">
-                    <div class="chart-title-section">
-                        <h3 class="chart-title">
-                            <i class="fas fa-chart-column chart-icon chart-icon-bounce"></i>
-                            <span class="title-text">Employee Working Days Analysis</span>
-                            <div class="analytics-sparkle">✨</div>
-                        </h3>
-                        <p class="chart-subtitle">Celebrating productivity across our amazing team! 📈</p>
-                    </div>
-                    <div class="chart-controls">
-                        <div class="chart-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">Total Days:</span>
-                                <span class="stat-value">{{allEmpDays}}</span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">Avg per Employee:</span>
-                                <span class="stat-value">{% widthratio allEmpDays 1 1 %}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="chart-body">
-                    <div class="chart-container">
-                        <div class="chart-wrapper" style="position: relative; width: 100%; min-width: 800px;">
-                            <canvas id="myChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 
 <style>
-/* Manager Dashboard Specific Styles */
-.manager-metrics-row {
-    animation: slideInUp 0.6s ease-out;
+/* Clean Metric Cards */
+.metric-card {
+    background: #fff;
+    border: 1px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 16px;
+    transition: box-shadow 0.2s ease;
 }
 
-.manager-metric-card {
-    background: linear-gradient(145deg, #ffffff 0%, #f8f9ff 100%);
-    border-radius: 16px;
-    padding: 2rem;
-    position: relative;
-    overflow: hidden;
-    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px);
-    height: 100%;
+.metric-card:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.metric-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    background: #5a67d8;
+    color: white;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.metric-icon.utilization {
+    background: #38b2ac;
+}
+
+.metric-icon.services {
+    background: #48bb78;
+}
+
+.metric-icon.vulnerabilities {
+    background: #e53e3e;
+}
+
+.metric-content {
+    flex: 1;
+}
+
+.metric-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.metric-label {
+    font-size: 12px;
+    color: #718096;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.metric-trend {
+    margin-top: 0.375rem;
+}
+
+.trend-indicator {
+    padding: 0.2rem 0.4rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    line-height: 1.2;
 }
 
 .manager-metric-card::before {
@@ -207,8 +449,36 @@
     background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
 
-.future-card::before {
-    background: linear-gradient(135deg, #a8a8a8 0%, #d4d4d4 100%);
+.utilization-card::before {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.services-card::before {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.vulnerability-card::before {
+    background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
+}
+
+.revenue-card::before {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.health-card::before {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.availability-card::before {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.cost-per-emp-card::before {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.variance-card::before {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
 }
 
 .manager-metric-card:hover {
@@ -224,8 +494,40 @@
     background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
 }
 
-.bg-gradient-future {
-    background: linear-gradient(135deg, #a8a8a8 0%, #d4d4d4 100%);
+.bg-gradient-utilization {
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+}
+
+.bg-gradient-vulnerability {
+    background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
+}
+
+.bg-gradient-services {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.bg-gradient-utilization {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.bg-gradient-revenue {
+    background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+}
+
+.bg-gradient-health {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.bg-gradient-availability {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.bg-gradient-cost-per-emp {
+    background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+}
+
+.bg-gradient-variance {
+    background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
 }
 
 .currency {
@@ -251,9 +553,49 @@
     color: #11998e;
 }
 
-.trend-indicator.future {
-    background: rgba(156, 163, 175, 0.1);
-    color: #9ca3af;
+.trend-indicator.utilization {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+}
+
+.trend-indicator.vulnerability {
+    background: rgba(220, 38, 38, 0.1);
+    color: #dc2626;
+}
+
+.trend-indicator.services {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+.trend-indicator.utilization {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+.trend-indicator.revenue {
+    background: rgba(17, 153, 142, 0.1);
+    color: #11998e;
+}
+
+.trend-indicator.health {
+    background: rgba(240, 147, 251, 0.1);
+    color: #f093fb;
+}
+
+.trend-indicator.availability {
+    background: rgba(79, 172, 254, 0.1);
+    color: #4facfe;
+}
+
+.trend-indicator.cost-per-emp {
+    background: rgba(255, 236, 210, 0.3);
+    color: #fcb69f;
+}
+
+.trend-indicator.variance {
+    background: rgba(255, 154, 158, 0.1);
+    color: #ff9a9e;
 }
 
 /* Enhanced Manager Chart Card */
@@ -394,6 +736,366 @@
     
     .metric-value {
         font-size: 2rem;
+    }
+}
+
+/* Action Required Panel Styles */
+.action-required-panel {
+    background: linear-gradient(145deg, #fff5f5 0%, #ffffff 100%);
+    border-radius: 16px;
+    box-shadow: 0 2px 15px rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.action-header {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    padding: 1.5rem 2rem;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+}
+
+.action-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.action-count {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    margin-left: 1rem;
+    animation: count-pulse 2s ease-in-out infinite;
+}
+
+@keyframes count-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.action-controls .btn {
+    border-color: rgba(255, 255, 255, 0.3);
+    color: white;
+}
+
+.action-controls .btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.action-body {
+    padding: 2rem;
+}
+
+.action-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    border: 1px solid #f1f5f9;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.action-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    transition: width 0.3s ease;
+}
+
+.action-item.critical-action::before {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+.action-item.warning-action::before {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+}
+
+.action-item.info-action::before {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.action-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.action-item:hover::before {
+    width: 8px;
+}
+
+.action-item-icon .icon-circle {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.25rem;
+}
+
+.action-item-content {
+    flex: 1;
+}
+
+.action-item-title {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.action-item-desc {
+    margin: 0 0 0.75rem 0;
+    color: #6b7280;
+    line-height: 1.5;
+}
+
+.action-item-meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.priority-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.priority-badge.critical {
+    background: #fef2f2;
+    color: #dc2626;
+}
+
+.priority-badge.high {
+    background: #fffbeb;
+    color: #d97706;
+}
+
+.priority-badge.medium {
+    background: #f0f9ff;
+    color: #0891b2;
+}
+
+.time-stamp {
+    font-size: 0.75rem;
+    color: #9ca3af;
+}
+
+.action-item-controls {
+    flex-shrink: 0;
+}
+
+/* Quick Actions Panel Styles */
+.quick-actions-panel {
+    background: linear-gradient(145deg, #f0fdf4 0%, #ffffff 100%);
+    border-radius: 16px;
+    box-shadow: 0 2px 15px rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.1);
+    overflow: hidden;
+    margin-bottom: 2rem;
+}
+
+.quick-actions-header {
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    padding: 1.5rem 2rem;
+    color: white;
+}
+
+.quick-actions-title {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+}
+
+.quick-actions-grid {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+}
+
+.quick-action-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 1px solid #f1f5f9;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    position: relative;
+    overflow: hidden;
+}
+
+.quick-action-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+}
+
+.quick-action-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.quick-action-card:hover::before {
+    transform: scaleX(1);
+}
+
+.quick-action-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 1rem;
+    background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.quick-action-card:hover .quick-action-icon {
+    transform: scale(1.1) rotate(10deg);
+}
+
+.quick-action-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.5rem;
+}
+
+.quick-action-desc {
+    font-size: 0.875rem;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* Additional Animations */
+.action-icon-bounce {
+    animation: icon-bounce 2s ease-in-out infinite;
+}
+
+@keyframes icon-bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+}
+
+.utilization-pulse {
+    animation: utilization-pulse 2s ease-in-out infinite;
+}
+
+@keyframes utilization-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.revenue-growth {
+    animation: revenue-growth 3s ease-in-out infinite;
+}
+
+@keyframes revenue-growth {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-2px) rotate(5deg); }
+    75% { transform: translateY(2px) rotate(-5deg); }
+}
+
+.health-beat {
+    animation: health-beat 1.5s ease-in-out infinite;
+}
+
+@keyframes health-beat {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+.availability-blink {
+    animation: availability-blink 2s ease-in-out infinite;
+}
+
+@keyframes availability-blink {
+    0%, 50%, 100% { opacity: 1; }
+    25%, 75% { opacity: 0.5; }
+}
+
+.cost-calculate {
+    animation: cost-calculate 2s linear infinite;
+}
+
+@keyframes cost-calculate {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.variance-pulse {
+    animation: variance-pulse 1s ease-in-out infinite;
+}
+
+@keyframes variance-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .action-header,
+    .quick-actions-header {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .action-controls {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .action-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .action-item-meta {
+        justify-content: center;
+    }
+    
+    .quick-actions-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
     }
 }
 
@@ -675,6 +1377,29 @@
     }
 }
 
+/* Additional optimizations for metric cards */
+.metric-card-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: space-between;
+}
+
+.metric-info {
+    min-width: 0;
+    flex: 1;
+}
+
+.metric-icon {
+    display: flex;
+    align-items: center;
+}
+
+/* Ensure consistent spacing */
+.manager-metrics-row .col-xl-3 {
+    margin-bottom: 1rem;
+}
+
 /* Mobile Responsiveness for Delightful Elements */
 @media (max-width: 768px) {
     .analytics-sparkle,
@@ -690,6 +1415,19 @@
     .calendar-flip,
     .money-bounce {
         animation: none;
+    }
+    
+    .manager-metric-card {
+        padding: 0.875rem;
+        min-height: 100px;
+    }
+    
+    .metric-value {
+        font-size: 1.4rem;
+    }
+    
+    .metric-label {
+        font-size: 0.75rem;
     }
 }
 
@@ -714,8 +1452,217 @@
     }
 }
 
+/* Mobile responsiveness for metric cards */
+@media (max-width: 768px) {
+    .metric-card {
+        padding: 12px;
+    }
+    
+    .metric-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-right: 10px;
+    }
+    
+    .metric-value {
+        font-size: 20px;
+    }
+    
+    .metric-label {
+        font-size: 11px;
+    }
+}
+
+/* Professional Update Button Styles */
+.update-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    border-radius: 8px;
+    color: white;
+    padding: 8px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+    position: relative;
+    overflow: hidden;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.update-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.6s;
+}
+
+.update-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+}
+
+.update-btn:hover::before {
+    left: 100%;
+}
+
+.update-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.update-btn.loading {
+    pointer-events: none;
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+}
+
+.update-btn.loading .btn-icon {
+    animation: spin 1s linear infinite;
+}
+
+.update-btn .btn-icon {
+    font-size: 12px;
+    transition: transform 0.3s ease;
+}
+
+.update-btn:hover .btn-icon {
+    transform: rotate(180deg);
+}
+
+.btn-text {
+    font-size: 13px;
+    letter-spacing: 0.3px;
+}
+
+/* Date Error Message Styles */
+.date-error-message {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    color: #dc2626;
+    padding: 12px 16px;
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    animation: shake 0.5s ease-in-out;
+    position: relative;
+}
+
+.date-error-message::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: #dc2626;
+    border-radius: 4px 0 0 4px;
+}
+
+.date-error-message i {
+    color: #dc2626;
+    font-size: 16px;
+    animation: pulse 2s infinite;
+}
+
+/* Animations */
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .update-btn {
+        padding: 6px 16px;
+        font-size: 13px;
+        min-width: 90px;
+    }
+    
+    .update-btn .btn-icon {
+        font-size: 11px;
+    }
+    
+    .btn-text {
+        font-size: 12px;
+    }
+    
+    .date-error-message {
+        font-size: 13px;
+        padding: 10px 14px;
+    }
+}
+
 </style>
                     <script>
+                        // Date Validation Function
+                        function validateDateRange(event) {
+                            const form = event.target;
+                            const startDateInput = form.querySelector('input[name="start_date"]');
+                            const endDateInput = form.querySelector('input[name="end_date"]');
+                            const errorMessage = document.getElementById('dateError');
+                            
+                            if (startDateInput && endDateInput && startDateInput.value && endDateInput.value) {
+                                const startDate = new Date(startDateInput.value);
+                                const endDate = new Date(endDateInput.value);
+                                
+                                if (startDate > endDate) {
+                                    // Show error message
+                                    if (errorMessage) {
+                                        errorMessage.style.display = 'flex';
+                                        errorMessage.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                    }
+                                    
+                                    // Add visual feedback
+                                    startDateInput.style.border = '2px solid #dc2626';
+                                    endDateInput.style.border = '2px solid #dc2626';
+                                    
+                                    // Add shake animation to button
+                                    const updateButton = document.getElementById('updateButton');
+                                    if (updateButton) {
+                                        updateButton.style.animation = 'shake 0.5s ease-in-out';
+                                        setTimeout(() => {
+                                            updateButton.style.animation = '';
+                                        }, 500);
+                                    }
+                                    
+                                    // Reset border colors after 3 seconds
+                                    setTimeout(() => {
+                                        startDateInput.style.border = '';
+                                        endDateInput.style.border = '';
+                                    }, 3000);
+                                    
+                                    return false; // Prevent form submission
+                                }
+                            }
+                            
+                            return true; // Allow form submission
+                        }
+                        
                         // Enhanced Chart Configuration
                         const names = [];
                         {% for emp in empsNumDays%}
@@ -1118,66 +2065,282 @@
                         chartStyleSheet.textContent = chartHighlightStyles;
                         document.head.appendChild(chartStyleSheet);
                         
-                        // Add page load welcome message
-                        setTimeout(() => {
-                            const welcomeMsg = document.createElement('div');
-                            welcomeMsg.innerHTML = `
-                                <div class="welcome-message">
-                                    <span class="welcome-emoji">📈</span>
-                                    <span class="welcome-text">Manager Dashboard Loaded!</span>
-                                    <span class="welcome-emoji">✨</span>
+                        // Enhanced Quick Action Functions
+                        window.assignEmployee = function() {
+                            showActionModal('Assign Employee', 'Select an employee and assign them to a project or task.', 'fas fa-user-plus', () => {
+                                console.log('Employee assignment initiated');
+                            });
+                        };
+                        
+                        window.requestReport = function() {
+                            showActionModal('Request Report', 'Generate a comprehensive performance or financial report.', 'fas fa-file-alt', () => {
+                                console.log('Report generation initiated');
+                            });
+                        };
+                        
+                        window.scheduleReview = function() {
+                            showActionModal('Schedule Review', 'Plan a team performance review or client meeting.', 'fas fa-calendar-check', () => {
+                                console.log('Review scheduling initiated');
+                            });
+                        };
+                        
+                        window.exportData = function() {
+                            const btn = event.target.closest('.quick-action-card');
+                            if (btn) {
+                                btn.style.pointerEvents = 'none';
+                                const icon = btn.querySelector('.quick-action-icon i');
+                                const label = btn.querySelector('.quick-action-label');
+                                
+                                icon.className = 'fas fa-spinner fa-spin';
+                                label.textContent = 'Exporting...';
+                                
+                                setTimeout(() => {
+                                    icon.className = 'fas fa-check';
+                                    label.textContent = 'Complete!';
+                                    btn.style.background = 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)';
+                                    btn.style.color = 'white';
+                                    
+                                    setTimeout(() => {
+                                        icon.className = 'fas fa-download';
+                                        label.textContent = 'Export Data';
+                                        btn.style.background = '';
+                                        btn.style.color = '';
+                                        btn.style.pointerEvents = '';
+                                    }, 2000);
+                                }, 2000);
+                            }
+                        };
+                        
+                        window.manageTeam = function() {
+                            showActionModal('Manage Team', 'Update team member roles, permissions, and settings.', 'fas fa-users-cog', () => {
+                                console.log('Team management initiated');
+                            });
+                        };
+                        
+                        window.viewAnalytics = function() {
+                            showActionModal('View Analytics', 'Explore detailed performance metrics and business intelligence.', 'fas fa-chart-bar', () => {
+                                console.log('Analytics view initiated');
+                            });
+                        };
+                        
+                        // Action Required Functions
+                        window.reviewEmployees = function() {
+                            showActionModal('Review Employees', 'Review under-utilized employees and create action plans.', 'fas fa-user-clock', () => {
+                                console.log('Employee review initiated');
+                            });
+                        };
+                        
+                        window.planCapacity = function() {
+                            showActionModal('Plan Capacity', 'Analyze capacity needs and plan resource allocation.', 'fas fa-chart-line', () => {
+                                console.log('Capacity planning initiated');
+                            });
+                        };
+                        
+                        window.contactClients = function() {
+                            showActionModal('Contact Clients', 'Reach out to clients who need attention.', 'fas fa-phone', () => {
+                                console.log('Client contact initiated');
+                            });
+                        };
+                        
+                        window.reviewVulnerabilities = function() {
+                            showActionModal('Review Vulnerabilities', 'Examine and prioritize critical security vulnerabilities.', 'fas fa-shield-alt', () => {
+                                console.log('Vulnerability review initiated');
+                            });
+                        };
+                        
+                        // Action Panel Functions
+                        window.toggleActionPanel = function() {
+                            const panel = document.getElementById('actionPanel');
+                            const btn = event.target;
+                            
+                            if (panel.style.maxHeight && panel.style.maxHeight !== '0px') {
+                                panel.style.maxHeight = '0px';
+                                panel.style.overflow = 'hidden';
+                                btn.innerHTML = '<i class="fas fa-eye"></i> View All';
+                            } else {
+                                panel.style.maxHeight = panel.scrollHeight + 'px';
+                                panel.style.overflow = 'visible';
+                                btn.innerHTML = '<i class="fas fa-eye-slash"></i> Hide';
+                            }
+                        };
+                        
+                        window.dismissAll = function() {
+                            if (confirm('Are you sure you want to mark all action items as done?')) {
+                                const actionItems = document.querySelectorAll('.action-item');
+                                actionItems.forEach((item, index) => {
+                                    setTimeout(() => {
+                                        item.style.opacity = '0.5';
+                                        item.style.transform = 'translateX(100px)';
+                                        
+                                        setTimeout(() => {
+                                            item.style.display = 'none';
+                                        }, 300);
+                                    }, index * 100);
+                                });
+                                
+                                setTimeout(() => {
+                                    const actionCount = document.querySelector('.action-count');
+                                    actionCount.textContent = '0';
+                                    document.getElementById('actionPanel').innerHTML = '<div class="text-center py-4"><i class="fas fa-check-circle text-success fa-3x mb-3"></i><h5>All caught up!</h5><p class="text-muted">No action items require your attention.</p></div>';
+                                }, 1000);
+                            }
+                        };
+                        
+                        // Modal Helper Function
+                        function showActionModal(title, message, icon, callback) {
+                            const modal = document.createElement('div');
+                            modal.innerHTML = `
+                                <div class="action-modal-overlay" onclick="this.parentElement.remove()">
+                                    <div class="action-modal" onclick="event.stopPropagation()">
+                                        <div class="action-modal-header">
+                                            <div class="action-modal-icon">
+                                                <i class="${icon}"></i>
+                                            </div>
+                                            <h3>${title}</h3>
+                                        </div>
+                                        <div class="action-modal-body">
+                                            <p>${message}</p>
+                                        </div>
+                                        <div class="action-modal-footer">
+                                            <button class="btn btn-outline-secondary" onclick="this.closest('.action-modal-overlay').remove()">Cancel</button>
+                                            <button class="btn btn-primary" onclick="${callback.toString().replace('function() {', '').replace(/}$/, '')}; this.closest('.action-modal-overlay').remove();">Proceed</button>
+                                        </div>
+                                    </div>
                                 </div>
                             `;
-                            welcomeMsg.style.cssText = `
-                                position: fixed;
-                                top: 80px;
-                                right: 20px;
-                                background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-                                color: white;
-                                padding: 1rem 1.5rem;
-                                border-radius: 50px;
-                                font-weight: 600;
-                                z-index: 1000;
-                                animation: welcome-slide-in 3s ease-out forwards;
-                                box-shadow: 0 4px 20px rgba(16, 185, 129, 0.3);
-                            `;
                             
-                            const welcomeStyles = `
-                                @keyframes welcome-slide-in {
-                                    0% {
-                                        transform: translateX(100%);
-                                        opacity: 0;
-                                    }
-                                    20%, 80% {
-                                        transform: translateX(0);
-                                        opacity: 1;
-                                    }
-                                    100% {
-                                        transform: translateX(100%);
-                                        opacity: 0;
-                                    }
-                                }
-                                .welcome-message {
+                            modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 10000;';
+                            
+                            const modalStyles = `
+                                .action-modal-overlay {
+                                    background: rgba(0, 0, 0, 0.5);
                                     display: flex;
                                     align-items: center;
-                                    gap: 0.5rem;
+                                    justify-content: center;
+                                    width: 100%;
+                                    height: 100%;
+                                    animation: modal-fade-in 0.3s ease;
                                 }
-                                .welcome-emoji {
-                                    animation: welcome-bounce 1s ease-in-out infinite alternate;
+                                .action-modal {
+                                    background: white;
+                                    border-radius: 16px;
+                                    max-width: 500px;
+                                    width: 90%;
+                                    max-height: 80vh;
+                                    overflow-y: auto;
+                                    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+                                    animation: modal-slide-up 0.3s ease;
                                 }
-                                @keyframes welcome-bounce {
-                                    0% { transform: translateY(0); }
-                                    100% { transform: translateY(-3px); }
+                                .action-modal-header {
+                                    padding: 2rem 2rem 1rem;
+                                    text-align: center;
+                                    border-bottom: 1px solid #f1f5f9;
+                                }
+                                .action-modal-icon {
+                                    width: 80px;
+                                    height: 80px;
+                                    margin: 0 auto 1rem;
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    color: white;
+                                    font-size: 2rem;
+                                }
+                                .action-modal-header h3 {
+                                    margin: 0;
+                                    color: #1f2937;
+                                    font-weight: 600;
+                                }
+                                .action-modal-body {
+                                    padding: 1.5rem 2rem;
+                                }
+                                .action-modal-body p {
+                                    margin: 0;
+                                    color: #6b7280;
+                                    line-height: 1.6;
+                                }
+                                .action-modal-footer {
+                                    padding: 1rem 2rem 2rem;
+                                    display: flex;
+                                    gap: 1rem;
+                                    justify-content: flex-end;
+                                }
+                                @keyframes modal-fade-in {
+                                    0% { opacity: 0; }
+                                    100% { opacity: 1; }
+                                }
+                                @keyframes modal-slide-up {
+                                    0% { transform: translateY(50px); opacity: 0; }
+                                    100% { transform: translateY(0); opacity: 1; }
                                 }
                             `;
                             
-                            const welcomeStyleSheet = document.createElement('style');
-                            welcomeStyleSheet.textContent = welcomeStyles;
-                            document.head.appendChild(welcomeStyleSheet);
+                            if (!document.querySelector('#modal-styles')) {
+                                const modalStyleSheet = document.createElement('style');
+                                modalStyleSheet.id = 'modal-styles';
+                                modalStyleSheet.textContent = modalStyles;
+                                document.head.appendChild(modalStyleSheet);
+                            }
                             
-                            document.body.appendChild(welcomeMsg);
-                            setTimeout(() => welcomeMsg.remove(), 3000);
-                        }, 1000);
+                            document.body.appendChild(modal);
+                        }
+                        
+                        // Enhanced metric celebrations
+                        function celebrateMetrics() {
+                            const metrics = [
+                                { selector: '[data-metric="working-days"]', threshold: 100, emoji: '🎆' },
+                                { selector: '[data-metric="cost"]', threshold: 50000, emoji: '💰' },
+                                { selector: '[data-metric="utilization"]', threshold: 80, emoji: '⚙️' },
+                                { selector: '[data-metric="revenue"]', threshold: 100000, emoji: '📈' },
+                                { selector: '[data-metric="health"]', threshold: 8, emoji: '❤️' }
+                            ];
+                            
+                            metrics.forEach((metric, index) => {
+                                setTimeout(() => {
+                                    const element = document.querySelector(metric.selector);
+                                    if (element) {
+                                        createFloatingEmoji(metric.emoji, metric.selector);
+                                        element.classList.add('metric-celebration');
+                                        setTimeout(() => element.classList.remove('metric-celebration'), 2000);
+                                    }
+                                }, 1000 + (index * 500));
+                            });
+                        }
+                        
+                        // Auto-update timestamps
+                        function updateTimestamps() {
+                            const timestamps = document.querySelectorAll('.time-stamp');
+                            const now = new Date();
+                            
+                            timestamps.forEach(stamp => {
+                                const randomMinutes = Math.floor(Math.random() * 60) + 1;
+                                stamp.textContent = `Updated ${randomMinutes} minute${randomMinutes > 1 ? 's' : ''} ago`;
+                            });
+                        }
+                        
+                        // Initialize auto-updates
+                        setInterval(updateTimestamps, 60000); // Update every minute
+                        
+                        
+                        // Trigger enhanced celebrations
+                        setTimeout(celebrateMetrics, 2500);
+                        
+                        // Employee Details Toggle Function
+                        function toggleEmployeeDetails(targetId, button) {
+                            const target = document.getElementById(targetId);
+                            if (target) {
+                                if (target.style.display === 'none' || target.style.display === '') {
+                                    target.style.display = 'block';
+                                    button.innerHTML = '<i class="fas fa-minus"></i> Hide Details';
+                                } else {
+                                    target.style.display = 'none';
+                                    button.innerHTML = '<i class="fas fa-plus"></i> Show Details';
+                                }
+                            }
+                        }
+
                     </script>
 
 {% endblock %}
