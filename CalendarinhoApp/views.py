@@ -171,9 +171,11 @@ def managerDashboard(request):
                 # NEW: Action required data
                 'action_alerts': enhanced_data.get('action_alerts', []),
                 'underutilized_count': enhanced_data.get('underutilized_count', 0),
+                'underutilized_employees': enhanced_data.get('underutilized_count', 0),  # Template compatibility
                 'team_capacity': enhanced_data.get('team_utilization', 0),
                 'inactive_clients': enhanced_data.get('inactive_clients', 0),
                 'critical_vulns': enhanced_data.get('critical_vulns', 0),
+                'critical_vulnerabilities': enhanced_data.get('critical_vulns', 0),  # Template compatibility
                 'total_open_vulnerabilities': enhanced_data.get('total_open_vulnerabilities', 0),
                 'total_vulnerabilities_found': enhanced_data.get('total_vulnerabilities_found', 0),
                 
@@ -268,9 +270,11 @@ def managerDashboard(request):
                 # NEW: Action required data
                 'action_alerts': enhanced_data.get('action_alerts', []),
                 'underutilized_count': enhanced_data.get('underutilized_count', 0),
+                'underutilized_employees': enhanced_data.get('underutilized_count', 0),  # Template compatibility
                 'team_capacity': enhanced_data.get('team_utilization', 0),
                 'inactive_clients': enhanced_data.get('inactive_clients', 0),
                 'critical_vulns': enhanced_data.get('critical_vulns', 0),
+                'critical_vulnerabilities': enhanced_data.get('critical_vulns', 0),  # Template compatibility
                 
                 # NEW: Enhanced chart data and analytics
                 'employee_performance_data': enhanced_data.get('enhanced_emp_data', empsNumDays),

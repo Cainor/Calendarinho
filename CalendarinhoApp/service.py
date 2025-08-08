@@ -262,8 +262,11 @@ def get_enhanced_client_data():
             client_stats['active'] += 1
         elif total_engagements > 0:
             # Check for recent engagements (within last 90 days)
+            # Fix: Count engagements that had any activity in the last 90 days
+            ninety_days_ago = today - timezone.timedelta(days=90)
             recent_engagements = cli.engagements.filter(
-                end_date__gte=today - timezone.timedelta(days=90)
+                Q(end_date__gte=ninety_days_ago) |  # Ended in last 90 days
+                Q(start_date__gte=ninety_days_ago)   # Started in last 90 days
             ).count()
             if recent_engagements > 0:
                 activity_level = "medium"
@@ -1366,8 +1369,13 @@ def calculate_client_health_scores():
         
         # 1. Engagement Activity Score (0-40 points)
         current_engagements = client.count_current_engagements()
+        
+        # Fix: Count engagements that had any activity in the last 90 days
+        # This includes engagements that ended recently OR started recently
+        ninety_days_ago = today - timezone.timedelta(days=90)
         recent_engagements = client.engagements.filter(
-            end_date__gte=today - timezone.timedelta(days=90)
+            Q(end_date__gte=ninety_days_ago) |  # Ended in last 90 days
+            Q(start_date__gte=ninety_days_ago)   # Started in last 90 days
         ).count()
         
         score_components['engagement_activity'] = min(40, (current_engagements * 20) + (recent_engagements * 5))
