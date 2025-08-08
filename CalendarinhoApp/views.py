@@ -175,6 +175,7 @@ def managerDashboard(request):
                 'inactive_clients': enhanced_data.get('inactive_clients', 0),
                 'critical_vulns': enhanced_data.get('critical_vulns', 0),
                 'total_open_vulnerabilities': enhanced_data.get('total_open_vulnerabilities', 0),
+                'total_vulnerabilities_found': enhanced_data.get('total_vulnerabilities_found', 0),
                 
                 # NEW: Enhanced chart data and analytics
                 'employee_performance_data': enhanced_data.get('enhanced_emp_data', empsNumDays),
@@ -262,6 +263,7 @@ def managerDashboard(request):
                 'total_unique_clients_served': enhanced_data.get('total_unique_clients_served', 0),
                 'service_type_count': enhanced_data.get('service_type_count', 0),
                 'total_open_vulnerabilities': enhanced_data.get('total_open_vulnerabilities', 0),
+                'total_vulnerabilities_found': enhanced_data.get('total_vulnerabilities_found', 0),
                 
                 # NEW: Action required data
                 'action_alerts': enhanced_data.get('action_alerts', []),

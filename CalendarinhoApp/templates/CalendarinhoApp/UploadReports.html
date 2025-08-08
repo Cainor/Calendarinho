@@ -94,6 +94,66 @@
     border-color: #5a5c69;
     box-shadow: 0 0 0 0.2rem rgba(90, 92, 105, 0.25);
 }
+.timestamp-info {
+    margin-top: 0.75rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid #f1f3f4;
+    background: rgba(248, 249, 252, 0.3);
+    border-radius: 0 0 0.25rem 0.25rem;
+    margin-left: -15px;
+    margin-right: -15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.timestamp-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.25rem;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+.timestamp-entry:last-child {
+    margin-bottom: 0;
+}
+.timestamp-icon {
+    width: 14px;
+    height: 14px;
+    margin-right: 0.5rem;
+    opacity: 0.7;
+    flex-shrink: 0;
+}
+.timestamp-text {
+    flex: 1;
+    min-width: 0;
+}
+.timestamp-date {
+    font-weight: 500;
+    color: #495057;
+}
+.timestamp-author {
+    color: #6c757d;
+    font-weight: 400;
+    margin-left: 0.25rem;
+}
+.timestamp-created {
+    border-left: 3px solid #17a2b8;
+    padding-left: 0.5rem;
+    margin-left: -0.5rem;
+    background: rgba(23, 162, 184, 0.05);
+}
+.timestamp-updated {
+    border-left: 3px solid #ffc107;
+    padding-left: 0.5rem;
+    margin-left: -0.5rem;
+    background: rgba(255, 193, 7, 0.05);
+}
+.timestamp-fixed {
+    border-left: 3px solid #28a745;
+    padding-left: 0.5rem;
+    margin-left: -0.5rem;
+    background: rgba(40, 167, 69, 0.05);
+    font-weight: 500;
+}
 .vuln-section {
     background: linear-gradient(135deg, #f8f9fc 0%, #ffffff 100%);
     border-radius: 0.5rem;
@@ -104,6 +164,50 @@
     height: 2px;
     background: linear-gradient(90deg, transparent 0%, #e3e6f0 50%, transparent 100%);
     margin: 2rem 0;
+}
+
+/* Responsive adjustments for timestamp info */
+@media (max-width: 768px) {
+    .timestamp-info {
+        margin-top: 0.5rem;
+        padding: 0.4rem 0;
+        margin-left: -10px;
+        margin-right: -10px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .timestamp-entry {
+        font-size: 0.75rem;
+        margin-bottom: 0.2rem;
+    }
+    .timestamp-icon {
+        width: 12px;
+        height: 12px;
+        margin-right: 0.4rem;
+    }
+    .vulnerability-item {
+        padding: 10px;
+    }
+}
+
+/* Dark mode compatibility */
+@media (prefers-color-scheme: dark) {
+    .timestamp-info {
+        background: rgba(52, 58, 64, 0.3);
+        border-top-color: #495057;
+    }
+    .timestamp-date {
+        color: #e9ecef;
+    }
+    .timestamp-created {
+        background: rgba(23, 162, 184, 0.15);
+    }
+    .timestamp-updated {
+        background: rgba(255, 193, 7, 0.15);
+    }
+    .timestamp-fixed {
+        background: rgba(40, 167, 69, 0.15);
+    }
 }
 </style>
 {% endblock %}
@@ -468,14 +572,29 @@
                     </span>
                   </div>
                   <div class="col-5">
-                    <span class="inline-editable vulnerability-title" 
-                          data-model="vulnerability" 
-                          data-field="title" 
-                          data-id="{{vuln.id}}"
-                          data-type="text"
-                          data-required="true"
-                          data-min-length="3"
-                          data-max-length="200">{{vuln.title}}</span>
+                    <div>
+                      <span class="inline-editable vulnerability-title" 
+                            data-model="vulnerability" 
+                            data-field="title" 
+                            data-id="{{vuln.id}}"
+                            data-type="text"
+                            data-required="true"
+                            data-min-length="3"
+                            data-max-length="200">{{vuln.title}}</span>
+                    </div>
+                    <div class="small text-muted mt-1">
+                      <i class="fas fa-plus mr-1"></i>Created: {{vuln.created_at|date:"M d, Y H:i"}} by {{vuln.created_by.first_name}} {{vuln.created_by.last_name}}
+                    </div>
+                    {% comment %} {% if vuln.updated_at != vuln.created_at %}
+                    <div class="small text-muted">
+                      <i class="fas fa-edit mr-1"></i>Updated: {{vuln.updated_at|date:"M d, Y H:i"}}
+                    </div>
+                    {% endif %} {% endcomment %}
+                    {% if vuln.fixed_at %}
+                    <div class="small text-success">
+                      <i class="fas fa-check-circle mr-1"></i>Fixed: {{vuln.fixed_at|date:"M d, Y H:i"}}{% if vuln.fixed_by %} by {{vuln.fixed_by.first_name}} {{vuln.fixed_by.last_name}}{% endif %}
+                    </div>
+                    {% endif %}
                   </div>
                   <div class="col-3">
                     <div class="custom-control custom-switch">

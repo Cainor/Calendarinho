@@ -59,16 +59,16 @@
             </div>
         </div>
 
-        <!-- Team Utilization -->
+        <!-- Clients Served This Period -->
         <div class="col-xl-3 col-md-6 mb-3">
             <div class="metric-card">
                 <div class="d-flex align-items-center">
-                    <div class="metric-icon utilization">
-                        <i class="fas fa-users"></i>
+                    <div class="icon-wrapper" style="background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%); box-shadow: 0 4px 15px rgba(14, 165, 233, 0.2);">
+                        <i class="fas fa-handshake text-white"></i>
                     </div>
                     <div class="metric-content">
-                        <div class="metric-value">{{team_utilization|default:0}}%</div>
-                        <div class="metric-label">Team Utilization</div>
+                        <div class="metric-value">{{total_unique_clients_served|default:0}}</div>
+                        <div class="metric-label">Clients Served This Period</div>
                     </div>
                 </div>
             </div>
@@ -92,16 +92,16 @@
             </div>
         </div>
 
-        <!-- Open Vulnerabilities -->
+        <!-- Total Findings -->
         <div class="col-xl-3 col-md-6 mb-3">
             <div class="metric-card">
                 <div class="d-flex align-items-center">
-                    <div class="metric-icon vulnerabilities">
-                        <i class="fas fa-shield-alt"></i>
+                    <div class="icon-wrapper" style="background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%); box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);">
+                        <i class="fas fa-exclamation-triangle text-white"></i>
                     </div>
                     <div class="metric-content">
-                        <div class="metric-value">{{total_open_vulnerabilities}}</div>
-                        <div class="metric-label">Open Vulnerabilities</div>
+                        <div class="metric-value">{{total_vulnerabilities_found|default:0}}</div>
+                        <div class="metric-label">Total Findings</div>
                     </div>
                 </div>
             </div>
@@ -506,6 +506,17 @@
     font-size: 20px;
     flex-shrink: 0;
 }
+.icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 12px;
+    font-size: 20px;
+    flex-shrink: 0;
+}
 
 .metric-icon.utilization {
     background: #38b2ac;
@@ -517,6 +528,16 @@
 
 .metric-icon.vulnerabilities {
     background: #e53e3e;
+}
+
+.metric-icon.critical-findings {
+    background: linear-gradient(135deg, #dc2626 0%, #f59e0b 100%);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
+.metric-icon.clients-served {
+    background: linear-gradient(135deg, #0ea5e9 0%, #10b981 100%);
+    box-shadow: 0 2px 8px rgba(14, 165, 233, 0.3);
 }
 
 .metric-content {
@@ -1579,6 +1600,13 @@
     }
     
     .metric-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+        margin-right: 10px;
+    }
+    
+    .icon-wrapper {
         width: 40px;
         height: 40px;
         font-size: 18px;

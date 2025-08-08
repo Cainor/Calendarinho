@@ -1546,6 +1546,14 @@ def calculate_services_metrics(start_date, end_date):
     # Count total completed services
     total_services = completed_engagements.count()
     
+    # Calculate vulnerabilities found in the period (by created_at date)
+    from .models import Vulnerability
+    period_vulnerabilities = Vulnerability.objects.filter(
+        created_at__date__gte=start_date,
+        created_at__date__lte=end_date
+    )
+    total_vulnerabilities_found = period_vulnerabilities.count()
+    
     # Get detailed service information for modal
     completed_services_details = []
     total_open_vulnerabilities = 0
@@ -1603,6 +1611,7 @@ def calculate_services_metrics(start_date, end_date):
         'total_services': total_services,
         'completed_services_details': completed_services_details,
         'total_open_vulnerabilities': total_open_vulnerabilities,
+        'total_vulnerabilities_found': total_vulnerabilities_found,
         'date_range': {
             'start_date': start_date.isoformat(),
             'end_date': end_date.isoformat()
@@ -1817,6 +1826,7 @@ def get_enhanced_manager_dashboard_data(start_date, end_date):
             'total_services': services_data['total_services'],
             'completed_services_details': services_data['completed_services_details'],
             'total_open_vulnerabilities': services_data.get('total_open_vulnerabilities', 0),
+            'total_vulnerabilities_found': services_data.get('total_vulnerabilities_found', 0),
             'grouped_services': grouped_services_data['grouped_services'],
             'total_unique_clients_served': grouped_services_data['total_unique_clients'],
             'service_type_count': grouped_services_data['service_type_count'],
@@ -1847,6 +1857,7 @@ def get_enhanced_manager_dashboard_data(start_date, end_date):
             'total_services': 0,
             'completed_services_details': [],
             'total_open_vulnerabilities': 0,
+            'total_vulnerabilities_found': 0,
             'grouped_services': [],
             'total_unique_clients_served': 0,
             'service_type_count': 0,
