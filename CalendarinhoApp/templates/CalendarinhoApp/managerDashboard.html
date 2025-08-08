@@ -76,14 +76,17 @@
 
         <!-- Services Completed -->
         <div class="col-xl-3 col-md-6 mb-3">
-            <div class="metric-card">
+            <div class="metric-card clickable-card" onclick="showCompletedServicesModal()" style="cursor: pointer;">
                 <div class="d-flex align-items-center">
                     <div class="metric-icon services">
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="metric-content">
                         <div class="metric-value">{{total_services|default:0}}</div>
-                        <div class="metric-label">Services Completed</div>
+                        <div class="metric-label">
+                            Services Completed
+                            <i class="fas fa-external-link-alt ml-2" style="font-size: 0.8em; color: #718096;"></i>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -354,7 +357,119 @@
             </div>
         </div>
     </div>
-         
+
+    <!-- Completed Services Modal -->
+    <div class="modal fade" id="completedServicesModal" tabindex="-1" role="dialog" aria-labelledby="completedServicesModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="completedServicesModalLabel">
+                        <i class="fas fa-check-circle mr-2"></i>
+                        Completed Services Details
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Showing completed services from <strong id="modalDateRange"></strong>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- View Toggle Buttons -->
+                    <div class="row mb-3">
+                        <div class="col-md-12">
+                            <div class="btn-group" role="group" aria-label="View Toggle">
+                                <button type="button" class="btn btn-outline-primary active" id="groupedViewBtn" onclick="showGroupedView()">
+                                    <i class="fas fa-layer-group mr-2"></i>Service Types
+                                </button>
+                                <button type="button" class="btn btn-outline-primary" id="detailedViewBtn" onclick="showDetailedView()">
+                                    <i class="fas fa-list mr-2"></i>Individual Services
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Grouped Services View -->
+                    <div id="groupedServicesView" class="table-responsive">
+                        <table class="table table-hover">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Service Type</th>
+                                    <th>Count</th>
+                                    <th>Clients Served</th>
+                                    <th>Avg Duration</th>
+                                    <th>Avg Team Size</th>
+                                    <th>Completion Rate</th>
+                                    <th>Open Vulnerabilities</th>
+                                    <th>Risk Level</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="groupedServicesTableBody">
+                                <!-- Grouped content will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Detailed Services View -->
+                    <div id="detailedServicesView" class="table-responsive" style="display: none;">
+                        <table class="table table-hover" id="completedServicesTable">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Service Name</th>
+                                    <th>Client</th>
+                                    <th>Service Type</th>
+                                    <th>Duration</th>
+                                    <th>Team</th>
+                                    <th>Project Manager</th>
+                                    <th>Completion Status</th>
+                                    <th>Vulnerabilities</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="completedServicesTableBody">
+                                <!-- Individual services content will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div id="noServicesMessage" class="text-center py-4" style="display: none;">
+                        <div class="text-muted">
+                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                            <h5>No Completed Services</h5>
+                            <p>No services were completed during the selected date range.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="mr-auto">
+                        <small class="text-muted">
+                            <i class="fas fa-chart-bar mr-1"></i>
+                            Total Services: <span id="modalTotalServices">0</span> | 
+                            <i class="fas fa-layer-group mr-1"></i>
+                            Service Types: <span id="modalServiceTypes">0</span> |
+                            <i class="fas fa-users mr-1"></i>
+                            Clients Served: <span id="modalClientsServed">0</span> |
+                            <i class="fas fa-exclamation-triangle mr-1"></i>
+                            Open Vulnerabilities: <span id="modalOpenVulns">0</span>
+                        </small>
+                    </div>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="fas fa-times mr-2"></i>Close
+                    </button>
+                    <button type="button" class="btn btn-primary" onclick="exportCompletedServices()">
+                        <i class="fas fa-download mr-2"></i>Export CSV
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     
 </div>
@@ -371,6 +486,11 @@
 
 .metric-card:hover {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.metric-card.clickable-card:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
 }
 
 .metric-icon {
@@ -2341,6 +2461,417 @@
                             }
                         }
 
+                        // Completed Services Modal Functions (will be overridden)
+                        function showCompletedServicesModal() {
+                            alert('Loading services data...');
+                        }
+                        
+                        function populateServicesTable(services) {
+                            const tableBody = document.getElementById('completedServicesTableBody');
+                            const noServicesMessage = document.getElementById('noServicesMessage');
+                            const servicesTable = document.getElementById('completedServicesTable');
+                            
+                            if (!services || services.length === 0) {
+                                servicesTable.style.display = 'none';
+                                noServicesMessage.style.display = 'block';
+                                return;
+                            }
+                            
+                            servicesTable.style.display = 'table';
+                            noServicesMessage.style.display = 'none';
+                            
+                            // Clear existing content
+                            tableBody.innerHTML = '';
+                            
+                            services.forEach(service => {
+                                const row = createServiceRow(service);
+                                tableBody.appendChild(row);
+                            });
+                        }
+                        
+                        function createServiceRow(service) {
+                            const row = document.createElement('tr');
+                            
+                            // Determine status badge class and text
+                            const statusInfo = getStatusInfo(service.completion_status);
+                            const vulnerabilityInfo = getVulnerabilityInfo(service.vulnerabilities);
+                            
+                            row.innerHTML = `
+                                <td>
+                                    <strong>${escapeHtml(service.name)}</strong>
+                                    <br><small class="text-muted">ID: ${service.id}</small>
+                                </td>
+                                <td>${escapeHtml(service.client_name)}</td>
+                                <td>
+                                    <span class="badge badge-info">${escapeHtml(service.service_type)}</span>
+                                </td>
+                                <td>
+                                    ${service.duration_days} days
+                                    <br><small class="text-muted">${formatDate(service.start_date)} - ${formatDate(service.end_date)}</small>
+                                </td>
+                                <td>
+                                    <div class="team-info">
+                                        <strong>${service.team_count}</strong> member${service.team_count !== 1 ? 's' : ''}
+                                        <br><small class="text-muted">${service.team_members.join(', ')}</small>
+                                    </div>
+                                </td>
+                                <td>${escapeHtml(service.project_manager)}</td>
+                                <td>
+                                    <span class="badge ${statusInfo.class}">${statusInfo.text}</span>
+                                    <br><small class="text-muted">${Math.round(service.remediation_rate)}% remediated</small>
+                                </td>
+                                <td>
+                                    ${vulnerabilityInfo.html}
+                                </td>
+                                <td>
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn btn-outline-primary" onclick="viewEngagementDetails(${service.id})" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-outline-secondary" onclick="viewTeamDetails('${service.team_members_full.join(', ')}')" title="View Team">
+                                            <i class="fas fa-users"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            `;
+                            
+                            return row;
+                        }
+                        
+                        function getStatusInfo(status) {
+                            const statusMap = {
+                                'complete': { class: 'badge-success', text: 'Complete' },
+                                'critical_issues': { class: 'badge-danger', text: 'Critical Issues' },
+                                'high_issues': { class: 'badge-warning', text: 'High Issues' },
+                                'minor_issues': { class: 'badge-info', text: 'Minor Issues' }
+                            };
+                            return statusMap[status] || { class: 'badge-secondary', text: 'Unknown' };
+                        }
+                        
+                        function getVulnerabilityInfo(vulns) {
+                            if (vulns.total_open === 0 && vulns.total_fixed === 0) {
+                                return {
+                                    html: '<span class="text-muted"><i class="fas fa-check-circle text-success"></i> No vulnerabilities</span>'
+                                };
+                            }
+                            
+                            let html = '';
+                            if (vulns.critical_open > 0) {
+                                html += `<span class="badge badge-danger">${vulns.critical_open} Critical</span> `;
+                            }
+                            if (vulns.high_open > 0) {
+                                html += `<span class="badge badge-warning">${vulns.high_open} High</span> `;
+                            }
+                            if (vulns.medium_open > 0) {
+                                html += `<span class="badge badge-info">${vulns.medium_open} Medium</span> `;
+                            }
+                            if (vulns.low_open > 0) {
+                                html += `<span class="badge badge-light">${vulns.low_open} Low</span> `;
+                            }
+                            if (vulns.total_fixed > 0) {
+                                html += `<br><small class="text-success"><i class="fas fa-check"></i> ${vulns.total_fixed} fixed</small>`;
+                            }
+                            
+                            return { html: html || '<span class="text-muted">No data</span>' };
+                        }
+                        
+                        function formatDate(dateString) {
+                            if (!dateString) return 'N/A';
+                            const date = new Date(dateString);
+                            return date.toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'short', 
+                                day: 'numeric' 
+                            });
+                        }
+                        
+                        function escapeHtml(text) {
+                            const div = document.createElement('div');
+                            div.textContent = text;
+                            return div.innerHTML;
+                        }
+                        
+                        function viewEngagementDetails(engagementId) {
+                            // Navigate to engagement details page
+                            window.open(`/engagement/${engagementId}/`, '_blank');
+                        }
+                        
+                        function viewTeamDetails(teamMembers) {
+                            alert(`Team Members:\n${teamMembers}`);
+                        }
+                        
+                        function exportCompletedServices() {
+                            alert('Preparing export...');
+                        }
+                        
+                        function convertToCSV(services) {
+                            const headers = [
+                                'Service Name', 'Client', 'Service Type', 'Start Date', 'End Date', 
+                                'Duration (Days)', 'Team Count', 'Team Members', 'Project Manager',
+                                'Completion Status', 'Critical Vulns', 'High Vulns', 'Medium Vulns', 
+                                'Low Vulns', 'Fixed Vulns', 'Remediation Rate'
+                            ];
+                            
+                            const csvRows = [headers.join(',')];
+                            
+                            services.forEach(service => {
+                                const row = [
+                                    `"${service.name}"`,
+                                    `"${service.client_name}"`,
+                                    `"${service.service_type}"`,
+                                    service.start_date,
+                                    service.end_date,
+                                    service.duration_days,
+                                    service.team_count,
+                                    `"${service.team_members_full.join(', ')}"`,
+                                    `"${service.project_manager}"`,
+                                    service.completion_status,
+                                    service.vulnerabilities.critical_open,
+                                    service.vulnerabilities.high_open,
+                                    service.vulnerabilities.medium_open,
+                                    service.vulnerabilities.low_open,
+                                    service.vulnerabilities.total_fixed,
+                                    service.remediation_rate
+                                ];
+                                csvRows.push(row.join(','));
+                            });
+                            
+                            return csvRows.join('\n');
+                        }
+                        
+                        function downloadCSV(csvData, filename) {
+                            const blob = new Blob([csvData], { type: 'text/csv' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.setAttribute('hidden', '');
+                            a.setAttribute('href', url);
+                            a.setAttribute('download', filename);
+                            document.body.appendChild(a);
+                            a.click();
+                            document.body.removeChild(a);
+                        }
+
+                    </script>
+                    
+                    <!-- Django data as JSON -->
+                    {{ completed_services_details|json_script:"completed-services-data" }}
+                    {{ grouped_services|json_script:"grouped-services-data" }}
+                    <script>
+                        // Get Django data safely
+                        const completedServicesData = JSON.parse(document.getElementById('completed-services-data').textContent);
+                        const groupedServicesData = JSON.parse(document.getElementById('grouped-services-data').textContent);
+                        
+                        // Update the modal functions to use the global data
+                        function showCompletedServicesModalUpdated() {
+                            const totalServices = {{ total_services|default:0 }};
+                            const totalOpenVulns = {{ total_open_vulnerabilities|default:0 }};
+                            const serviceTypes = {{ service_type_count|default:0 }};
+                            const clientsServed = {{ total_unique_clients_served|default:0 }};
+                            
+                            // Get the date range from the form
+                            const startDate = document.querySelector('input[name="start_date"]')?.value || '';
+                            const endDate = document.querySelector('input[name="end_date"]')?.value || '';
+                            const dateRangeText = startDate && endDate ? 
+                                `${formatDate(startDate)} to ${formatDate(endDate)}` : 
+                                'default period (past 3 months)';
+                            
+                            // Update modal content
+                            document.getElementById('modalDateRange').textContent = dateRangeText;
+                            document.getElementById('modalTotalServices').textContent = totalServices;
+                            document.getElementById('modalOpenVulns').textContent = totalOpenVulns;
+                            document.getElementById('modalServiceTypes').textContent = serviceTypes;
+                            document.getElementById('modalClientsServed').textContent = clientsServed;
+                            
+                            // Show grouped view by default
+                            showGroupedView();
+                            
+                            // Populate both tables
+                            populateGroupedServicesTable(groupedServicesData);
+                            populateServicesTable(completedServicesData);
+                            
+                            // Show the modal
+                            $('#completedServicesModal').modal('show');
+                        }
+                        
+                        // Override the original function
+                        window.showCompletedServicesModal = showCompletedServicesModalUpdated;
+                        
+                        function exportCompletedServicesUpdated() {
+                            // Basic CSV export functionality
+                            if (!completedServicesData || completedServicesData.length === 0) {
+                                alert('No services to export.');
+                                return;
+                            }
+                            
+                            const csvData = convertToCSV(completedServicesData);
+                            downloadCSV(csvData, 'completed_services.csv');
+                        }
+                        
+                        // Override the original function
+                        window.exportCompletedServices = exportCompletedServicesUpdated;
+
+                        // View Toggle Functions
+                        function showGroupedView() {
+                            document.getElementById('groupedServicesView').style.display = 'block';
+                            document.getElementById('detailedServicesView').style.display = 'none';
+                            document.getElementById('groupedViewBtn').classList.add('active');
+                            document.getElementById('detailedViewBtn').classList.remove('active');
+                        }
+
+                        function showDetailedView() {
+                            document.getElementById('groupedServicesView').style.display = 'none';
+                            document.getElementById('detailedServicesView').style.display = 'block';
+                            document.getElementById('groupedViewBtn').classList.remove('active');
+                            document.getElementById('detailedViewBtn').classList.add('active');
+                        }
+
+                        // Populate Grouped Services Table
+                        function populateGroupedServicesTable(groupedServices) {
+                            const tableBody = document.getElementById('groupedServicesTableBody');
+                            const noServicesMessage = document.getElementById('noServicesMessage');
+                            
+                            if (!groupedServices || groupedServices.length === 0) {
+                                tableBody.innerHTML = '';
+                                noServicesMessage.style.display = 'block';
+                                return;
+                            }
+
+                            noServicesMessage.style.display = 'none';
+                            let html = '';
+
+                            groupedServices.forEach(service => {
+                                const riskBadgeClass = getRiskBadgeClass(service.risk_level);
+                                const completionBadgeClass = service.perfect_completion_rate >= 80 ? 'badge-success' : 
+                                                           service.perfect_completion_rate >= 60 ? 'badge-warning' : 'badge-danger';
+                                
+                                html += `
+                                    <tr onclick="toggleServiceDetails('service-${service.service_name.replace(/\s+/g, '-')}')" style="cursor: pointer;">
+                                        <td>
+                                            <strong>${service.service_name}</strong>
+                                            <i class="fas fa-chevron-down ml-2 toggle-icon" data-target="service-${service.service_name.replace(/\s+/g, '-')}"></i>
+                                        </td>
+                                        <td><span class="badge badge-primary badge-pill">${service.completed_count}</span></td>
+                                        <td>${service.unique_clients_count}</td>
+                                        <td>${service.avg_duration_days} days</td>
+                                        <td>${service.avg_team_size}</td>
+                                        <td>
+                                            <span class="badge ${completionBadgeClass}">${service.perfect_completion_rate}%</span>
+                                        </td>
+                                        <td>
+                                            <span class="badge ${service.total_vulnerabilities_open > 0 ? 'badge-warning' : 'badge-success'}">
+                                                ${service.total_vulnerabilities_open}
+                                            </span>
+                                            ${service.total_vulnerabilities_open > 0 ? `
+                                                <br><small class="text-muted">
+                                                    C:${service.vulnerability_breakdown.critical}
+                                                    H:${service.vulnerability_breakdown.high}
+                                                    M:${service.vulnerability_breakdown.medium}
+                                                    L:${service.vulnerability_breakdown.low}
+                                                </small>
+                                            ` : ''}
+                                        </td>
+                                        <td><span class="badge ${riskBadgeClass}">${service.risk_level.toUpperCase()}</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info" onclick="event.stopPropagation(); showServiceEngagements('${service.service_name}')">
+                                                <i class="fas fa-list"></i> View
+                                            </button>
+                                        </td>
+                                    </tr>
+                                    <tr id="service-${service.service_name.replace(/\s+/g, '-')}" class="service-details-row" style="display: none;">
+                                        <td colspan="9" class="bg-light">
+                                            <div class="p-3">
+                                                <h6>Recent Engagements for ${service.service_name}:</h6>
+                                                <div class="row">
+                                                    ${service.engagements.slice(0, 3).map(eng => `
+                                                        <div class="col-md-4">
+                                                            <div class="card mb-2">
+                                                                <div class="card-body py-2">
+                                                                    <h6 class="card-title mb-1">${eng.name}</h6>
+                                                                    <p class="card-text small mb-1">
+                                                                        <strong>Client:</strong> ${eng.client_name}<br>
+                                                                        <strong>Completed:</strong> ${formatDate(eng.end_date)}<br>
+                                                                        <strong>Duration:</strong> ${eng.duration_days} days<br>
+                                                                        <strong>Team Size:</strong> ${eng.team_size}<br>
+                                                                        <strong>Open Vulns:</strong> ${eng.vulnerabilities_open}
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    `).join('')}
+                                                </div>
+                                                ${service.engagements.length > 3 ? `
+                                                    <button class="btn btn-sm btn-link p-0" onclick="showServiceEngagements('${service.service_name}')">
+                                                        View all ${service.engagements.length} engagements →
+                                                    </button>
+                                                ` : ''}
+                                            </div>
+                                        </td>
+                                    </tr>
+                                `;
+                            });
+
+                            tableBody.innerHTML = html;
+                        }
+
+                        // Helper function to get risk badge class
+                        function getRiskBadgeClass(riskLevel) {
+                            switch(riskLevel) {
+                                case 'high': return 'badge-danger';
+                                case 'medium': return 'badge-warning';
+                                case 'low': return 'badge-info';
+                                case 'none': return 'badge-success';
+                                default: return 'badge-secondary';
+                            }
+                        }
+
+                        // Toggle service details row
+                        function toggleServiceDetails(targetId) {
+                            const target = document.getElementById(targetId);
+                            const icon = document.querySelector(`[data-target="${targetId}"]`);
+                            
+                            if (target.style.display === 'none' || !target.style.display) {
+                                target.style.display = 'table-row';
+                                icon.classList.remove('fa-chevron-down');
+                                icon.classList.add('fa-chevron-up');
+                            } else {
+                                target.style.display = 'none';
+                                icon.classList.remove('fa-chevron-up');
+                                icon.classList.add('fa-chevron-down');
+                            }
+                        }
+
+                        // Show all engagements for a specific service type
+                        function showServiceEngagements(serviceTypeName) {
+                            const serviceData = groupedServicesData.find(s => s.service_name === serviceTypeName);
+                            if (!serviceData) return;
+
+                            // Create a filtered services list for the detailed view
+                            const filteredServices = completedServicesData.filter(s => s.service_type === serviceTypeName);
+                            
+                            // Switch to detailed view and populate with filtered data
+                            showDetailedView();
+                            populateServicesTable(filteredServices);
+                            
+                            // Update table header to show filter
+                            const tableContainer = document.getElementById('detailedServicesView');
+                            let filterInfo = tableContainer.querySelector('.filter-info');
+                            if (!filterInfo) {
+                                filterInfo = document.createElement('div');
+                                filterInfo.className = 'filter-info alert alert-info mb-3';
+                                tableContainer.insertBefore(filterInfo, tableContainer.firstChild);
+                            }
+                            filterInfo.innerHTML = `
+                                <i class="fas fa-filter mr-2"></i>Showing engagements for: <strong>${serviceTypeName}</strong>
+                                <button class="btn btn-sm btn-link ml-2" onclick="clearServiceFilter()">Clear Filter</button>
+                            `;
+                        }
+
+                        // Clear service filter and show all services
+                        function clearServiceFilter() {
+                            const filterInfo = document.querySelector('.filter-info');
+                            if (filterInfo) filterInfo.remove();
+                            populateServicesTable(completedServicesData);
+                        }
                     </script>
 
 {% endblock %}

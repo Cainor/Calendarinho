@@ -162,6 +162,10 @@ def managerDashboard(request):
                 'cost_per_emp_per_day': enhanced_data.get('cost_per_emp_per_day', settings.COST_PER_DAY),
                 'budget_variance': enhanced_data.get('budget_variance', 0),
                 'total_services': enhanced_data.get('total_services', 0),
+                'completed_services_details': enhanced_data.get('completed_services_details', []),
+                'grouped_services': enhanced_data.get('grouped_services', []),
+                'total_unique_clients_served': enhanced_data.get('total_unique_clients_served', 0),
+                'service_type_count': enhanced_data.get('service_type_count', 0),
                 'total_employees': emps.count(),
                 
                 # NEW: Action required data
@@ -252,6 +256,12 @@ def managerDashboard(request):
                 'available_capacity': enhanced_data.get('available_capacity', 0),
                 'cost_per_emp_per_day': enhanced_data.get('cost_per_emp_per_day', settings.COST_PER_DAY),
                 'budget_variance': enhanced_data.get('budget_variance', 0),
+                'total_services': enhanced_data.get('total_services', 0),
+                'completed_services_details': enhanced_data.get('completed_services_details', []),
+                'grouped_services': enhanced_data.get('grouped_services', []),
+                'total_unique_clients_served': enhanced_data.get('total_unique_clients_served', 0),
+                'service_type_count': enhanced_data.get('service_type_count', 0),
+                'total_open_vulnerabilities': enhanced_data.get('total_open_vulnerabilities', 0),
                 
                 # NEW: Action required data
                 'action_alerts': enhanced_data.get('action_alerts', []),

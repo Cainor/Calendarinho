@@ -1530,6 +1530,241 @@ def generate_dashboard_alerts(start_date, end_date):
     return alerts
 
 
+def calculate_services_metrics(start_date, end_date):
+    """
+    Calculate services completion metrics for the specified date range
+    Returns total completed services and detailed service information for modal
+    """
+    # Get completed engagements in the date range
+    completed_engagements = Engagement.objects.select_related(
+        'client', 'service_type', 'project_manager'
+    ).prefetch_related('employees', 'vulnerabilities').filter(
+        end_date__gte=start_date,
+        end_date__lte=end_date
+    ).order_by('-end_date')
+    
+    # Count total completed services
+    total_services = completed_engagements.count()
+    
+    # Get detailed service information for modal
+    completed_services_details = []
+    total_open_vulnerabilities = 0
+    
+    for engagement in completed_engagements:
+        # Get vulnerability summary
+        vuln_summary = engagement.get_vulnerability_summary()
+        total_open_vulnerabilities += vuln_summary['total_open']
+        
+        # Calculate engagement duration
+        duration_days = (engagement.end_date - engagement.start_date).days + 1
+        
+        # Get team information
+        team_members = engagement.employees.all()
+        team_names = [emp.get_full_name() for emp in team_members]
+        
+        # Determine completion status based on vulnerabilities
+        completion_status = 'complete'
+        if vuln_summary['total_open'] > 0:
+            if vuln_summary['critical_open'] > 0:
+                completion_status = 'critical_issues'
+            elif vuln_summary['high_open'] > 0:
+                completion_status = 'high_issues'
+            else:
+                completion_status = 'minor_issues'
+        
+        service_detail = {
+            'id': engagement.id,
+            'name': engagement.name,
+            'client_name': engagement.client.name,
+            'service_type': engagement.service_type.name,
+            'start_date': engagement.start_date.isoformat(),
+            'end_date': engagement.end_date.isoformat(),
+            'duration_days': duration_days,
+            'team_count': team_members.count(),
+            'team_members': team_names[:3],  # First 3 team members for display
+            'team_members_full': team_names,  # Full list for modal
+            'project_manager': engagement.project_manager.name if engagement.project_manager else 'Not Assigned',
+            'completion_status': completion_status,
+            'vulnerabilities': {
+                'total_open': vuln_summary['total_open'],
+                'critical_open': vuln_summary['critical_open'],
+                'high_open': vuln_summary['high_open'],
+                'medium_open': vuln_summary.get('medium_open', 0),
+                'low_open': vuln_summary.get('low_open', 0),
+                'total_fixed': vuln_summary['total_fixed']
+            },
+            'risk_score': engagement.get_vulnerability_risk_score(),
+            'remediation_rate': engagement.get_vulnerability_remediation_rate()
+        }
+        
+        completed_services_details.append(service_detail)
+    
+    return {
+        'total_services': total_services,
+        'completed_services_details': completed_services_details,
+        'total_open_vulnerabilities': total_open_vulnerabilities,
+        'date_range': {
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat()
+        }
+    }
+
+
+def calculate_grouped_services_metrics(start_date, end_date):
+    """
+    Calculate services completion metrics grouped by service type
+    Returns service types with aggregated counts and statistics
+    """
+    # Get completed engagements in the date range
+    completed_engagements = Engagement.objects.select_related(
+        'client', 'service_type', 'project_manager'
+    ).prefetch_related('employees', 'vulnerabilities').filter(
+        end_date__gte=start_date,
+        end_date__lte=end_date
+    ).order_by('-end_date')
+    
+    # Group engagements by service type
+    service_groups = {}
+    total_services = 0
+    total_clients_served = set()
+    total_open_vulnerabilities = 0
+    
+    for engagement in completed_engagements:
+        service_type = engagement.service_type.name
+        client_id = engagement.client.id
+        total_clients_served.add(client_id)
+        total_services += 1
+        
+        # Get vulnerability and team information
+        vuln_summary = engagement.get_vulnerability_summary()
+        total_open_vulnerabilities += vuln_summary['total_open']
+        team_members = engagement.employees.all()
+        duration_days = (engagement.end_date - engagement.start_date).days + 1
+        
+        # Initialize service group if not exists
+        if service_type not in service_groups:
+            service_groups[service_type] = {
+                'service_name': service_type,
+                'completed_count': 0,
+                'unique_clients': set(),
+                'total_duration_days': 0,
+                'total_team_members': 0,
+                'total_vulnerabilities_found': 0,
+                'total_vulnerabilities_fixed': 0,
+                'total_critical_open': 0,
+                'total_high_open': 0,
+                'total_medium_open': 0,
+                'total_low_open': 0,
+                'engagements': [],
+                'completion_rate_perfect': 0,  # Count of services with no open vulnerabilities
+                'avg_duration': 0,
+                'avg_team_size': 0,
+                'avg_remediation_rate': 0
+            }
+        
+        # Accumulate metrics for this service type
+        service_groups[service_type]['completed_count'] += 1
+        service_groups[service_type]['unique_clients'].add(client_id)
+        service_groups[service_type]['total_duration_days'] += duration_days
+        service_groups[service_type]['total_team_members'] += team_members.count()
+        service_groups[service_type]['total_vulnerabilities_found'] += (
+            vuln_summary['total_open'] + vuln_summary['total_fixed']
+        )
+        service_groups[service_type]['total_vulnerabilities_fixed'] += vuln_summary['total_fixed']
+        service_groups[service_type]['total_critical_open'] += vuln_summary['critical_open']
+        service_groups[service_type]['total_high_open'] += vuln_summary['high_open']
+        service_groups[service_type]['total_medium_open'] += vuln_summary.get('medium_open', 0)
+        service_groups[service_type]['total_low_open'] += vuln_summary.get('low_open', 0)
+        
+        # Track perfect completion (no open vulnerabilities)
+        if vuln_summary['total_open'] == 0:
+            service_groups[service_type]['completion_rate_perfect'] += 1
+        
+        # Add engagement details for drill-down
+        service_groups[service_type]['engagements'].append({
+            'id': engagement.id,
+            'name': engagement.name,
+            'client_name': engagement.client.name,
+            'end_date': engagement.end_date.isoformat(),
+            'duration_days': duration_days,
+            'team_size': team_members.count(),
+            'vulnerabilities_open': vuln_summary['total_open'],
+            'vulnerabilities_fixed': vuln_summary['total_fixed'],
+            'project_manager': engagement.project_manager.name if engagement.project_manager else 'Not Assigned'
+        })
+    
+    # Calculate averages and completion rates for each service type
+    grouped_services = []
+    for service_type, data in service_groups.items():
+        count = data['completed_count']
+        
+        # Calculate averages
+        avg_duration = round(data['total_duration_days'] / count, 1) if count > 0 else 0
+        avg_team_size = round(data['total_team_members'] / count, 1) if count > 0 else 0
+        
+        # Calculate remediation rate (fixed / total found)
+        total_found = data['total_vulnerabilities_found']
+        remediation_rate = round(
+            (data['total_vulnerabilities_fixed'] / total_found) * 100, 1
+        ) if total_found > 0 else 100.0  # 100% if no vulnerabilities found
+        
+        # Calculate perfect completion rate
+        perfect_completion_rate = round(
+            (data['completion_rate_perfect'] / count) * 100, 1
+        ) if count > 0 else 0
+        
+        # Calculate risk level based on open vulnerabilities
+        total_open_vulns = (
+            data['total_critical_open'] + data['total_high_open'] + 
+            data['total_medium_open'] + data['total_low_open']
+        )
+        
+        if data['total_critical_open'] > 0:
+            risk_level = 'high'
+        elif data['total_high_open'] > 0:
+            risk_level = 'medium' 
+        elif total_open_vulns > 0:
+            risk_level = 'low'
+        else:
+            risk_level = 'none'
+        
+        grouped_service = {
+            'service_name': service_type,
+            'completed_count': count,
+            'unique_clients_count': len(data['unique_clients']),
+            'avg_duration_days': avg_duration,
+            'avg_team_size': avg_team_size,
+            'remediation_rate': remediation_rate,
+            'perfect_completion_rate': perfect_completion_rate,
+            'total_vulnerabilities_open': total_open_vulns,
+            'vulnerability_breakdown': {
+                'critical': data['total_critical_open'],
+                'high': data['total_high_open'], 
+                'medium': data['total_medium_open'],
+                'low': data['total_low_open']
+            },
+            'risk_level': risk_level,
+            'engagements': sorted(data['engagements'], key=lambda x: x['end_date'], reverse=True)
+        }
+        
+        grouped_services.append(grouped_service)
+    
+    # Sort by completed count (most completed services first)
+    grouped_services.sort(key=lambda x: x['completed_count'], reverse=True)
+    
+    return {
+        'total_services': total_services,
+        'total_unique_clients': len(total_clients_served),
+        'total_open_vulnerabilities': total_open_vulnerabilities,
+        'grouped_services': grouped_services,
+        'service_type_count': len(grouped_services),
+        'date_range': {
+            'start_date': start_date.isoformat(),
+            'end_date': end_date.isoformat()
+        }
+    }
+
+
 def get_enhanced_manager_dashboard_data(start_date, end_date):
     """
     Main function to get all enhanced manager dashboard data
@@ -1541,6 +1776,8 @@ def get_enhanced_manager_dashboard_data(start_date, end_date):
         financial_data = calculate_financial_intelligence(start_date, end_date)
         client_health_data = calculate_client_health_scores()
         alerts = generate_dashboard_alerts(start_date, end_date)
+        services_data = calculate_services_metrics(start_date, end_date)
+        grouped_services_data = calculate_grouped_services_metrics(start_date, end_date)
         
         # Get enhanced employee data for the existing chart
         employees = Employee.objects.exclude(is_active=False)
@@ -1577,6 +1814,12 @@ def get_enhanced_manager_dashboard_data(start_date, end_date):
             'underutilized_count': len(utilization_data['underutilized_employees']),
             'inactive_clients': client_health_data['inactive_clients'],
             'critical_vulns': sum(1 for alert in alerts if alert['category'] == 'security'),
+            'total_services': services_data['total_services'],
+            'completed_services_details': services_data['completed_services_details'],
+            'total_open_vulnerabilities': services_data.get('total_open_vulnerabilities', 0),
+            'grouped_services': grouped_services_data['grouped_services'],
+            'total_unique_clients_served': grouped_services_data['total_unique_clients'],
+            'service_type_count': grouped_services_data['service_type_count'],
             'action_alerts': alerts,
             'enhanced_emp_data': enhanced_emp_data,
             'financial_summary': {
@@ -1601,6 +1844,12 @@ def get_enhanced_manager_dashboard_data(start_date, end_date):
             'underutilized_count': 0,
             'inactive_clients': 0,
             'critical_vulns': 0,
+            'total_services': 0,
+            'completed_services_details': [],
+            'total_open_vulnerabilities': 0,
+            'grouped_services': [],
+            'total_unique_clients_served': 0,
+            'service_type_count': 0,
             'action_alerts': [],
             'enhanced_emp_data': [],
             'financial_summary': {},
