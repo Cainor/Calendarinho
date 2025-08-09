@@ -12,8 +12,8 @@ from django.core.exceptions import ValidationError
 
 class Client(models.Model):
     name = models.CharField(max_length=200, verbose_name="Client Name")
-    acronym = models.CharField(max_length=10, verbose_name="Acronym")
-    code = models.CharField(max_length=4, default='9999')
+    acronym = models.CharField(max_length=50, verbose_name="Acronym")
+    code = models.CharField(max_length=50, default='9999')
 
     class Meta:
         ordering = ['name']

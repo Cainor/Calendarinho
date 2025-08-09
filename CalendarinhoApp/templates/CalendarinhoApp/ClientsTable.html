@@ -315,13 +315,13 @@
                         </select>
                     </div>
                     <div class="col-12 col-md-6 col-lg-4 mb-3">
-                        <label class="filter-label" for="engagementFilter">
-                            <i class="fas fa-handshake mr-1"></i>Engagements
+                        <label class="filter-label" for="vulnerabilityFilter">
+                            <i class="fas fa-exclamation-triangle mr-1"></i>Open Vulnerabilities
                         </label>
-                        <select class="form-control filter-select" id="engagementFilter" name="engagementFilter">
+                        <select class="form-control filter-select" id="vulnerabilityFilter" name="vulnerabilityFilter">
                             <option value="">All Clients</option>
-                            <option value="active">With Active Engagements</option>
-                            <option value="none">No Engagements</option>
+                            <option value="any">Any Open Vulnerabilities</option>
+                            <option value="none">No Open Vulnerabilities</option>
                         </select>
                     </div>
                 </div>
@@ -350,7 +350,7 @@
                 <!-- Mobile Card Layout (Hidden on Desktop) -->
                 <div class="d-block d-lg-none mobile-cards-container">
                 {% for row in table %}
-                <div class="client-card" data-name="{{row.name|lower}}" data-activity="{{row.activity_level}}" data-engagements="{{row.current_engagements}}">
+                <div class="client-card" data-name="{{row.name|lower}}" data-activity="{{row.activity_level}}" data-engagements="{{row.current_engagements}}" data-vulnerabilities="{{row.vulnerabilities.total_open|default:0}}">
                     <div class="card shadow-sm mb-3">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-start mb-2">
@@ -447,7 +447,7 @@
                     </tfoot>
                         <tbody id="clients-table-body">
                             {% for row in table %}
-                            <tr class="client-row" data-name="{{row.name|lower}}" data-activity="{{row.activity_level}}" data-engagements="{{row.current_engagements}}">
+                            <tr class="client-row" data-name="{{row.name|lower}}" data-activity="{{row.activity_level}}" data-engagements="{{row.current_engagements}}" data-vulnerabilities="{{row.vulnerabilities.total_open|default:0}}">
                                 <td class="text-center">
                                     <div class="custom-control custom-checkbox">
                                         <input type="checkbox" class="custom-control-input row-checkbox" id="check-{{row.cliID}}" value="{{row.cliID}}">
@@ -542,7 +542,7 @@
     function clearAllFilters() {
         document.getElementById('nameFilter').value = '';
         document.getElementById('activityFilter').value = '';
-        document.getElementById('engagementFilter').value = '';
+        document.getElementById('vulnerabilityFilter').value = '';
         
         // Show all rows (both desktop and mobile)
         document.querySelectorAll('#clients-table-body tr, .client-card').forEach(function(row) {
@@ -558,11 +558,11 @@
         const activeFilters = [];
         const nameFilter = document.getElementById('nameFilter').value;
         const activityFilter = document.getElementById('activityFilter').value;
-        const engagementFilter = document.getElementById('engagementFilter').value;
+        const vulnerabilityFilter = document.getElementById('vulnerabilityFilter').value;
         
         if (nameFilter) activeFilters.push('Name');
         if (activityFilter) activeFilters.push('Activity');
-        if (engagementFilter) activeFilters.push('Engagements');
+        if (vulnerabilityFilter) activeFilters.push('Vulnerabilities');
         
         const statusElement = document.getElementById('active-filters-count');
         if (activeFilters.length === 0) {
@@ -713,7 +713,7 @@
             
             const nameFilter = document.getElementById('nameFilter').value.toLowerCase();
             const activityFilter = document.getElementById('activityFilter').value;
-            const engagementFilter = document.getElementById('engagementFilter').value;
+            const vulnerabilityFilter = document.getElementById('vulnerabilityFilter').value;
             
             // Filter both desktop rows and mobile cards
             const elements = document.querySelectorAll('#clients-table-body tr, .client-card');
@@ -730,9 +730,10 @@
                 // Activity filter
                 if (activityFilter && activity !== activityFilter) show = false;
                 
-                // Engagement filter
-                if (engagementFilter === 'active' && engagements === 0) show = false;
-                if (engagementFilter === 'none' && engagements > 0) show = false;
+                // Vulnerability filter
+                const vulnerabilities = parseInt(element.getAttribute('data-vulnerabilities')) || 0;
+                if (vulnerabilityFilter === 'any' && vulnerabilities === 0) show = false;
+                if (vulnerabilityFilter === 'none' && vulnerabilities > 0) show = false;
                 
                 element.style.display = show ? '' : 'none';
             });
@@ -784,7 +785,7 @@
         });
         
         // Handle filter input changes for real-time status updates
-        ['nameFilter', 'activityFilter', 'engagementFilter'].forEach(id => {
+        ['nameFilter', 'activityFilter', 'vulnerabilityFilter'].forEach(id => {
             const element = document.getElementById(id);
             if (element) {
                 element.addEventListener('input', updateFilterStatus);
