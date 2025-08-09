@@ -305,58 +305,6 @@
         </div>
     </div>
 
-    <!-- Client Overview -->
-    <div class="row mb-4">
-        <div class="col-xl-8 col-lg-12">
-            <div class="card shadow">
-                <div class="card-header py-3">
-                    <h6 class="m-0 font-weight-bold text-primary">Client Engagement Overview</h6>
-                </div>
-                <div class="card-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Client</th>
-                                    <th>Active Engagements</th>
-                                    <th>Open Vulnerabilities</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for client in client_overview %}
-                                <tr>
-                                    <td>{{client.name}}</td>
-                                    <td>
-                                        <span class="badge bg-primary">{{client.active_engagements}}</span>
-                                    </td>
-                                    <td>
-                                        {% if client.open_vulnerabilities > 0 %}
-                                            <span class="badge bg-danger">{{client.open_vulnerabilities}}</span>
-                                        {% else %}
-                                            <span class="badge bg-success">0</span>
-                                        {% endif %}
-                                    </td>
-                                    <td>
-                                        {% if client.needs_attention %}
-                                            <span class="badge bg-warning">Needs Attention</span>
-                                        {% else %}
-                                            <span class="badge bg-success">Active</span>
-                                        {% endif %}
-                                    </td>
-                                </tr>
-                                {% empty %}
-                                <tr>
-                                    <td colspan="4" class="text-center text-muted">No client data available</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Completed Services Modal -->
     <div class="modal fade" id="completedServicesModal" tabindex="-1" role="dialog" aria-labelledby="completedServicesModalLabel" aria-hidden="true">
