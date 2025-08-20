@@ -219,7 +219,7 @@ AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 ### Testing the Setup
 
-#### Step 1: Test Configuration
+#### Option 1: Test Configuration
 
 Run the built-in configuration test:
 
@@ -227,7 +227,7 @@ Run the built-in configuration test:
 python manage.py test_ad_setup
 ```
 
-#### Step 2: Test with Real AD User
+#### Option 2: Test with Real AD User
 
 Test authentication with an actual AD user:
 
@@ -235,15 +235,7 @@ Test authentication with an actual AD user:
 python manage.py test_ad_setup --test-ad-user --username your-ad-username
 ```
 
-#### Step 3: Diagnose Connection Issues
-
-If you encounter issues, use the diagnostic tool:
-
-```bash
-python manage.py diagnose_ldap --username your-ad-username
-```
-
-### Configuration Management
+### Configuration Helper
 
 Use the helper command to generate configuration:
 
