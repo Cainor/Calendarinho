@@ -5,3 +5,4 @@ django_crispy_forms==2.4
 crispy-bootstrap4==2025.6
 numpy
 cryptography
+django-auth-ldap>=4.0.0

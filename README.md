@@ -150,6 +150,107 @@ python manage.py collectstatic
 python manage.py createsuperuser
 ```
 
+## Active Directory Authentication Setup
+
+Calendarinho supports both local authentication and Active Directory (AD) authentication. Users can log in with either their local account credentials or their AD credentials seamlessly.
+
+### Configuration Steps
+
+#### Step 1: Enable AD Authentication
+
+Edit your settings file (`Calendarinho/settings/base.py` for the current setup) and set:
+
+```python
+ENABLE_AD_AUTHENTICATION = True
+```
+
+#### Step 2: Configure LDAP/AD Server Settings
+
+Add your Active Directory server configuration:
+
+```python
+# LDAP/AD Server Configuration
+AUTH_LDAP_SERVER_URI = "ldap://your-domain-controller.company.com"
+AUTH_LDAP_BIND_DN = "cn=service-account,ou=Service Accounts,dc=company,dc=com"
+AUTH_LDAP_BIND_PASSWORD = "your-service-account-password"
+
+# User search configuration
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "ou=Users,dc=company,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(sAMAccountName=%(user)s)"  # Use (uid=%(user)s) for some LDAP servers
+)
+
+# Attribute mapping from AD to Django user model
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
+
+# Always update user attributes on login
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+```
+
+#### Step 3: Optional Group-Based Permissions
+
+You can map AD groups to Django permissions:
+
+```python
+# Group configuration (optional)
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "ou=Groups,dc=company,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=group)"
+)
+
+AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType()
+
+# User flags mapping based on AD group membership
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_active": "cn=Active Users,ou=Groups,dc=company,dc=com",
+    "is_staff": "cn=Staff,ou=Groups,dc=company,dc=com",
+    "is_superuser": "cn=Admins,ou=Groups,dc=company,dc=com"
+}
+
+# Cache group memberships for better performance
+AUTH_LDAP_CACHE_TIMEOUT = 3600
+```
+
+### Testing the Setup
+
+#### Step 1: Test Configuration
+
+Run the built-in configuration test:
+
+```bash
+python manage.py test_ad_setup
+```
+
+#### Step 2: Test with Real AD User
+
+Test authentication with an actual AD user:
+
+```bash
+python manage.py test_ad_setup --test-ad-user --username your-ad-username
+```
+
+#### Step 3: Diagnose Connection Issues
+
+If you encounter issues, use the diagnostic tool:
+
+```bash
+python manage.py diagnose_ldap --username your-ad-username
+```
+
+### Configuration Management
+
+Use the helper command to generate configuration:
+
+```bash
+python manage.py configure_ad --help
+```
+
 ## Images of the application:
 
 ![alt text](https://imgur.com/Ah7wPAS.png)

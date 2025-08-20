@@ -13,6 +13,14 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 import os
 import posixpath
 
+# LDAP imports (only imported when needed)
+try:
+    import ldap
+    from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
+    LDAP_AVAILABLE = True
+except ImportError:
+    LDAP_AVAILABLE = False
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -97,6 +105,55 @@ INSTALLED_APPS = [
 
 AUTH_USER_MODEL = 'users.CustomUser'
 LOGIN_URL = '/login/'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'users.authentication.DualAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Active Directory / LDAP Configuration
+## Active Directory Configuration (Auto-generated)
+ENABLE_AD_AUTHENTICATION = True
+AUTH_LDAP_SERVER_URI = "ldap://ldap.forumsys.com:389"
+AUTH_LDAP_BIND_DN = "cn=read-only-admin,dc=example,dc=com"
+AUTH_LDAP_BIND_PASSWORD = "password"
+
+# User search configuration
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "dc=example,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(sAMAccountName=%(user)s)"
+)
+
+# Attribute mapping from AD to Django user model
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
+
+# Always update user on login
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+
+# Group configuration (optional)
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "ou=Groups,dc=company,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=group)"
+)
+
+AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType()
+
+# User flags mapping
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_active": "cn=Active Users,ou=Groups,dc=company,dc=com",
+    "is_staff": "cn=Staff,ou=Groups,dc=company,dc=com",
+    "is_superuser": "cn=Admins,ou=Groups,dc=company,dc=com"
+}
+
+# Cache group memberships for performance
+AUTH_LDAP_CACHE_TIMEOUT = 3600
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 # Middleware framework

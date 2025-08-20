@@ -15,6 +15,75 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-default-key-fo
 AUTH_USER_MODEL = 'users.CustomUser'
 LOGIN_URL = '/login/'
 
+# LDAP imports (only imported when needed)
+try:
+    import ldap
+    from django_auth_ldap.config import LDAPSearch, ActiveDirectoryGroupType
+    LDAP_AVAILABLE = True
+except ImportError:
+    LDAP_AVAILABLE = False
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'users.authentication.DualAuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+# Active Directory / LDAP Configuration
+# Set to True to enable AD authentication alongside local authentication
+ENABLE_AD_AUTHENTICATION = False
+
+# LDAP/AD Server Configuration (configure these when enabling AD)
+AUTH_LDAP_SERVER_URI = "ldap://your-domain-controller.company.com"
+AUTH_LDAP_BIND_DN = "cn=service-account,ou=Service Accounts,dc=company,dc=com"
+AUTH_LDAP_BIND_PASSWORD = "your-service-account-password"
+
+# User search configuration
+AUTH_LDAP_USER_SEARCH = LDAPSearch(
+    "ou=Users,dc=company,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(sAMAccountName=%(user)s)"  # Use (uid=%(user)s) for some LDAP servers
+)
+
+# Attribute mapping from AD to Django user model
+AUTH_LDAP_USER_ATTR_MAP = {
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
+
+# Always update user on login
+AUTH_LDAP_ALWAYS_UPDATE_USER = True
+
+# Find and update groups on every login
+AUTH_LDAP_FIND_GROUP_PERMS = True
+
+# Group configuration (optional)
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+    "ou=Groups,dc=company,dc=com",
+    ldap.SCOPE_SUBTREE,
+    "(objectClass=group)"
+)
+
+AUTH_LDAP_GROUP_TYPE = ActiveDirectoryGroupType()
+
+# User flags mapping based on AD group membership
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_active": "cn=Active Users,ou=Groups,dc=company,dc=com",
+    "is_staff": "cn=Staff,ou=Groups,dc=company,dc=com",
+    "is_superuser": "cn=Admins,ou=Groups,dc=company,dc=com"
+}
+
+# Cache group memberships for better performance
+AUTH_LDAP_CACHE_TIMEOUT = 3600
+
+# Enable detailed logging for debugging (optional)
+# import logging
+# logging.basicConfig(level=logging.DEBUG)
+# logger = logging.getLogger('django_auth_ldap')
+# logger.addHandler(logging.StreamHandler())
+# logger.setLevel(logging.DEBUG)
+
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
@@ -78,6 +147,7 @@ TEMPLATES = [
             'CalendarinhoApp.context_processors.engagement_form',
             'CalendarinhoApp.context_processors.client_form',
             'CalendarinhoApp.context_processors.service_form',
+            'CalendarinhoApp.context_processors.auth_settings',
             ],
         },
     },

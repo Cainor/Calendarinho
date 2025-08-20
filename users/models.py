@@ -36,6 +36,20 @@ class CustomUser(AbstractUser):
         null=True,
     )
 
+    # Authentication source tracking
+    LOCAL = 'local'
+    ACTIVE_DIRECTORY = 'ad'
+    AUTH_SOURCE_CHOICES = [
+        (LOCAL, 'Local'),
+        (ACTIVE_DIRECTORY, 'Active Directory'),
+    ]
+    auth_source = models.CharField(
+        max_length=20,
+        choices=AUTH_SOURCE_CHOICES,
+        default=LOCAL,
+        help_text="Source of authentication for this user"
+    )
+
     is_active = models.BooleanField(default=True)
     email = EmailField(max_length=50, unique=True)
     username = CharField(max_length=100, unique=True)

@@ -65,3 +65,12 @@ def global_stats(request):
     except Exception:
         # Return empty dict if there's any error to prevent template rendering issues
         return {}
+
+def auth_settings(request):
+    """Provide authentication settings to all templates"""
+    return {
+        'auth_settings': {
+            'enable_ad_authentication': getattr(settings, 'ENABLE_AD_AUTHENTICATION', False),
+            'ldap_available': getattr(settings, 'LDAP_AVAILABLE', False)
+        }
+    }

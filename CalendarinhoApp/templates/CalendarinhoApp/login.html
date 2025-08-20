@@ -46,6 +46,11 @@
                                 <div class="p-5">
                                     <div class="text-center">
                                         <h1 class="h4 text-gray-900 mb-4">Welcome to Calendarinho!</h1>
+                                        {% if auth_settings.enable_ad_authentication %}
+                                        <div class="alert alert-info" role="alert">
+                                            <small><i class="fas fa-info-circle"></i> Active Directory authentication is enabled.</small>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                     <form class="user" action="{% url 'CalendarinhoApp:login' %}" method="post">
                                         {{ form|crispy }} {% csrf_token %}

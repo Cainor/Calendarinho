@@ -15,6 +15,9 @@ RUN apt-get update \
     build-essential \
     pkg-config \
     netcat-openbsd \
+    libldap2-dev \
+    libsasl2-dev \
+    libssl-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
