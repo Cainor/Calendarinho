@@ -2,13 +2,39 @@
   <img src="https://imgur.com/I0fWYqU.png">
 </p>
 
-# Caledarinho
+# Calendarinho
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
+[![Django](https://img.shields.io/badge/Django-4.0+-green.svg)](https://www.djangoproject.com/)
+[![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
 
 The Mother of All Calendars. A web application to easily manage large team of services providers.
+
+## Table of Contents
+
+- [About](#about)
+- [Tech Stack](#tech-stack)
+- [Installation Guide](#installation-guide)
+  - [Docker (Testing Environment)](#docker-testing-environment)
+  - [Docker (Production Environment)](#docker-production-environment)
+  - [Manual Installation](#manual-installation)
+- [Active Directory Authentication](#active-directory-authentication-setup)
+- [Screenshots](#screenshots)
 
 ## About
 
 Enough with crowded shared calendars, we need a better way to manage our team's tasks and services. This is where Calendarinho comes in. With Calendarinho, you can easily have an eagle view of your team's calendars and tasks, and manage them all in one place.
+
+## Tech Stack
+
+- **Backend**: Django (Python 3.8+)
+- **Database**: MySQL / SQLite
+- **Frontend**: HTML, CSS, JavaScript
+- **Authentication**: Django Auth + LDAP/Active Directory support
+- **Deployment**: Docker & Docker Compose
+- **Web Server**: Nginx (in production)
+- **SSL**: Built-in certificate management
 
 ## Installation Guide
 
@@ -78,7 +104,7 @@ docker-compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
 2. Install the requirements libraries:
 
 ```
-python -m pip install -r requirements
+python -m pip install -r requirements.txt
 ```
 
 3. Go through the `Calendarinho/settings.py` and set your settings, specially the Database:
@@ -243,7 +269,7 @@ Use the helper command to generate configuration:
 python manage.py configure_ad --help
 ```
 
-## Images of the application:
+## Screenshots
 
 ![alt text](https://imgur.com/Ah7wPAS.png)
 
@@ -256,8 +282,3 @@ python manage.py configure_ad --help
 ![alt text](https://imgur.com/R8CTRyg.png)
 
 ![alt text](https://imgur.com/qb0yj3Z.png)
-
-## Things to do:
-
-- [x] Before adding item, do frontend check for fields.
-- [ ] Add the ability to update or cancel leaves without the need for admin
