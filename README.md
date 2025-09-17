@@ -4,7 +4,7 @@
 
 # Calendarinho
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: MIT](https://img.shields.io/badge/License-AGPLv3-Green)](https://opensource.org/license/agpl-v3)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/)
 [![Django](https://img.shields.io/badge/Django-4.0+-green.svg)](https://www.djangoproject.com/)
 [![Docker](https://img.shields.io/badge/Docker-Ready-blue.svg)](https://www.docker.com/)
@@ -282,3 +282,4 @@ python manage.py configure_ad --help
 ![alt text](https://imgur.com/R8CTRyg.png)
 
 ![alt text](https://imgur.com/qb0yj3Z.png)
+
