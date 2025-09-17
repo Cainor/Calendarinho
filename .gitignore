@@ -81,6 +81,7 @@ dmypy.json
 .ropeproject
 .claude/
 .DS_Store
+.cursor/
 
 # --- Jupyter ---
 .ipynb_checkpoints/

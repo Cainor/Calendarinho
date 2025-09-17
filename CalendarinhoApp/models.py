@@ -397,6 +397,7 @@ class Vulnerability(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     fixed_at = models.DateTimeField(null=True, blank=True)
     fixed_by = models.ForeignKey(Employee, on_delete=models.PROTECT, related_name='fixed_vulnerabilities', null=True, blank=True)
+    expected_fix_date = models.DateField(null=True, blank=True, verbose_name="Expected Fix Date")
     
     class Meta:
         ordering = ['-created_at']  # We'll handle severity ordering in views

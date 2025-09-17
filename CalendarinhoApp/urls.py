@@ -77,6 +77,7 @@ urlpatterns = [
     path('vulnerabilities/', vulnerabilities.vulnerabilities_table, name='vulnerabilities_table'),
     path('vulnerability/<int:vuln_id>/', vulnerabilities.vulnerability_detail, name='vulnerability_detail'),
     path('vulnerabilities/analytics/', vulnerabilities.vulnerability_analytics, name='vulnerability_analytics'),
+    path('vulnerabilities/statistics/', vulnerabilities.vulnerability_statistics, name='vulnerability_statistics'),
     path('engagement/<int:eng_id>/vulnerabilities/', vulnerabilities.engagement_vulnerabilities, name='engagement_vulnerabilities'),
     path('client/<int:cli_id>/vulnerabilities/', vulnerabilities.client_vulnerabilities, name='client_vulnerabilities'),
     path('vulnerabilities/export/', vulnerabilities.export_vulnerabilities, name='export_vulnerabilities'),

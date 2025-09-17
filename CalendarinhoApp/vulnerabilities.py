@@ -14,6 +14,7 @@ from .models import Vulnerability, Engagement, Client
 from .forms import VulnerabilityFilterForm, BulkActionForm
 from users.models import CustomUser as Employee
 from .views import not_found
+from .service import get_vulnerability_analytics
 
 
 @login_required
@@ -134,9 +135,12 @@ def vulnerability_detail(request, vuln_id):
 @login_required
 def vulnerability_analytics(request):
     """Vulnerability analytics dashboard"""
-    from .service import get_vulnerability_analytics
-    
-    analytics_data = get_vulnerability_analytics()
+    # Support client filter via query string (?client_ids=1,2)
+    raw_client_ids = request.GET.get('client_ids')
+    client_ids = None
+    if raw_client_ids:
+        client_ids = [cid.strip() for cid in raw_client_ids.split(',') if cid.strip()]
+    analytics_data = get_vulnerability_analytics(client_ids)
     
     # If this is an AJAX request, return JSON data
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
@@ -146,10 +150,25 @@ def vulnerability_analytics(request):
         })
     
     context = {
-        'analytics': analytics_data
+        'analytics': analytics_data,
+        'selected_client_ids': ','.join(client_ids) if client_ids else ''
     }
     
     return render(request, "CalendarinhoApp/vulnerability_analytics.html", context)
+
+
+@login_required
+def vulnerability_statistics(request):
+    """New consolidated statistics page with client filter, cards, charts, and table"""
+    # Pass-through selected clients for initial render (JS will fetch data)
+    raw_client_ids = request.GET.get('client_ids')
+    selected_client_ids = ''
+    if raw_client_ids:
+        selected_client_ids = ','.join([cid.strip() for cid in raw_client_ids.split(',') if cid.strip()])
+    context = {
+        'selected_client_ids': selected_client_ids
+    }
+    return render(request, "CalendarinhoApp/vulnerability_statistics.html", context)
 
 
 @login_required

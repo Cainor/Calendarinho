@@ -745,14 +745,27 @@ def api_dashboard_summary(request):
     })
 
 
-def get_vulnerability_analytics():
-    """Get comprehensive vulnerability analytics across all engagements"""
+def get_vulnerability_analytics(client_ids=None):
+    """Get comprehensive vulnerability analytics.
+
+    If client_ids is provided (iterable of ints), restrict to vulnerabilities
+    under engagements belonging to those clients.
+    """
     today = timezone.now().date()
     
     # Get all vulnerabilities with related data
     vulnerabilities = Vulnerability.objects.select_related(
         'engagement__client', 'created_by', 'fixed_by'
     ).all()
+
+    # Apply client filter when requested
+    if client_ids:
+        try:
+            client_ids = [int(cid) for cid in client_ids if str(cid).strip()]
+        except Exception:
+            client_ids = []
+        if len(client_ids) > 0:
+            vulnerabilities = vulnerabilities.filter(engagement__client_id__in=client_ids)
     
     analytics = {
         'total_count': vulnerabilities.count(),
@@ -919,8 +932,12 @@ def get_performance_metrics():
 
 @login_required
 def api_vulnerability_analytics(request):
-    """API endpoint for vulnerability analytics"""
-    data = get_vulnerability_analytics()
+    """API endpoint for vulnerability analytics with optional client filter"""
+    raw_client_ids = request.GET.get('client_ids')
+    client_ids = None
+    if raw_client_ids:
+        client_ids = [cid.strip() for cid in raw_client_ids.split(',') if cid.strip()]
+    data = get_vulnerability_analytics(client_ids)
     return JsonResponse({
         'success': True,
         'data': data

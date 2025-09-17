@@ -17,7 +17,7 @@ import json
 import datetime
 from typing import Dict, List, Any, Optional
 
-from .models import Engagement, Client, Vulnerability
+from .models import Engagement, Client, Vulnerability, Service
 from .forms import (
     AdvancedEmployeeFilterForm, AdvancedClientFilterForm, 
     AdvancedEngagementFilterForm, VulnerabilityFilterForm, BulkActionForm
@@ -532,8 +532,29 @@ def api_vulnerabilities_filtered(request):
         'engagement__client', 'created_by', 'fixed_by'
     ).all()
     
+    # Optional client filter (multi-select via CSV or repeated params)
+    raw_client_ids = request.GET.get('client_ids')
+    if not raw_client_ids:
+        # Support client_ids[]=1&client_ids[]=2
+        raw_client_ids = request.GET.getlist('client_ids[]') or request.GET.getlist('client_ids')
+    if raw_client_ids:
+        if isinstance(raw_client_ids, str):
+            client_ids = [cid.strip() for cid in raw_client_ids.split(',') if cid.strip()]
+        else:
+            client_ids = [str(cid).strip() for cid in raw_client_ids if str(cid).strip()]
+        try:
+            client_ids = [int(cid) for cid in client_ids]
+        except Exception:
+            client_ids = []
+        if len(client_ids) > 0:
+            queryset = queryset.filter(engagement__client_id__in=client_ids)
+
     # Apply filters to queryset
-    if filters.get('search'):
+    # Prefer explicit title-only search when provided (non-breaking for existing callers)
+    search_title = request.GET.get('search_title')
+    if search_title:
+        queryset = queryset.filter(title__icontains=search_title)
+    elif filters.get('search'):
         search_term = filters['search']
         queryset = queryset.filter(
             Q(title__icontains=search_term) | 
@@ -589,16 +610,20 @@ def api_vulnerabilities_filtered(request):
     # Sort options
     sort_by = request.GET.get('sort_by', 'created_at')
     sort_order = request.GET.get('sort_order', 'desc')
+    order_prefix = '-' if sort_order == 'desc' else ''
     
-    # Custom sorting for severity
+    # Custom sorting for severity and related names
     if sort_by == 'severity':
         severity_order = {'Critical': 1, 'High': 2, 'Medium': 3, 'Low': 4}
         if sort_order == 'desc':
             queryset = sorted(queryset, key=lambda v: severity_order.get(v.severity, 5))
         else:
             queryset = sorted(queryset, key=lambda v: severity_order.get(v.severity, 5), reverse=True)
+    elif sort_by in ['engagement_name', 'engagement__name']:
+        queryset = queryset.order_by(f"{order_prefix}engagement__name")
+    elif sort_by in ['client_name', 'engagement__client__name']:
+        queryset = queryset.order_by(f"{order_prefix}engagement__client__name")
     else:
-        order_prefix = '-' if sort_order == 'desc' else ''
         queryset = queryset.order_by(f'{order_prefix}{sort_by}')
     
     # Convert to list for pagination
@@ -613,10 +638,12 @@ def api_vulnerabilities_filtered(request):
             'engagement_name': vuln.engagement.name,
             'engagement_id': vuln.engagement.id,
             'client_name': vuln.engagement.client.name,
+            'client_id': vuln.engagement.client.id,
             'created_by_name': vuln.created_by.get_full_name(),
             'created_at': vuln.created_at.isoformat(),
             'fixed_at': vuln.fixed_at.isoformat() if vuln.fixed_at else None,
             'fixed_by_name': vuln.fixed_by.get_full_name() if vuln.fixed_by else None,
+            'expected_fix_date': vuln.expected_fix_date.isoformat() if getattr(vuln, 'expected_fix_date', None) else None,
             'severity_color': vuln.get_severity_color(),
             'severity_icon': vuln.get_severity_icon(),
             'is_overdue': vuln.is_overdue(),
