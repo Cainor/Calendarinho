@@ -34,7 +34,6 @@ Enough with crowded shared calendars, we need a better way to manage our team's 
 - **Authentication**: Django Auth + LDAP/Active Directory support
 - **Deployment**: Docker & Docker Compose
 - **Web Server**: Nginx (in production)
-- **SSL**: Built-in certificate management
 
 ## Installation Guide
 
@@ -53,7 +52,7 @@ cd Calendarinho
 docker-compose -f docker-compose.test.yml up -d --build
 ```
 
-3. Wait for 1 min for the database to be ready.
+3. Wait for 1 min (Could take longer if it is the first time) for the database to be ready.
 4. Go to http://localhost:8000 and login with the credentials:
 
 ```
@@ -282,4 +281,5 @@ python manage.py configure_ad --help
 ![alt text](https://imgur.com/R8CTRyg.png)
 
 ![alt text](https://imgur.com/qb0yj3Z.png)
+
 
